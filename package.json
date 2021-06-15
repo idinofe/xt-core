@@ -9,7 +9,8 @@
   },
   "scripts": {
     "clean": "rimraf lib",
-    "build": "npm run clean && tsc --outDir lib"
+    "build": "npm run clean && tsc --outDir lib",
+    "test": "node test/index.test.js"
   },
   "directories": {
     "lib": "lib"
