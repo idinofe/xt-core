@@ -23,7 +23,7 @@ export type WechatOption = {
   wx_appid: string
   wx_component_appid: string
   wx_scope: WxScope
-  redirect_uri: string
+  redirect_url: string
   response_type?: string
   state?: string
   hash?: string
@@ -59,15 +59,15 @@ export const genRedirectUrl = (options: AppConfig & RedirectUrlConfig) => {
  * 根据配置生成带有微信oAuth的链接
  * @param {WechatOption} options 配置
  */
-export const genOAuthurl = (options: WechatOption) => {
+export const genOAuthUrl = (options: WechatOption) => {
   const {
     wx_appid,
     wx_component_appid,
-    wx_scope, redirect_uri,
+    wx_scope, redirect_url,
     response_type = 'scope',
     state = '0',
     hash = '#wechat_redirect'
   } = options
-  const url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx_appid}&redirect_url=${redirect_uri}&response_type=${response_type}&scope=${wx_scope}&state=${state}&component_appid=${wx_component_appid}${hash}`
+  const url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx_appid}&redirect_url=${redirect_url}&response_type=${response_type}&scope=${wx_scope}&state=${state}&component_appid=${wx_component_appid}${hash}`
   return url
 }
