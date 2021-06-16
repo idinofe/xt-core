@@ -1,6 +1,6 @@
 {
-  "name": "xt-core",
-  "version": "1.0.0",
+  "name": "@dinofe/xt-core",
+  "version": "0.0.1",
   "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {
