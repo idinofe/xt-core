@@ -68,6 +68,6 @@ export const genOAuthUrl = (options: WechatOption) => {
     state = '0',
     hash = '#wechat_redirect'
   } = options
-  const url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx_appid}&redirect_url=${redirect_url}&response_type=${response_type}&scope=${wx_scope}&state=${state}&component_appid=${wx_component_appid}${hash}`
+  const url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx_appid}&redirect_url=${genRedirectUrl(redirect_url)}&response_type=${response_type}&scope=${wx_scope}&state=${state}&component_appid=${wx_component_appid}${hash}`
   return url
 }
