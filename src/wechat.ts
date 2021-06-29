@@ -5,6 +5,7 @@
  * 2.根据微信APPID、第三方商户APPID、授权域scope等拼接微信oAuth地址
  */
 
+import { isEncodeURILike } from './common'
 import { AppConfig } from './type'
 
 export enum WxScope {
@@ -63,11 +64,15 @@ export const genOAuthUrl = (options: WechatOption) => {
   const {
     wx_appid,
     wx_component_appid,
-    wx_scope, redirect_url,
+    wx_scope,
     response_type = 'scope',
     state = '0',
     hash = '#wechat_redirect'
   } = options
-  const url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx_appid}&redirect_url=${genRedirectUrl(redirect_url)}&response_type=${response_type}&scope=${wx_scope}&state=${state}&component_appid=${wx_component_appid}${hash}`
+  let { redirect_url } = options
+  if (!isEncodeURILike(redirect_url)) {
+    redirect_url = encodeURIComponent(redirect_url)
+  }
+  const url = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${wx_appid}&redirect_url=${redirect_url}&response_type=${response_type}&scope=${wx_scope}&state=${state}&component_appid=${wx_component_appid}${hash}`
   return url
 }
