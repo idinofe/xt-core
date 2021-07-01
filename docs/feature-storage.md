@@ -1,10 +1,6 @@
-# 功能特性
+# web端indexDB数据存取
 
-## 微信oAuth跳转链接生成
-
-## web端indexDB数据存取
-
-### 单例模式生成database对象
+## 单例模式生成database对象
 
 > 采用[Dexie.js](https://github.com/dfahlander/Dexie.js)进行indexDB数据库CURD
 
@@ -27,29 +23,32 @@
 ++id,type,result,createdAt,updatedAt,delFlag
 
 
-### 初始化
+## 初始化
 
 ```ts
 import Storage from '@dinofe/xt-core/storage'
-const storage = Storage.init({
+const storage = new Storage({
   name: 'demo_database',
-  version: 1
+  version: 1,
+  tables: {
+    log: '++id,timestamp,content,createdAt'
+  }
 })
 ```
 
-### 清理数据
+## 清理数据
 
 ```ts
 storage.clean()
 ```
 
-### 重置数据库
+## 重置数据库
 
 ```ts
 storage.reset(storage.log) // 重置操作日志表
 ```
 
-### 操作日志CURD
+## 操作日志CURD
 
 ```ts
 storage.log.add({
@@ -70,7 +69,7 @@ storage.log.list({
 })
 ```
 
-### 预设配置CURD
+## 预设配置CURD
 
 ```ts
 storage.config.add({
@@ -90,7 +89,7 @@ storage.config.list({
 })
 ```
 
-### 结果记录CURD
+## 结果记录CURD
 
 ```ts
 storage.result.add({

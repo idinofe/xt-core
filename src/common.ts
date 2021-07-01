@@ -19,5 +19,5 @@ export const isDef = (a: any) => {
 export const isEncodeURILike = (url: string): Boolean => {
   const reg = /%(\d)+/g
   const res = reg.test(url)
-  return res;
+  return res
 }
