@@ -4,10 +4,14 @@
   "main": "lib/index.js",
   "license": "MIT",
   "devDependencies": {
+    "@commitlint/cli": "^12.1.4",
+    "@commitlint/config-angular": "^12.1.4",
+    "husky": "^7.0.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.3.2"
   },
   "scripts": {
+    "prepare": "husky install",
     "clean": "rimraf lib && rimraf types",
     "build": "npm run clean && tsc --outDir lib --declarationDir types",
     "test": "node test/index.test.js"
