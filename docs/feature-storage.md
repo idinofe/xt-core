@@ -1,8 +1,8 @@
-# web端indexDB数据存取
+# web端indexedDB数据存取
 
 ## 单例模式生成database对象
 
-> 采用[Dexie.js](https://github.com/dfahlander/Dexie.js)进行indexDB数据库CURD
+> 采用[Dexie.js](https://github.com/dfahlander/Dexie.js)进行indexedDB数据库CURD
 
 #### 数据库设计
 
@@ -12,15 +12,21 @@
 
 操作日志表
 
-++id,timestamp,type,action,content,createdAt,updatedAt,delFlag
+| 字段 | ++id   | timestamp | type | action   | content  | createdAt | updatedAt | delFlag  |
+| ---- | ------ | --------- | ---- | -------- | -------- | --------- | --------- | -------- |
+| 说明 | 自增ID | 时间戳    | 分类 | 动作类别 | 日志内容 | 创建时间  | 更新时间  | 删除标记 |
 
 预设配置表（拆分子表）
 
-++id,appName,appId,merNo,merName,wxAppid,wxComponentId,createdAt,updatedAt,delFlag
+| 字段 | ++id   | appName  | appId  | merNo    | merName  | wxAppid   | wxComponentId | createdAt | updatedAt | delFlag  |
+| ---- | ------ | -------- | ------ | -------- | -------- | --------- | ------------- | --------- | --------- | -------- |
+| 说明 | 自增ID | 应用名称 | 应用ID | 商户编号 | 商户名称 | 微信APPID | 微信三方ID    | 创建时间  | 更新时间  | 删除标记 |
 
 结果记录表
 
-++id,type,result,createdAt,updatedAt,delFlag
+| 字段 | ++id   | type | source   | result   | createdAt | updateAt | delFlag  |
+| ---- | ------ | ---- | -------- | -------- | --------- | -------- | -------- |
+| 说明 | 自增ID | 分类 | 原始参数 | 处理结果 | 创建时间  | 更新时间 | 删除标记 |
 
 
 ## 初始化
@@ -42,7 +48,7 @@ const storage = new Storage({
 storage.clean()
 ```
 
-## 重置数据库
+## 重置数据库  废弃
 
 ```ts
 storage.reset(storage.log) // 重置操作日志表
