@@ -12,9 +12,9 @@
 
 操作日志表
 
-| 字段 | ++id   | timestamp | type | action   | content  | createdAt | updatedAt | delFlag  |
-| ---- | ------ | --------- | ---- | -------- | -------- | --------- | --------- | -------- |
-| 说明 | 自增ID | 时间戳    | 分类 | 动作类别 | 日志内容 | 创建时间  | 更新时间  | 删除标记 |
+| 字段 | ++id   | type   | action | content  | createdAt | updatedAt | delFlag  |
+| ---- | ------ | ------ | ------ | -------- | --------- | --------- | -------- |
+| 说明 | 自增ID | 时间戳 | 分类   | 动作类别 | 日志内容  | 创建时间  | 更新时间 | 删除标记 |
 
 预设配置表（拆分子表）
 
@@ -58,7 +58,6 @@ storage.reset(storage.log) // 重置操作日志表
 
 ```ts
 storage.log.add({
-  timestamp: Date.now(),
   // ...
 })
 storage.log.remove({
@@ -66,7 +65,6 @@ storage.log.remove({
 })
 storage.log.update({
   id: 1,
-  timestamp: Date.now()
   // ...
 })
 storage.log.list({
