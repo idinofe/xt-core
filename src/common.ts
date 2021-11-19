@@ -21,3 +21,8 @@ export const isEncodeURILike = (url: string): Boolean => {
   const res = reg.test(url)
   return res
 }
+
+/**
+ * 空函数
+ */
+export const noop = () => {}

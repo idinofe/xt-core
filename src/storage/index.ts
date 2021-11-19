@@ -1,18 +1,20 @@
-import Dexie from 'dexie'
+import Dexie, { PromiseExtended, Table } from 'dexie'
+
+interface DTable {
+  [k: string]: string
+}
 
 interface DStorageOptions {
   name: string            // 数据库名
   version: number         // 版本号
-  tables: {               // 数据库表
-    [k: string]: string
-  }
+  tables: DTable          // 数据库表
 }
 
-interface DStorageORM {
-  add: () => void
-  remove: () => void
-  update: () => void
-  list: () => void
+interface DStorageORM extends Table {
+  // add: () => void
+  // update: () => void
+  remove: (key: any) => PromiseExtended<void>;
+  list: (key: any) => PromiseExtended<void>;
 }
 
 type DStorageTable = Dexie.Table | {
@@ -26,7 +28,7 @@ class DStorage extends Dexie {
     this.version(options.version).stores(options.tables)
     this.configTable(options.tables)
   }
-  configTable(tables: { [k: string]: string }) {
+  configTable(tables: DTable) {
     for (const tableName in tables) {
       if (Object.prototype.hasOwnProperty.call(tables, tableName)) {
         const table = this.table(tableName)
@@ -35,11 +37,20 @@ class DStorage extends Dexie {
     }
   }
   clean() {
-    
+    for (const key in this) {
+      if (this[key].clear) {
+        this[key].clear()
+      }
+    }
   }
+  /**
+   * @deprecated
+   */
   reset() {
 
   }
 }
+
+let d = new DStorage({ name: 't', version: 1, tables: { a: '++id,timestamp,content,createdAt' } })
 
 export default DStorage
