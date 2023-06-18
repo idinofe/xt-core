@@ -21,7 +21,8 @@
     "lib": "lib"
   },
   "files": [
-    "lib"
+    "lib",
+    "types"
   ],
   "types": "types/index.d.ts",
   "dependencies": {
