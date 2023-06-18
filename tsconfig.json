@@ -5,7 +5,8 @@
     "allowJs": false,
     "types": [],
     "declaration": true,
-    "strict": true
+    "strict": true,
+    "esModuleInterop": true
   },
   "include": ["./src"],
   "exclude": ["node_modules"]

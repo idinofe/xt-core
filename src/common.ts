@@ -4,11 +4,20 @@
 
 /**
  * 是否为有效的值
- * @param a any
- * @returns boolean
+ * @param a {any}
+ * @returns {boolean}
  */
-export const isDef = (a: any) => {
+export const isDef = (a: any): boolean => {
   return typeof a !== 'undefined' && a !== undefined && a !== null
+}
+
+/**
+ * 是否为字符串
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isString = (a: any): boolean => {
+  return typeof a === 'string'
 }
 
 /**
