@@ -51,3 +51,16 @@ body:
         - Firefox
         - Edge
         - iOS Safari
+        - Node.js
+  - type: textarea
+    id: system-info
+    attributes:
+      label: System Info
+      description: Output of `npx envinfo --system --npmPackages vue --binaries --browsers`
+      render: Shell
+      placeholder: System, Binaries, Browsers
+  - type: textarea
+    id: additional-comments
+    attributes:
+      label: Any additional comments?
+      description: e.g. some background/context of how you ran into this bug.
