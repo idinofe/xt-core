@@ -3,7 +3,7 @@
     "target": "esnext",
     "module": "commonjs",
     "allowJs": false,
-    "types": [],
+    "types": ["vitest/globals"],
     "declaration": true,
     "strict": true,
     "esModuleInterop": true

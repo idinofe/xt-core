@@ -9,13 +9,16 @@
     "@types/qs": "^6.9.7",
     "husky": "^7.0.1",
     "rimraf": "^3.0.2",
-    "typescript": "^4.3.2"
+    "typescript": "^4.3.2",
+    "vitest": "^0.32.2"
   },
   "scripts": {
     "prepare": "husky install",
     "clean": "rimraf lib && rimraf types",
     "build": "npm run clean && tsc --outDir lib --declarationDir types",
-    "test": "node test/index.test.js"
+    "test": "node test/index.test.js",
+    "vitest": "vitest",
+    "vitest:run": "vitest run"
   },
   "directories": {
     "lib": "lib"
