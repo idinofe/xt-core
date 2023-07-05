@@ -5,23 +5,15 @@
  */
 
 import { isBlobUrlLike, isUrlLike } from "./common"
+import { IImageSize, SObject } from "./type"
 
 export const COPY_FAIL_MESSAGE = '当前环境不支持复制'
 
-type SObject = {
-  [k: string]: string
-}
-
-interface IImageSize {
-  width: number
-  height: number
-}
-
-function createElement(tag: string, style: SObject) {
+function createElement(tag: string, style: SObject<string>) {
   const el = document.createElement(tag)
   const keys = Object.keys(style)
   keys.forEach((key) => {
-    el.style[(key as unknown as number)] = style[(key as keyof SObject)]
+    el.style[(key as unknown as number)] = style[(key as keyof SObject<string>)]
     Object.defineProperty(el.style, key, {
       value: style[(key as any)]
     })
@@ -108,22 +100,40 @@ export const loadImage = (url: string, isBase64: boolean = false, baseUrl: strin
  */
 function _getImageSize(data: string, isBase64: boolean, baseUrl: string): Promise<IImageSize>
 function _getImageSize(data: HTMLImageElement): Promise<IImageSize>
-// function _getImageSize(data: File): Promise<IImageSize>
-// TODO: 若使用函数重载的话，这里如何使用 typeof 区分 HTMLImageElement/File/string
-function _getImageSize(data: string | HTMLImageElement, isBase64: boolean = false, baseUrl: string = ''): Promise<IImageSize> {
+function _getImageSize(data: File): Promise<IImageSize>
+function _getImageSize(data: string | HTMLImageElement | File, isBase64: boolean = false, baseUrl: string = ''): Promise<IImageSize> {
   if (typeof data === 'string') {
     return new Promise((resolve, reject) => {
-      loadImage(data, isBase64, baseUrl).then((image) => {
-        resolve({
-          width: image.width,
-          height: image.height,
-        })
-      }).catch(reject)
+      if (data.indexOf('data:image') !== 0) {
+        reject(new Error('invalid data: not start with data:image'))
+      } else {
+        loadImage(data, isBase64, baseUrl).then((image) => {
+          resolve({
+            width: image.width,
+            height: image.height,
+          })
+        }).catch(reject)
+      }
     })
-  } else {
+  } else if (data instanceof HTMLImageElement) {
     return Promise.resolve({
       width: data.width,
       height: data.height,
+    })
+  } else {
+    return new Promise((resolve, reject) => {
+      const { url, revoke } = convertBlobToUrl(data)
+      loadImage(url, false, '').then((image) => {
+        const width = image.width
+        const height = image.height
+        resolve({
+          width,
+          height,
+        })
+      }).catch(reject)
+        .finally(() => {
+          revoke()
+        })
     })
   }
 }

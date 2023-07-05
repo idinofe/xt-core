@@ -7,3 +7,12 @@ export type AppConfig = {
   basic: string
   basicImgUrl: string
 }
+
+export type SObject<D = string> = {
+  [k: string]: D
+}
+
+export interface IImageSize {
+  width: number
+  height: number
+}
