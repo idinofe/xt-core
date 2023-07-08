@@ -1,4 +1,5 @@
-import { floatDivide, floatMultiply, isEncodeURILike, toNonExponential } from "./common"
+import Big from "big.js"
+import { floatDivide, floatMultiply, isEncodeURILike, minus, plus, toNonExponential } from "./common"
 
 
 describe('isEncodeURILike', () => {
@@ -131,5 +132,83 @@ describe('floatDivide', () => {
 
   it('0 / 10 = 0', () => {
     expect(floatDivide(0, 10)).toEqual(0)
+  })
+})
+
+describe('plus', () => {
+  it("plus(a, b) instaceOf Big", () => {
+    expect(plus(1, 2)).toBeInstanceOf(Big)
+  })
+
+  it("0.1 + 0.2 = '0.3'", () => {
+    expect(plus(0.1, 0.2).toFixed(1)).toEqual('0.3')
+  })
+
+  it("0.7 + 0.1 = '0.8'", () => {
+    expect(plus(0.7, 0.1).toFixed(1)).toEqual('0.8')
+  })
+
+  it("0.2 + 0.4 = '0.6'", () => {
+    expect(plus(0.2, 0.4).toFixed(1)).toEqual('0.6')
+  })
+
+  it("'0.1' + '0.2' = '0.3'", () => {
+    expect(plus('0.1', '0.2').toFixed(1)).toEqual('0.3')
+  })
+
+  it("'0.7' + '0.1' = '0.8'", () => {
+    expect(plus('0.7', '0.1').toFixed(1)).toEqual('0.8')
+  })
+
+  it("'0.2' + '0.4' = '0.6'", () => {
+    expect(plus('0.2', '0.4').toFixed(1)).toEqual('0.6')
+  })
+
+  it("0.2 + 0.4 + 0.4 = '1.0'", () => {
+    expect(plus(0.2, 0.4).plus(0.4).toFixed(1)).toEqual('1.0')
+  })
+
+  // error
+  it("null + 0.1 throw error", () => {
+    expect(() => plus(null as any, 0.1)).toThrowError("Invalid number")
+  })
+
+  it("undefined + 0.1 throw error", () => {
+    expect(() => plus(undefined as any, 0.1)).toThrowError("Invalid number")
+  })
+})
+
+describe('minus', () => {
+  it("minus(a, b) instaceOf Big", () => {
+    expect(minus(1, 2)).toBeInstanceOf(Big)
+  })
+
+  it("1.5 - 1.2 = '0.3'", () => {
+    expect(minus(1.5, 1.2).toFixed(1)).toEqual('0.3')
+  })
+
+  it("0.3 - 0.2 = '0.1'", () => {
+    expect(minus(0.3, 0.2).toFixed(1)).toEqual('0.1')
+  })
+
+  it("'1.5' - '1.2' = '0.3'", () => {
+    expect(minus('1.5', '1.2').toFixed(1)).toEqual('0.3')
+  })
+
+  it("'0.3' - '0.2' = '0.1'", () => {
+    expect(minus('0.3', '0.2').toFixed(1)).toEqual('0.1')
+  })
+
+  it("0.3 - 0.2 - 0.1 = '0.0'", () => {
+    expect(minus(0.3, 0.2).minus(0.1).toFixed(1)).toEqual('0.0')
+  })
+
+  // error
+  it("null - 0.1 throw error", () => {
+    expect(() => minus(null as any, 0.1)).toThrowError("Invalid number")
+  })
+
+  it("undefined - 0.1 throw error", () => {
+    expect(() => minus(undefined as any, 0.1)).toThrowError("Invalid number")
   })
 })
