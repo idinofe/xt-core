@@ -31,6 +31,8 @@
   ],
   "types": "types/index.d.ts",
   "dependencies": {
+    "@types/big.js": "^6.1.6",
+    "big.js": "^6.2.1",
     "dexie": "^3.0.3",
     "qs": "^6.11.2"
   }

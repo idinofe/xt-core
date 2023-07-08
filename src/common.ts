@@ -1,3 +1,5 @@
+import Big from 'big.js'
+
 /**
  * 核心库通用公共方法
  */
@@ -114,7 +116,7 @@ export const floatMultiply = (arg1: number | string, arg2: number | string): nul
 }
 
 /**
- * 两浮点数相除（修复了 js 触发精度丢失问题）
+ * 两浮点数相除（修复了 js 除法精度丢失问题）
  * @param {string | number} arg1 被除数
  * @param {string | number} arg2 除数
  */
@@ -151,4 +153,26 @@ export const floatDivide = (arg1: string | number, arg2: string | number): null 
   const result = floatMultiply((n1 / n2), Math.pow(10, r2 - r1))
   return result
   // return (n1 / n2) * Math.pow(10, r2 - r1);   // 直接乘法还是会出现精度问题
+}
+
+/**
+ * 两数相加（修复了 js 加法精度丢失问题）
+ * 基于 big.js 实现
+ * @param arg1 {string | number} arg1 加数 1
+ * @param arg2 {string | number} arg2 加数 2
+ * @returns Big
+ */
+export const plus = (arg1: string | number, arg2: string | number): Big => {
+  return new Big(arg1).plus(arg2)
+}
+
+/**
+ * 两数相减（修复了 js 减法精度丢失问题）
+ * 基于 big.js 实现
+ * @param arg1 {string | number} arg1 减数 1
+ * @param arg2 {string | number} arg2 减数 2
+ * @returns Big
+ */
+export const minus = (arg1: string | number, arg2: string | number): Big => {
+  return new Big(arg1).minus(arg2)
 }
