@@ -3,6 +3,10 @@
   "version": "0.0.5",
   "main": "lib/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idinotes/xt-core.git"
+  },
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-angular": "^12.1.4",
@@ -35,5 +39,8 @@
     "big.js": "^6.2.1",
     "dexie": "^3.0.3",
     "qs": "^6.11.2"
+  },
+  "optionalDependencies": {
+    "esbuild-android-arm64": "^0.15.18"
   }
 }
