@@ -39,5 +39,8 @@
     "big.js": "^6.2.1",
     "dexie": "^3.0.3",
     "qs": "^6.11.2"
+  },
+  "optionalDependencies": {
+    "esbuild-android-arm64": "^0.15.18"
   }
 }
