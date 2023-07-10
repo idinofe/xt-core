@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { floatDivide, floatMultiply, isEncodeURILike, minus, plus, toNonExponential } from "./common"
+import { divide, floatDivide, floatMultiply, isEncodeURILike, minus, multiply, plus, toNonExponential } from "./common"
 
 
 describe('isEncodeURILike', () => {
@@ -132,6 +132,91 @@ describe('floatDivide', () => {
 
   it('0 / 10 = 0', () => {
     expect(floatDivide(0, 10)).toEqual(0)
+  })
+})
+
+describe('divide/div', () => {
+  it ('100 / 100 = 1', () => {
+    expect(divide(100, 100).toNumber()).toEqual(1)
+  })
+
+  // in JS：0.7/100=0.006999999999999999
+  it('0.7 / 100 = 0.007', () => {
+    expect(divide(0.7, 100).toNumber()).toEqual(0.007)
+  })
+
+  it('0.3 / 0.1 = 3', () => {
+    expect(divide(0.3, 0.1).toNumber()).toEqual(3)
+  })
+
+  it('0.69 / 10 = 0.069', () => {
+    expect(divide(0.69, 10).toNumber()).toEqual(0.069)
+  })
+
+  it('0.7 / 0 = null', () => {
+    expect(() => divide(0.7, 0)).toThrowError('Division by zero')
+  })
+
+  it('0.7 / null = null', () => {
+    expect(() => divide(0.7, null as any)).toThrowError('Invalid number')
+  })
+
+  it('0 / 0 = null', () => {
+    expect(() => divide(0, 0)).toThrowError('Division by zero')
+  })
+
+  it('0 / 10 = 0', () => {
+    expect(divide(0, 10).toNumber()).toEqual(0)
+  })
+})
+
+describe('multiply/times', () => {
+  it(' 1 * 100 = 100', () => {
+    expect(multiply(1, 100).toNumber()).toEqual(100)
+  })
+
+  it('0.7 * 100 = 70.00', () => {
+    expect(multiply(0.7, 100).toNumber()).toEqual(70)
+  })
+
+  it('19.9 * 100 = 1990', () => {
+    expect(multiply(19.9, 100).toNumber()).toEqual(1990)
+  })
+
+  it('1306377.64 * 100 = 130637764', () => {
+    expect(multiply(1306377.64, 100).toNumber()).toEqual(130637764)
+  })
+
+  it('1306377.64 * 10 * 10 = 130637764', () => {
+    expect( multiply(multiply(1306377.64, 10), 10).toNumber()).toEqual(130637764)
+  })
+
+  it('0.7 * 180 = 126', () => {
+    expect(multiply(0.7, 180).toNumber()).toEqual(126)
+  })
+
+  it('9.7 * 100 = 970', () => {
+    expect(multiply(9.7, 100).toNumber()).toEqual(970)
+  })
+
+  it('39.7 * 100 = 3970', () => {
+    expect(multiply(39.7, 100).toNumber()).toEqual(3970)
+  })
+
+  it('0 * 0.7 = 0', () => {
+    expect(multiply(0, 0.7).toNumber()).toEqual(0)
+  })
+
+  it('9.7 * 0 = 0', () => {
+    expect(multiply(9.7, 0).toNumber()).toEqual(0)
+  })
+
+  it('9.7 * null = null', () => {
+    expect(() => multiply(9.7, null as any).toNumber()).toThrowError('Invalid number')
+  })
+
+  it('0 * null = null', () => {
+    expect(() => multiply(0, null as any)).toThrowError('Invalid number')
   })
 })
 
