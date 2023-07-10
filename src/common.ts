@@ -1,4 +1,8 @@
-import Big from 'big.js'
+import _Big from 'big.js'
+
+import type TBig from 'big.js'
+
+export const Big = _Big
 
 /**
  * 核心库通用公共方法
@@ -156,13 +160,39 @@ export const floatDivide = (arg1: string | number, arg2: string | number): null 
 }
 
 /**
+ * 两浮点数相乘（修复了 js 乘法精度丢失问题）
+ * 基于 big.js 实现
+ * @param arg1 数字 1
+ * @param arg2 数字 2
+ * @returns Big
+ */
+export const times = (arg1: number | string | TBig, arg2: number | string | TBig): TBig => {
+  return new Big(arg1).times(arg2)
+}
+
+export const multiply = times
+
+/**
+ * 两浮点数相除（修复了 js 除法精度丢失问题）
+ * 基于 big.js 实现
+ * @param arg1 被除数
+ * @param arg2 除数
+ * @returns Big
+ */
+export const div = (arg1: number | string | TBig, arg2: number | string | TBig): TBig => {
+  return new Big(arg1).div(arg2)
+}
+
+export const divide = div
+
+/**
  * 两数相加（修复了 js 加法精度丢失问题）
  * 基于 big.js 实现
  * @param arg1 {string | number} arg1 加数 1
  * @param arg2 {string | number} arg2 加数 2
  * @returns Big
  */
-export const plus = (arg1: string | number, arg2: string | number): Big => {
+export const plus = (arg1: string | number | TBig, arg2: string | number | TBig): TBig => {
   return new Big(arg1).plus(arg2)
 }
 
@@ -173,6 +203,6 @@ export const plus = (arg1: string | number, arg2: string | number): Big => {
  * @param arg2 {string | number} arg2 减数 2
  * @returns Big
  */
-export const minus = (arg1: string | number, arg2: string | number): Big => {
+export const minus = (arg1: string | number | TBig, arg2: string | number | TBig): TBig => {
   return new Big(arg1).minus(arg2)
 }
