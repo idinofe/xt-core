@@ -47,7 +47,7 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
           registry-url: https://npm.pkg.github.com/
-          scope: idinotes
+          scope: dinofe
       - run: npm ci
       - run: npm publish
         env:
