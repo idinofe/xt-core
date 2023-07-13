@@ -1,5 +1,10 @@
 # xt-core
 
+![npm (scoped)](https://img.shields.io/npm/v/%40dinofe/xt-core)
+![npm](https://img.shields.io/npm/dm/%40dinofe/xt-core)
+![GitHub contributors](https://img.shields.io/github/contributors/idinotes/xt-core)
+
+
 业务中常用工具方法的核心库，包括：微信网页授权链接构建、dexie 数据库操作等。
 
 # 安装
