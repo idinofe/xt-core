@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: https://registry.npmjs.org/
+      - run: npm ci
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
@@ -43,6 +44,7 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: https://npm.pkg.github.com/
+      - run: npm ci
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
