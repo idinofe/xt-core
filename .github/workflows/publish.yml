@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
       - run: npm ci
       - run: npm run build
 
@@ -26,6 +27,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
           registry-url: https://registry.npmjs.org/
       - run: npm ci
       - run: npm publish
@@ -43,7 +45,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18.x'
+          cache: 'npm'
           registry-url: https://npm.pkg.github.com/
+          scope: idinotes
       - run: npm ci
       - run: npm publish
         env:
