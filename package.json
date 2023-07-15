@@ -11,6 +11,7 @@
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-angular": "^12.1.4",
     "@types/koa": "^2.13.6",
+    "@types/koa-router": "^7.4.4",
     "@types/qs": "^6.9.7",
     "@vitest/ui": "^0.32.2",
     "husky": "^7.0.1",

@@ -3,43 +3,30 @@ import fs from 'fs'
 import path from 'path'
 import { createHttp } from './http'
 import { getFreePort } from '../test/port'
-// import createServer from '../test/server'
-import { createApp } from '../test/service'
+import { createApp, startServer } from '../test/service'
 
-import axios from 'axios'
+// 创建一个本地的接口服务，用于真实的接口逻辑测试
+let port: number
+let baseURL: string
+let app: any = null
+let server: any = null
 
-const port = 3000
-const baseURL = `http://127.0.0.1:${port}`
+beforeAll(async () => {
+  port = await getFreePort() as number
+  app = await createApp()
+  server = await startServer(port, app)
+  baseURL = `http://127.0.0.1:${port}`
+  // server = await createServer(port, MOCK1)
+  console.log('server created at ', baseURL)
+})
 
-const startServer = (port: number, app: any) => {
+afterAll(() => {
   return new Promise((resolve) => {
-    const server = http.createServer(app.callback())
-    server.listen(port, 'localhost', () => {
-      resolve(server)
+    (server as any).close(() => {
+      resolve()
     })
   })
-}
-
-// TODO: 创建一个本地的接口服务，用于真实的接口逻辑测试
-// const MOCK1 = { returnCode: 'SUCCESS', returnDes: 'ok', data: { a: { b: [1, 2, 3] } } }
-// let port: any = null
-// let app: any = null
-// let server: any = null
-// beforeAll(async () => {
-//   port = await getFreePort()
-//   app = await createApp(port, MOCK1)
-//   server = await startServer(port, app)
-//   // server = await createServer(port, MOCK1)
-//   console.log('server created at port ', port)
-// })
-
-// afterAll(() => {
-//   return new Promise((resolve) => {
-//     (server as any).close(() => {
-//       resolve()
-//     })
-//   })
-// })
+})
 
 // 配置
 describe('check config', () => {
@@ -95,6 +82,29 @@ describe('response success', () => {
     })
   })
 
+  it('normal data with returnCode = SUCCESS data is number, noStatusTransform', () => {
+
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
+
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+
+    const http = createHttp({ baseURL, onFail, onInvalidToken, noStatusTransform: true })
+    return http.post('/number/success').then(response => {
+      // console.log(response)
+      expect(response.ok).toEqual(true)
+      expect(onFail).not.toHaveBeenCalled()
+      expect(onInvalidToken).not.toHaveBeenCalled()
+      expect(response.success).toBeUndefined()
+      expect(response.code).toBeUndefined()
+      expect(response.msg).toBeUndefined()
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', data: 123 })
+    })
+  })
+
   it('normal data with returnCode = SUCCESS data is json', () => {
     const http = createHttp({ baseURL })
     return http.post('/json/success').then(response => {
@@ -108,14 +118,33 @@ describe('response success', () => {
     })
   })
 
+  it('normal data with returnCode = SUCCESS data is json, noStatusTransform', () => {
+
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
+
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+
+    const http = createHttp({ baseURL, onFail, onInvalidToken, noStatusTransform: true })
+    return http.post('/json/success').then(response => {
+      // console.log(response)
+      expect(response.ok).toEqual(true)
+      expect(onFail).not.toHaveBeenCalled()
+      expect(onInvalidToken).not.toHaveBeenCalled()
+      expect(response.success).toBeUndefined()
+      expect(response.code).toBeUndefined()
+      expect(response.msg).toBeUndefined()
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', data: { foo: 'bar' } })
+    })
+  })
+
   it('upload with returnCode = SUCCESS data is json', () => {
     const http = createHttp({ baseURL })
     const file = fs.createReadStream(path.resolve(__dirname, '../test/koa/file01.txt'))
     http.setHeader('Content-Type', 'multipart/form-data')
-
-    // afterAll(() => {
-    //   console.log(http.axiosInstance)
-    // })
     
     return http.post('/file/upload/success', { file }).then(response => {
       expect(response.ok).toEqual(true)
@@ -123,6 +152,33 @@ describe('response success', () => {
       expect(response.success).toEqual(true)
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
+      expect((response.data as any).returnCode).toEqual('SUCCESS')
+      expect((response.data as any).returnDes).toEqual('')
+      expect((response.data as any).data).not.toBeUndefined()
+    })
+  })
+
+  it('upload with returnCode = SUCCESS data is json, noStatusTransform', () => {
+
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
+
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+
+    const http = createHttp({ baseURL, onFail, onInvalidToken, noStatusTransform: true })
+    const file = fs.createReadStream(path.resolve(__dirname, '../test/koa/file01.txt'))
+    http.setHeader('Content-Type', 'multipart/form-data')
+    
+    return http.post('/file/upload/success', { file }).then(response => {
+      expect(response.ok).toEqual(true)
+      expect(onFail).not.toHaveBeenCalled()
+      expect(onInvalidToken).not.toHaveBeenCalled()
+      expect(response.success).toBeUndefined()
+      expect(response.code).toBeUndefined()
+      expect(response.msg).toBeUndefined()
       expect((response.data as any).returnCode).toEqual('SUCCESS')
       expect((response.data as any).returnDes).toEqual('')
       expect((response.data as any).data).not.toBeUndefined()
@@ -145,6 +201,44 @@ describe('response fail', () => {
     })
   })
 
+  it('normal data with returnCode = FAIL data is null onFail, onInvalidToken', () => {
+
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
+
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+    
+    const http = createHttp({ baseURL, onFail, onInvalidToken })
+    return http.post('/json/fail').then(response => {
+      // console.log(response)
+      expect(response.success).toEqual(false)
+      expect(onFail).toBeCalledTimes(1)
+      expect(onFail).toHaveBeenLastCalledWith('参数校验未通过', response)
+      expect(onInvalidToken).not.toHaveBeenCalled()
+    })
+  })
+
+  it('normal data with returnCode = FAIL data is null noFail', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
+
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+    
+    const http = createHttp({ baseURL, onFail, onInvalidToken, noFail: true })
+    return http.post('/json/fail').then(response => {
+      // console.log(response)
+      expect(response.success).toEqual(false)
+      expect(onFail).not.toHaveBeenCalled()
+      expect(onInvalidToken).not.toHaveBeenCalled()
+    })
+  })
+
   it('normal data with returnCode = ERR001 data is null', () => {
     const http = createHttp({ baseURL })
     return http.post('/json/fail/ERR001').then(response => {
@@ -158,9 +252,42 @@ describe('response fail', () => {
     })
   })
 
-  // it('normal data with returnCode = INVALID_TOKEN data is null', () => {
+  it('normal data with returnCode = ERR001 data is null onFail, onInvalidToken', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
 
-  // })
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+
+    const http = createHttp({ baseURL, onFail, onInvalidToken })
+    return http.post('/json/fail/ERR001').then(response => {
+      // console.log(response)
+      expect(response.success).toEqual(false)
+      expect(onFail).toHaveBeenCalledTimes(1)
+      expect(onFail).toHaveBeenCalledWith('业务处理失败', response)
+      expect(onInvalidToken).not.toHaveBeenCalled()
+    })
+  })
+
+  it('normal data with returnCode = ERR001 data is null noFail', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    onFail.mockImplementation((msg) => msg)
+
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+
+    const http = createHttp({ baseURL, onFail, onInvalidToken, noFail: true })
+    return http.post('/json/fail/ERR001').then(response => {
+      // console.log(response)
+      expect(response.success).toEqual(false)
+      expect(onFail).not.toHaveBeenCalled()
+      expect(onInvalidToken).not.toHaveBeenCalled()
+    })
+  })
 })
 
 // 无效 token 拦截
@@ -247,3 +374,29 @@ describe('token intercept', () => {
 })
 
 // 接口异常
+
+describe('request error', () => {
+  it('response status 404', () => {
+    const http = createHttp({ baseURL })
+    return http.get('/number/404').then(response => {
+      // console.log(response)
+      expect(response.status).toEqual(404)
+      expect(response.data).toEqual('Not Found')
+      expect(response.success).toEqual(false)
+      expect(response.code).toBeUndefined()
+      expect(response.msg).toBeUndefined()
+    })
+  })
+
+  it('response status 500', () => {
+    const http = createHttp({ baseURL })
+    return http.get('/number/500').then(response => {
+      // console.log(response)
+      expect(response.status).toEqual(500)
+      expect(response.data).toEqual('Internal Server Error')
+      expect(response.success).toEqual(false)
+      expect(response.code).toBeUndefined()
+      expect(response.msg).toBeUndefined()
+    })
+  })
+})

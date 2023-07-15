@@ -1,13 +1,12 @@
-import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, ApiResponse } from 'apisauce'
+import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, ApiResponse, PROBLEM_CODE } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 
 interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
-  isInvalidToken?: (data: any) => boolean // 判定状态码为无效 token 的钩子函数
-  // TODO: any类型优化为泛型
+  isInvalidToken?: (data: any, response: XApiResponse<any, any>) => boolean // 判定状态码为无效 token 的钩子函数
   onInvalidToken?: (response: XApiResponse<any, any>) => void // 无效 token 的钩子函数
   noFail?: boolean // 不开启业务处理失败的校验
-  onFail?: (msg: string, response: ApiResponse<any, any>) => void // 业务处理失败的钩子函数
+  onFail?: (msg: FailMessageType, response: XApiResponse<any, any>) => void // 业务处理失败的钩子函数
 }
 
 interface ApiCheckResponse {
@@ -15,6 +14,8 @@ interface ApiCheckResponse {
   code?: string
   msg?: string
 }
+
+export type FailMessageType = PROBLEM_CODE | string | undefined
 
 export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T, T>> & {
   success?: boolean
@@ -62,11 +63,11 @@ const defaultResponseTransform: XResponseTransform = (response) => {
   }
 }
 
-const defaultIsInvalidToken = (data: any): boolean => {
+const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
   return data.returnCode === 'INVALID_TOKEN'
 }
 
-const defaultTokenCheckTransform: ResponseTransform = (response) => {
+const defaultTokenCheckTransform: XResponseTransform = (response) => {
   if (!response.ok || !response.data) { return }
 
   // 判断是否有传递isInvalidToken，没有则使用默认的defaultIsInvalidToken
@@ -75,7 +76,7 @@ const defaultTokenCheckTransform: ResponseTransform = (response) => {
   if (!config.isInvalidToken) {
     invalid = defaultIsInvalidToken(response.data)
   } else {
-    invalid = config.isInvalidToken(response.data)
+    invalid = config.isInvalidToken(response.data, response)
   }
 
   // 根据invalid调用 token 失效处理的钩子
@@ -121,7 +122,7 @@ const defaultFailTransform: ResponseTransform = (response) => {
   }
 }
 
-const getCustomConfig = (response: ApiResponse<any, any>) => {
+const getCustomConfig = (response: XApiResponse<any, any>) => {
   return response.ok ? response.config as CustomAxiosRequestConfig : null
 }
 

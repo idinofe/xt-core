@@ -1,3 +1,6 @@
+/**
+ * 本地调试用，单元测试使用的是service.ts
+ */
 const Koa = require('koa');
 const Router = require('koa-router');
 const { koaBody } = require('koa-body');
