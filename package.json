@@ -1,7 +1,6 @@
 {
   "name": "@dinofe/xt-core",
   "version": "0.0.12",
-  "main": "lib/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,6 +13,7 @@
     "@types/koa-router": "^7.4.4",
     "@types/qs": "^6.9.7",
     "@vitest/ui": "^0.32.2",
+    "father": "^4.2.3",
     "husky": "^7.0.1",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
@@ -24,21 +24,32 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "clean": "rimraf lib && rimraf types",
-    "build": "npm run clean && tsc --outDir lib --declarationDir types",
+    "build": "father build",
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
     "vitest:ui": "vitest --ui"
   },
+  "sideEffects": false,
   "directories": {
     "lib": "lib"
   },
   "files": [
-    "lib",
-    "types"
+    "dist"
   ],
-  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "default": {
+        "require": "./dist/cjs/index.js",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./*": "./dist/*"
+  },
+  "module": "./dist/esm/index",
+  "main": "./dist/cjs/index",
+  "unpkg": "./dist/umd/xt-core.min.js",
+  "jsdelivr": "./dist/umd/xt-core.min.js",
   "dependencies": {
     "@types/big.js": "^6.1.6",
     "apisauce": "^3.0.1",

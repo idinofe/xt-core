@@ -1,5 +1,5 @@
 const assert = require('assert').strict
-const { genRedirectUrl, genOAuthUrl, decodeOAuthUrl } = require('../lib')
+const { genRedirectUrl, genOAuthUrl, decodeOAuthUrl } = require('../dist/cjs/')
 
 const options = {
   appId: '12345678',

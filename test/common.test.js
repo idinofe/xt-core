@@ -1,5 +1,5 @@
 const assert = require('assert').strict
-const { isEncodeURILike } = require('../lib/common')
+const { isEncodeURILike } = require('../dist/cjs/common')
 
 /**
  * isEncodeURILike
