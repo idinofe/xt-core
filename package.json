@@ -36,15 +36,6 @@
     "dist",
     "types"
   ],
-  "exports": {
-    ".": {
-      "default": {
-        "require": "./dist/cjs/index.js",
-        "default": "./dist/cjs/index.js"
-      }
-    },
-    "./*": "./dist/*"
-  },
   "types": "./types/index.d.ts",
   "module": "./dist/esm/index",
   "main": "./dist/cjs/index",
