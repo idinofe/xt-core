@@ -24,18 +24,17 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build": "father build",
+    "build:types": "npx tsc --declaration --outDir types",
+    "build": "npm run build:types && father build",
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
     "vitest:ui": "vitest --ui"
   },
   "sideEffects": false,
-  "directories": {
-    "lib": "lib"
-  },
   "files": [
-    "dist"
+    "dist",
+    "types"
   ],
   "exports": {
     ".": {
@@ -46,6 +45,7 @@
     },
     "./*": "./dist/*"
   },
+  "types": "./types/index.d.ts",
   "module": "./dist/esm/index",
   "main": "./dist/cjs/index",
   "unpkg": "./dist/umd/xt-core.min.js",
