@@ -24,7 +24,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build:types": "npx tsc --declaration --outDir types",
+    "build:types": "npx tsc --declaration --outDir types --emitDeclarationOnly",
     "build": "npm run build:types && father build",
     "test": "node test/index.test.js",
     "vitest": "vitest",
@@ -36,6 +36,23 @@
     "dist",
     "types"
   ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    },
+    "./*": {
+      "types": "./types/*.d.ts",
+      "import": "./dist/esm/*.js",
+      "default": "./dist/cjs/*.js"
+    },
+    "./storage/*": {
+      "types": "./types/storage/*.d.ts",
+      "import": "./dist/esm/storage/*.js",
+      "default": "./dist/cjs/storage/*.js"
+    }
+  },
   "types": "./types/index.d.ts",
   "module": "./dist/esm/index",
   "main": "./dist/cjs/index",

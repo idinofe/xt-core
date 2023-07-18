@@ -15,4 +15,10 @@ export default defineConfig({
     deps: {}
   },
   sourcemap: true,
+  targets: {
+    ie: 11,
+    chrome: 65,
+    node: 12,
+  },
+  platform: 'browser',
 });
