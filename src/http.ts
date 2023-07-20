@@ -1,5 +1,6 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, ApiResponse, PROBLEM_CODE } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
+import { encrypt, decrypt, isEncryptedData } from 'decrypt-core'
 
 interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
@@ -7,12 +8,20 @@ interface CustomConfig {
   onInvalidToken?: (response: XApiResponse<any, any>) => void // 无效 token 的钩子函数
   noFail?: boolean // 不开启业务处理失败的校验
   onFail?: (msg: FailMessageType, response: XApiResponse<any, any>) => void // 业务处理失败的钩子函数
+  useEncrypt?: boolean // 是否对接口数据进行加密
+  encryptVersion?: EncryptVersion // 加密方法版本（在 useEncrypt 为 true 时才生效）
+  appKey?: string // 加密秘钥（在 useEncrypt 为 true 时比传）
 }
 
 interface ApiCheckResponse {
   success?: boolean
   code?: string
   msg?: string
+}
+
+export const enum EncryptVersion {
+  v1 = 'v1',
+  v2 = 'v2'
 }
 
 export type FailMessageType = PROBLEM_CODE | string | undefined
@@ -22,6 +31,10 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
   code?: string
   msg?: string
 }
+
+// export type XApiRequest = 
+
+export type XRequestTransform = (request: any ) => void
 
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
@@ -44,6 +57,37 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
   patch: <T, U = T>(url: string, data?: any, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
   link: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
   unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
+}
+
+const defaultEncryptTransform: XResponseTransform = (response) => {
+
+}
+
+const defaultDecryptTransform: XResponseTransform = (response) => {
+  const config = getCustomConfig(response) as CustomAxiosRequestConfig
+  if (!config.useEncrypt) { return }
+  const encryptVersion = config.encryptVersion || EncryptVersion.v1
+  const appKey = config.appKey
+  const data = response.data
+  // TODO: 校验encryptVersion/appKey
+  if (!appKey) { return }
+  if (!isEncryptedData(data)) {
+    console.error('返回数据非加密数据格式，不做处理')
+    return
+  }
+  let _data = null
+  let success = false
+  try {
+    decrypt(data, appKey)
+    success = true
+  } catch (e) {
+    success = false
+    console.log(e)
+    // TODO: 解密失败错误处理
+  }
+  if (success) {
+    response.data = _data
+  }
 }
 
 /**
@@ -132,7 +176,9 @@ const getCustomConfig = (response: XApiResponse<any, any>) => {
  * @returns ApisauceInstance
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
-  let instance = create(config)
+  const instance = create(config)
+  config.useEncrypt && instance.addRequestTransform(defaultEncryptTransform)
+  config.useEncrypt && instance.addResponseTransform(defaultDecryptTransform)
   instance.addResponseTransform(defaultTokenCheckTransform)
   !config.noFail && instance.addResponseTransform(defaultFailTransform)
   !config.noStatusTransform && instance.addResponseTransform(defaultResponseTransform)
