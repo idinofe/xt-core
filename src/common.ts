@@ -27,6 +27,15 @@ export const isString = (a: any): boolean => {
 }
 
 /**
+ * 是否为 Promise 对象
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isPromise = (a: any): boolean => {
+  return typeof a === 'object' && typeof a.then === 'function'
+}
+
+/**
  * 判断给定的 URI 是否是 URIEncode 过的
  * @param url 输入 URL
  * @returns 是否encoded过的 URI

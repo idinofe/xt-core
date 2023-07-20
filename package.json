@@ -43,7 +43,7 @@
     "@types/big.js": "^6.1.6",
     "apisauce": "^3.0.1",
     "big.js": "^6.2.1",
-    "decrypt-core": "^1.2.0",
+    "decrypt-core": "^1.2.1",
     "dexie": "^3.0.3",
     "qs": "^6.11.2"
   },

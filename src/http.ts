@@ -1,6 +1,7 @@
-import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, ApiResponse, PROBLEM_CODE } from 'apisauce'
+import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
-import { encrypt, decrypt, isEncryptedData } from 'decrypt-core'
+import { encrypt, decrypt, isEncryptedData, DataType, createSign } from 'decrypt-core'
+import { isPromise } from './common'
 
 interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
@@ -9,8 +10,11 @@ interface CustomConfig {
   noFail?: boolean // 不开启业务处理失败的校验
   onFail?: (msg: FailMessageType, response: XApiResponse<any, any>) => void // 业务处理失败的钩子函数
   useEncrypt?: boolean // 是否对接口数据进行加密
+  useSign?: boolean // 是否对接口数据进行验签
   encryptVersion?: EncryptVersion // 加密方法版本（在 useEncrypt 为 true 时才生效）
   appKey?: string // 加密秘钥（在 useEncrypt 为 true 时比传）
+  commonParams?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用参数，会拼接到接口调用时传递的参数上
+  commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用 Header，自动拼接到 Header 上
 }
 
 interface ApiCheckResponse {
@@ -34,7 +38,9 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
 
 // export type XApiRequest = 
 
-export type XRequestTransform = (request: any ) => void
+export type XRequestTransform = (request: CustomAxiosRequestConfig) => void
+
+export type XAsyncRequestTransform = ( request: CustomAxiosRequestConfig) => Promise<void> | ((request: CustomAxiosRequestConfig) => Promise<void>)
 
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
@@ -59,35 +65,143 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
   unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
-const defaultEncryptTransform: XResponseTransform = (response) => {
+const defaultEncryptTransform: XRequestTransform = (request) => {
+  const useEncrypt = request.useEncrypt
+  const encryptVersion = request.encryptVersion || EncryptVersion.v1
+  const appKey = request.appKey
+  const useSign = !!request.useSign
+  
+  if (!useEncrypt) {
+    return
+  }
 
+  if (useEncrypt && !appKey) {
+    console.error('加密秘钥未提供，不做处理')
+    return
+  }
+
+  const encryptV1 = <T = any>(data: T, key: string, useSign: boolean): T  => {
+    if (typeof data === 'undefined') {
+      return data
+    }
+    const ed = encrypt(data as DataType, key)
+    return ed as T
+  }
+
+  const encryptV2 = <T = any>(data: T, key: string, useSign: boolean): T => {
+    const ed = encrypt(data as DataType, key)
+    if (useSign) {
+      (ed as any).sign = createSign(ed as any, key)
+    }
+    return {
+      body: ed,
+      encodeMethod: '1',
+      signMethod: '1'
+    } as T
+  }
+
+  request.data = encryptVersion === EncryptVersion.v1 ? encryptV1(request.data, appKey as any, useSign) : encryptV2(request.data, appKey as any, useSign)
+
+  if (encryptVersion === EncryptVersion.v1) {
+    if (request.headers) {
+      (request.headers as any).set('encodeMethod', '1')
+      (request.headers as any).set('signMethod', '1')
+      (request.headers as any).set('sign', createSign(request.data, appKey as any))
+    }
+  }
+}
+
+const defaultCommonParamsTransform: XAsyncRequestTransform = async (request) => {
+  const commonParams = request.commonParams
+  const useEncrypt = request.useEncrypt
+  const encryptVersion = request.encryptVersion || EncryptVersion.v1
+
+  if (!commonParams) {
+    return
+  }
+  const p = commonParams(request)
+  const params = isPromise(p) ? await p : p
+
+  if (useEncrypt) {
+    if (encryptVersion === EncryptVersion.v1) {
+      // 加密方式一：commonParams 无效
+    } else if (encryptVersion === EncryptVersion.v2) {
+      request.data = {
+        ...request.data,
+        ...params,
+      }
+    }
+  } else {
+    request.data = {
+      ...request.data,
+      ...params
+    }
+  }
+}
+
+const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request) => {
+  const commonHeaders = request.commonHeaders
+
+  if (!commonHeaders) {
+    return
+  }
+  
+  const p = commonHeaders(request)
+  const params = isPromise(p) ? await p : p
+  const headerKeys = Object.keys(params)
+
+  if (request.headers !== null && request.headers !== undefined) {
+    headerKeys.forEach(key => {
+      (request.headers as any).set(key, params[key])
+    })
+  }
 }
 
 const defaultDecryptTransform: XResponseTransform = (response) => {
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
   if (!config.useEncrypt) { return }
+
   const encryptVersion = config.encryptVersion || EncryptVersion.v1
   const appKey = config.appKey
   const data = response.data
+
   // TODO: 校验encryptVersion/appKey
   if (!appKey) { return }
   if (!isEncryptedData(data)) {
     console.error('返回数据非加密数据格式，不做处理')
     return
   }
-  let _data = null
-  let success = false
-  try {
-    decrypt(data, appKey)
-    success = true
-  } catch (e) {
-    success = false
-    console.log(e)
-    // TODO: 解密失败错误处理
+
+  const decryptV1 = <T = any>(data: T, key: string): T => {
+    if (typeof data !== 'string') {
+      return data
+    }
+    const de = decrypt(data, key)
+    if (!de) {
+      // TODO: 解密失败
+      return data
+    } else {
+      return de
+    }
   }
-  if (success) {
-    response.data = _data
+
+  const decryptV2 = <T = any>(data: T, key: string): T => {
+    if (typeof (data as any).body !== 'string') {
+      return data
+    }
+    const de = decrypt((data as any).body, key)
+    if (!de) {
+      // TODO: 解密失败
+      return data
+    } else {
+      return {
+        ...data,
+        body: de
+      }
+    }
   }
+
+  response.data = encryptVersion === EncryptVersion.v1 ? decryptV1(data, appKey) : decryptV2(data, appKey)
 }
 
 /**
@@ -178,9 +292,29 @@ const getCustomConfig = (response: XApiResponse<any, any>) => {
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
   config.useEncrypt && instance.addRequestTransform(defaultEncryptTransform)
+  config.commonParams && instance.addAsyncRequestTransform(defaultCommonParamsTransform)
+  config.commonHeaders && instance.addAsyncRequestTransform(defaultCommonHeadersTrasform)
   config.useEncrypt && instance.addResponseTransform(defaultDecryptTransform)
   instance.addResponseTransform(defaultTokenCheckTransform)
   !config.noFail && instance.addResponseTransform(defaultFailTransform)
   !config.noStatusTransform && instance.addResponseTransform(defaultResponseTransform)
   return instance as XApisauceInstance
+}
+
+/**
+ * @deprecated
+ * @param param0 
+ * @param config 
+ * @returns 
+ */
+export function createBaseHttp({ encrypt }: {
+  encrypt: boolean
+}, config: HttpConfig): XApisauceInstance {
+  const instance = createHttp({
+    ...config,
+    useEncrypt: encrypt,
+    useSign: encrypt,
+    encryptVersion: EncryptVersion.v2
+  })
+  return instance
 }
