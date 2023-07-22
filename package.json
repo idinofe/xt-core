@@ -25,7 +25,7 @@
   "scripts": {
     "prepare": "husky install",
     "clean": "rimraf lib && rimraf types",
-    "build": "npm run clean && tsc --outDir lib --declarationDir types",
+    "build": "npm run clean && tsc --outDir lib --declarationDir types -p tsconfig.build.json",
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
