@@ -5,6 +5,8 @@ import { koaBody } from 'koa-body'
 import http from 'http'
 import path from 'path'
 import { decrypt, encrypt } from 'decrypt-core'
+import { isDef, isString } from '../src/common'
+import { RETURN_CODE_FAIL, RETURN_CODE_SUCCESS } from '../src'
 
 const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
 
@@ -112,12 +114,53 @@ export function createApp () {
     }
   });
 
-  // 加解密
-  router.post('/encrypt/v2/success/json/', async (ctx) => {
-    ctx.request.body
+  // 加解密v1
+  router.post('/encrypt/v1/success/json/', async (ctx) => {
     let dd, data, ed
     try {
-      // encryptVersion = 2 TODO: encryptVersion = 1 的解密场景
+      // encryptVersion = 1
+      // FIXME: V1 协议 body 是一个字符串，但是包含引号，
+      // axios 在 Content-Type = applicaion/json 时
+      // 对 dada 进行了 JSON.stringify(string) 导致
+      // 是否在服务端去掉引号？还是客户端去掉引号？
+      let body = ctx.request.body
+      if (isDef(body) && isString(body)) {
+        body = body.replaceAll('"', '')
+      }
+      console.log('start decrypt', body, appKey1)
+      dd = decrypt(body, appKey1)
+      console.log('decrypted ', dd)
+      data = { foo: 'bar' }
+      console.log('start encrypt', data, appKey1)
+      ed = encrypt(data, appKey1) as any
+      console.log('encrypted ', ed)
+    } catch (e) {
+      console.log(e)
+    }
+
+    ctx.set('content-type', 'application/json')
+
+    if (!dd) {
+      ctx.set('returnCode', RETURN_CODE_FAIL)
+      ctx.set('returnDes', '解密失败')
+      return
+    }
+
+    if (!dd.id) {
+      ctx.set('returnCode', RETURN_CODE_FAIL)
+      ctx.set('returnDes', '解密失败')
+      return
+    }
+    ctx.set('returnCode', RETURN_CODE_SUCCESS)
+    ctx.set('returnDes', '')
+    ctx.body = ed
+  })
+
+  // 加解密v2
+  router.post('/encrypt/v2/success/json/', async (ctx) => {
+    let dd, data, ed
+    try {
+      // encryptVersion = 2
       console.log('start decrypt', ctx.request.body.body, appKey1)
       dd = decrypt(ctx.request.body.body, appKey1)
       console.log('decrypted ', dd)
@@ -154,7 +197,10 @@ export function createApp () {
     }
   })
 
-  app.use(koaBody({ multipart: true }))
+  app.use(koaBody({ multipart: true, onError: (err, ctx) => {
+    console.log('onError', err)
+    ctx.request.body = (err as any).body // 非 JSON 字符串解析失败，直接使用原始值
+  } }))
     .use(router.routes())
     .use(router.allowedMethods())
 

@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { divide, floatDivide, floatMultiply, isEncodeURILike, minus, multiply, plus, toNonExponential } from "./common"
+import { divide, floatDivide, floatMultiply, isEncodeURILike, isFunction, isNormalObject, isPromise, minus, multiply, plus, toNonExponential } from "./common"
 
 
 describe('isEncodeURILike', () => {
@@ -295,5 +295,48 @@ describe('minus', () => {
 
   it("undefined - 0.1 throw error", () => {
     expect(() => minus(undefined as any, 0.1)).toThrowError("Invalid number")
+  })
+})
+
+describe('isFunction', () => {
+  it('function', () => {
+    expect(isFunction(() => {})).toEqual(true)
+    expect(isFunction(function () {})).toEqual(true)
+  })
+  it('not function', () => {
+    expect(isFunction('')).toEqual(false)
+    expect(isFunction(1231)).toEqual(false)
+    expect(isFunction(undefined)).toEqual(false)
+    expect(isFunction(undefined)).toEqual(false)
+    expect(isFunction(null)).toEqual(false)
+    expect(isFunction({})).toEqual(false)
+  })
+})
+
+describe('isPromise', () => {
+  it('promise', () => {
+    expect(isPromise(new Promise((resolve) => { resolve(true) }))).toEqual(true)
+    expect(isPromise(Promise.resolve())).toEqual(true)
+    expect(isPromise({
+      then: () => {}
+    })).toEqual(true)
+  })
+  it('not promise', () => {
+    expect(isPromise('')).toEqual(false)
+    expect(isPromise(12)).toEqual(false)
+    expect(isPromise(undefined)).toEqual(false)
+    expect(isPromise(null)).toEqual(false)
+    expect(isPromise(() => {})).toEqual(false)
+    expect(isPromise({})).toEqual(false)
+  })
+})
+
+describe('isNormalObject', () => {
+  it('normal object', () => {
+    expect(isNormalObject({})).toEqual(true)
+  })
+  it('not normal object', () => {
+    expect(isNormalObject(() => {})).toEqual(false)
+    expect(isNormalObject([])).toEqual(false)
   })
 })

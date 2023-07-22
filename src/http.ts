@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isPromise } from './common'
+import { isPromise, isNormalObject, isDef, isString } from './common'
 
 interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
@@ -17,6 +17,9 @@ interface CustomConfig {
   commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用 Header，自动拼接到 Header 上
 }
 
+export const RETURN_CODE_SUCCESS = 'SUCCESS'
+export const RETURN_CODE_FAIL = 'FAIL'
+
 interface ApiCheckResponse {
   success?: boolean
   code?: string
@@ -31,6 +34,7 @@ export const enum EncryptVersion {
 export type FailMessageType = PROBLEM_CODE | string | undefined
 
 export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T, T>> & {
+  config?: CustomAxiosRequestConfig
   success?: boolean
   code?: string
   msg?: string
@@ -140,15 +144,17 @@ const defaultEncryptTransform: XRequestTransform = (request, customConfig) => {
     } as T
   }
 
-  request.data = encryptVersion === EncryptVersion.v1 ? encryptV1(request.data, appKey as any, useSign) : encryptV2(request.data, appKey as any, useSign)
+  const ed = encryptVersion === EncryptVersion.v1 ? encryptV1<string>(request.data, appKey as any, useSign) : encryptV2<BaseObject>(request.data, appKey as any, useSign)
 
   if (encryptVersion === EncryptVersion.v1) {
     if (request.headers) {
-      (request.headers as any).set('encodeMethod', '1')
-      (request.headers as any).set('signMethod', '1')
-      (request.headers as any).set('sign', createSign(request.data, appKey as any))
+      (request.headers as any).encodeMethod = '1';
+      (request.headers as any).signMethod = '1';
+      (request.headers as any).sign = createSign(request.data, appKey as any);
     }
   }
+
+  request.data = ed
 }
 
 const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
@@ -192,22 +198,25 @@ const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, cus
 
   if (request.headers !== null && request.headers !== undefined) {
     headerKeys.forEach(key => {
-      (request.headers as any).set(key, (params as any)[key])
+      (request.headers as any)[key] = (params as any)[key]
     })
   }
 }
 
 const defaultDecryptTransform: XResponseTransform = (response) => {
-  console.log('defaultDecryptTransform', response)
+  // console.log('defaultDecryptTransform', response)
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
   if (!config || !config.useEncrypt) { return }
 
   const encryptVersion = config.encryptVersion || EncryptVersion.v1
   const appKey = config.appKey
-  const data = response.data
+  let data = response.data
 
   if (!appKey) { return }
   if (encryptVersion === EncryptVersion.v1) {
+    if (isDef(data) && isString(data)) {
+      data = data.replaceAll('"', '') // V1 协议返回的密文数据头尾包含引号，需要去掉再解密
+    }
     if (!isEncryptedData(data)) {
       console.error('返回数据非加密数据格式，不做处理')
       return
@@ -222,11 +231,12 @@ const defaultDecryptTransform: XResponseTransform = (response) => {
   }
 
   const decryptV1 = <T = any>(data: T, key: string): T => {
-    if (typeof data !== 'string') {
+    if (!isString(data)) {
       return data
     }
-    const de = decrypt(data, key)
+    const de = decrypt(data as any, key)
     if (!de) {
+      console.error('解密失败，不做处理')
       // TODO: 解密失败
       return data
     } else {
@@ -255,19 +265,29 @@ const defaultDecryptTransform: XResponseTransform = (response) => {
 
 /**
  * 校验业务状态是否为成功，成功则会给response.data添加success=true，以及 code 和 msg
+ * returnCode 的取值顺序：Headers -> response.data
+ * returnDes 的取值顺序：Headers -> response.data
  * @param response ApiResponse<any, any>
  */
 const defaultResponseTransform: XResponseTransform = (response) => {
   const data = response.data
-  if (data) {
-    // 业务状态校验产生的额外字段放到 response 上，不影响原始接口返回的 data 数据
-    response.success = data.returnCode === 'SUCCESS'
-    response.code = data.returnCode
-    response.msg = data.returnDes
-    // response.data.success = data.returnCode === 'SUCCESS'
-    // response.data.code = data.returnCode
-    // response.data.msg = data.returnDes
-  }
+  const headers = response.headers
+  console.log(response)
+  const returnCode = headers && headers.returnCode
+                      ? headers.returnCode
+                      : data && isNormalObject(data) && data.returnCode
+                      ? data.returnCode
+                      : undefined
+
+  const returnDes = headers && headers.returnDes
+                    ? headers.returnDes
+                    : data && isNormalObject(data) && isDef(data.returnDes)
+                    ? data.returnDes
+                    : undefined
+
+  response.success = returnCode === RETURN_CODE_SUCCESS
+  response.code = returnCode
+  response.msg = returnDes
 }
 
 const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {

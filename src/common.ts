@@ -32,7 +32,25 @@ export const isString = (a: any): boolean => {
  * @returns {boolean}
  */
 export const isPromise = (a: any): boolean => {
-  return typeof a === 'object' && typeof a.then === 'function'
+  return typeof a === 'object' && a !== null && isFunction(a.then)
+}
+
+/**
+ * 是否为函数
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isFunction = (a: any): boolean => {
+  return Object.prototype.toString.call(a) === '[object Function]'
+}
+
+/**
+ * 是否为普通对象
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isNormalObject = (a: any): boolean => {
+  return Object.prototype.toString.call(a) === '[object Object]'
 }
 
 /**

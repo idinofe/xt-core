@@ -32,12 +32,125 @@ afterAll(() => {
 
 // 配置
 describe('check config', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
   const baseURL = 'https://example.com'
   it('baseURL is correct', () => {
     const http = createHttp({
       baseURL
     })
     expect(http.getBaseURL()).toEqual(baseURL)
+  })
+
+  it('commonParams worked', () => {
+    const commonParams = {
+      msgId: "202306071636235632966",
+      deviceId: "app_123",
+      authorization: null,
+      appId: "123",
+      merNoNo: "125"
+    }
+    const getCommonParams = vi.fn()
+    getCommonParams.mockImplementation(() => commonParams)
+
+    const http = createHttp({
+      baseURL,
+      commonParams: getCommonParams
+    })
+    return http.post('/number/200').then(response => {
+      expect(getCommonParams).toBeCalledTimes(1)
+      expect(response.config?.commonParams).toStrictEqual(getCommonParams)
+      expect(response.config?.data).toStrictEqual(JSON.stringify(commonParams))
+    })
+  })
+
+  it('commonParams worked with data', () => {
+    const commonParams = {
+      msgId: "202306071636235632966",
+      deviceId: "app_123",
+      authorization: null,
+      appId: "123",
+      merNoNo: "125"
+    }
+    const data = {
+      id: '13131311'
+    }
+    const getCommonParams = vi.fn()
+    getCommonParams.mockImplementation(() => commonParams)
+
+    const http = createHttp({
+      baseURL,
+      commonParams: getCommonParams
+    })
+    return http.post('/number/200', data).then(response => {
+      expect(getCommonParams).toBeCalledTimes(1)
+      expect(response.config?.commonParams).toStrictEqual(getCommonParams)
+      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...data, ...commonParams }))
+    })
+  })
+
+  it('commonHeaders worked', () => {
+    const commonHeaders = {
+      msgId: "202306071636235632966",
+      deviceId: "app_123",
+      authorization: null,
+      appId: "123",
+      merNoNo: "125"
+    }
+    const getCommonHeaders = vi.fn()
+    getCommonHeaders.mockImplementation(() => commonHeaders)
+
+    const http = createHttp({
+      baseURL,
+      commonHeaders: getCommonHeaders
+    })
+    return http.post('/number/200').then(response => {
+      // console.log(response)
+      expect(getCommonHeaders).toBeCalledTimes(1)
+      expect(response.config?.commonHeaders).toStrictEqual(getCommonHeaders)
+      expect(response.config?.headers).toHaveProperty('msgId', '202306071636235632966')
+      expect(response.config?.headers).toHaveProperty('deviceId', 'app_123')
+      expect(response.config?.headers).toHaveProperty('authorization', null)
+      expect(response.config?.headers).toHaveProperty('appId', '123')
+      expect(response.config?.headers).toHaveProperty('merNoNo', '125')
+    })
+  })
+
+  it('commonHeaders worked with setHeader', () => {
+    const commonHeaders = {
+      msgId: "202306071636235632966",
+      deviceId: "app_123",
+      authorization: null,
+      appId: "123",
+      merNoNo: "125"
+    }
+    const getCommonHeaders = vi.fn()
+    getCommonHeaders.mockImplementation(() => commonHeaders)
+
+    const http = createHttp({
+      baseURL,
+      commonHeaders: getCommonHeaders
+    })
+    http.setHeader('token', 'tokentoken')
+    http.setHeaders({
+      header1: 'header1header1',
+      header2: 'header2header2',
+    })
+    return http.post('/number/200').then(response => {
+      // console.log(response)
+      expect(getCommonHeaders).toBeCalledTimes(1)
+      expect(response.config?.commonHeaders).toStrictEqual(getCommonHeaders)
+      expect(response.config?.headers).toHaveProperty('msgId', '202306071636235632966')
+      expect(response.config?.headers).toHaveProperty('deviceId', 'app_123')
+      expect(response.config?.headers).toHaveProperty('authorization', null)
+      expect(response.config?.headers).toHaveProperty('appId', '123')
+      expect(response.config?.headers).toHaveProperty('merNoNo', '125')
+      expect(response.config?.headers).toHaveProperty('token', 'tokentoken')
+      expect(response.config?.headers).toHaveProperty('header1', 'header1header1')
+      expect(response.config?.headers).toHaveProperty('header2', 'header2header2')
+    })
   })
   
   it('should have 3 internal responseTransform', () => {
@@ -404,6 +517,24 @@ describe('request error', () => {
 
 // 加密解密成功
 describe('encrypt/decrypt success', () => {
+  it('normal data with returnCode = SUCCESS data is json encryptVersion = v1', () => {
+    const http = createHttp({
+      baseURL,
+      useEncrypt: true,
+      useSign: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+    })
+    return http.post('/encrypt/v1/success/json/', { id: '313141' }).then(response => {
+      // console.log(response)
+      expect(response.ok).toEqual(true)
+      expect(response.status).toEqual(200)
+      expect(response.success).toEqual(true)
+      expect(response.code).toEqual('SUCCESS')
+      expect(response.msg).toEqual('')
+      expect(response.data).toStrictEqual({ foo: 'bar' })
+    })
+  })
   it('normal data with returnCode = SUCCESS data is json encryptVersion = v2', () => {
     const http = createHttp({
       baseURL,
@@ -413,13 +544,13 @@ describe('encrypt/decrypt success', () => {
       appKey: appKey1,
     })
     return http.post('/encrypt/v2/success/json/', { id: '131131' }).then(response => {
-      console.log(response)
+      // console.log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(true)
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
-      expect(response.data).toStrictEqual(({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } }))
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } })
     })
   })
 })
