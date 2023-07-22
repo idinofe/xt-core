@@ -66,12 +66,14 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
 }
 
 const defaultEncryptTransform: XRequestTransform = (request) => {
+  console.log(request)
   const useEncrypt = request.useEncrypt
   const encryptVersion = request.encryptVersion || EncryptVersion.v1
   const appKey = request.appKey
   const useSign = !!request.useSign
   
   if (!useEncrypt) {
+    console.log('未开启加密，不做处理')
     return
   }
 
@@ -152,14 +154,14 @@ const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request) => 
 
   if (request.headers !== null && request.headers !== undefined) {
     headerKeys.forEach(key => {
-      (request.headers as any).set(key, params[key])
+      (request.headers as any).set(key, (params as any)[key])
     })
   }
 }
 
 const defaultDecryptTransform: XResponseTransform = (response) => {
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
-  if (!config.useEncrypt) { return }
+  if (!config || !config.useEncrypt) { return }
 
   const encryptVersion = config.encryptVersion || EncryptVersion.v1
   const appKey = config.appKey

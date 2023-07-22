@@ -1,7 +1,7 @@
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { createHttp } from './http'
+import { createHttp, EncryptVersion } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
 
@@ -10,6 +10,8 @@ let port: number
 let baseURL: string
 let app: any = null
 let server: any = null
+
+const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
 
 beforeAll(async () => {
   port = await getFreePort() as number
@@ -374,7 +376,6 @@ describe('token intercept', () => {
 })
 
 // 接口异常
-
 describe('request error', () => {
   it('response status 404', () => {
     const http = createHttp({ baseURL })
@@ -397,6 +398,28 @@ describe('request error', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toBeUndefined()
       expect(response.msg).toBeUndefined()
+    })
+  })
+})
+
+// 加密解密成功
+describe('encrypt/decrypt success', () => {
+  it('normal data with returnCode = SUCCESS data is number', () => {
+    const http = createHttp({
+      baseURL,
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v2,
+      useSign: true,
+      appKey: appKey1,
+    })
+    return http.post('/encrypt/success/json/', { id: '131131' }).then(response => {
+      console.log(response)
+      expect(response.ok).toEqual(true)
+      expect(response.status).toEqual(200)
+      expect(response.success).toEqual(false)
+      expect(response.code).toEqual(undefined)
+      expect(response.msg).toEqual(undefined)
+      expect(response.data).toStrictEqual(({ returnCode: 'SUCCESS', returnDes: '', data: { foo: 'bar' } }))
     })
   })
 })

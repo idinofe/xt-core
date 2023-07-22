@@ -4,6 +4,9 @@ import { koaBody } from 'koa-body'
 // import fs from 'fs'
 import http from 'http'
 import path from 'path'
+import { decrypt, encrypt } from 'decrypt-core'
+
+const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
 
 export function createApp () {
   const app = new Koa();
@@ -108,6 +111,45 @@ export function createApp () {
       };
     }
   });
+
+  // 加解密
+  router.post('/encrypt/success/json/', async (ctx) => {
+    ctx.request.body
+    let dd, data, ed
+    try {
+      console.log('start decrypt', ctx.request.body, appKey1)
+      dd = decrypt(ctx.request.body, appKey1)
+      console.log('decrypt ', dd)
+      data = { foo: 'bar' }
+      ed = encrypt(data, appKey1) as any
+    } catch (e) {
+      console.log(e)
+    }
+
+    if (!dd) {
+      ctx.body = {
+        data: null,
+        returnCode: 'FAIL',
+        returnDes: '解密失败',
+      }
+      return
+    }
+
+    if (!dd.id) {
+      ctx.body = {
+        data: null,
+        returnCode: 'FAIL',
+        returnDes: '参数错误',
+      }
+      return
+    }
+
+    ctx.body = {
+      data: ed,
+      returnCode: 'SUCCESS',
+      returnDes: '',
+    }
+  })
 
   app.use(koaBody({ multipart: true }))
     .use(router.routes())
