@@ -404,7 +404,7 @@ describe('request error', () => {
 
 // 加密解密成功
 describe('encrypt/decrypt success', () => {
-  it('normal data with returnCode = SUCCESS data is number', () => {
+  it('normal data with returnCode = SUCCESS data is json encryptVersion = v2', () => {
     const http = createHttp({
       baseURL,
       useEncrypt: true,
@@ -412,14 +412,14 @@ describe('encrypt/decrypt success', () => {
       useSign: true,
       appKey: appKey1,
     })
-    return http.post('/encrypt/success/json/', { id: '131131' }).then(response => {
+    return http.post('/encrypt/v2/success/json/', { id: '131131' }).then(response => {
       console.log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
-      expect(response.success).toEqual(false)
-      expect(response.code).toEqual(undefined)
-      expect(response.msg).toEqual(undefined)
-      expect(response.data).toStrictEqual(({ returnCode: 'SUCCESS', returnDes: '', data: { foo: 'bar' } }))
+      expect(response.success).toEqual(true)
+      expect(response.code).toEqual('SUCCESS')
+      expect(response.msg).toEqual('')
+      expect(response.data).toStrictEqual(({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } }))
     })
   })
 })

@@ -113,15 +113,18 @@ export function createApp () {
   });
 
   // 加解密
-  router.post('/encrypt/success/json/', async (ctx) => {
+  router.post('/encrypt/v2/success/json/', async (ctx) => {
     ctx.request.body
     let dd, data, ed
     try {
-      console.log('start decrypt', ctx.request.body, appKey1)
-      dd = decrypt(ctx.request.body, appKey1)
-      console.log('decrypt ', dd)
+      // encryptVersion = 2 TODO: encryptVersion = 1 的解密场景
+      console.log('start decrypt', ctx.request.body.body, appKey1)
+      dd = decrypt(ctx.request.body.body, appKey1)
+      console.log('decrypted ', dd)
       data = { foo: 'bar' }
+      console.log('start encrypt', data, appKey1)
       ed = encrypt(data, appKey1) as any
+      console.log('encrypted ', ed)
     } catch (e) {
       console.log(e)
     }
@@ -145,7 +148,7 @@ export function createApp () {
     }
 
     ctx.body = {
-      data: ed,
+      body: ed,
       returnCode: 'SUCCESS',
       returnDes: '',
     }

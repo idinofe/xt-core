@@ -1,6 +1,6 @@
-import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE } from 'apisauce'
+import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
-import { encrypt, decrypt, isEncryptedData, DataType, createSign } from 'decrypt-core'
+import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
 import { isPromise } from './common'
 
 interface CustomConfig {
@@ -24,8 +24,8 @@ interface ApiCheckResponse {
 }
 
 export const enum EncryptVersion {
-  v1 = 'v1',
-  v2 = 'v2'
+  v1 = '1',
+  v2 = '2'
 }
 
 export type FailMessageType = PROBLEM_CODE | string | undefined
@@ -38,9 +38,14 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
 
 // export type XApiRequest = 
 
-export type XRequestTransform = (request: CustomAxiosRequestConfig) => void
+export type XRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => void
 
-export type XAsyncRequestTransform = ( request: CustomAxiosRequestConfig) => Promise<void> | ((request: CustomAxiosRequestConfig) => Promise<void>)
+interface BaseTransform {
+  (...args: any[]): any | Promise<any>
+}
+
+// export type XAsyncRequestTransform = ( request: CustomAxiosRequestConfig) => Promise<void> | ((request: CustomAxiosRequestConfig) => Promise<void>)
+export type XAsyncRequestTransform = ( request: AxiosRequestConfig, customConfig: CustomConfig) => Promise<void> | ((request: AxiosRequestConfig) => Promise<void>)
 
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
@@ -65,15 +70,42 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
   unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
-const defaultEncryptTransform: XRequestTransform = (request) => {
-  console.log(request)
-  const useEncrypt = request.useEncrypt
-  const encryptVersion = request.encryptVersion || EncryptVersion.v1
-  const appKey = request.appKey
-  const useSign = !!request.useSign
+
+/**
+ * 给 XAsyncRequestTransform 包装一个自定义配置项 customConfig
+ * @param config CustomConfig
+ * @param transform XAsyncRequestTransform
+ * @returns XAsyncRequestTransform
+ */
+// const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform, D extends BaseTransform = RequestTransform>(httpConfig: HttpConfig, transform: T): D => {
+const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(httpConfig: HttpConfig, transform: T): RequestTransform & AsyncRequestTransform => {
+  const config: CustomConfig = {
+    noStatusTransform: httpConfig.noStatusTransform,
+    isInvalidToken: httpConfig.isInvalidToken,
+    onInvalidToken: httpConfig.onInvalidToken,
+    noFail: httpConfig.noFail,
+    onFail: httpConfig.onFail,
+    useEncrypt: httpConfig.useEncrypt,
+    useSign: httpConfig.useSign,
+    encryptVersion: httpConfig.encryptVersion,
+    appKey: httpConfig.appKey,
+    commonParams: httpConfig.commonParams,
+    commonHeaders: httpConfig.commonHeaders,
+  }
+  return (request: AxiosRequestConfig) => {
+    return transform(request, config)
+  }
+}
+
+const defaultEncryptTransform: XRequestTransform = (request, customConfig) => {
+  // console.log(request, customConfig)
+  const useEncrypt = customConfig.useEncrypt
+  const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
+  const appKey = customConfig.appKey
+  const useSign = !!customConfig.useSign
   
   if (!useEncrypt) {
-    console.log('未开启加密，不做处理')
+    // console.log('未开启加密，不做处理')
     return
   }
 
@@ -93,12 +125,18 @@ const defaultEncryptTransform: XRequestTransform = (request) => {
   const encryptV2 = <T = any>(data: T, key: string, useSign: boolean): T => {
     const ed = encrypt(data as DataType, key)
     if (useSign) {
-      (ed as any).sign = createSign(ed as any, key)
+      const sign = createSign(data as BaseObject, key)
+      return {
+        body: ed,
+        sign,
+        encodeMethod: '1',
+        signMethod: '1'
+      } as T
     }
     return {
       body: ed,
       encodeMethod: '1',
-      signMethod: '1'
+      signMethod: '0'
     } as T
   }
 
@@ -113,10 +151,10 @@ const defaultEncryptTransform: XRequestTransform = (request) => {
   }
 }
 
-const defaultCommonParamsTransform: XAsyncRequestTransform = async (request) => {
-  const commonParams = request.commonParams
-  const useEncrypt = request.useEncrypt
-  const encryptVersion = request.encryptVersion || EncryptVersion.v1
+const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
+  const commonParams = customConfig.commonParams
+  const useEncrypt = customConfig.useEncrypt
+  const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
 
   if (!commonParams) {
     return
@@ -141,8 +179,8 @@ const defaultCommonParamsTransform: XAsyncRequestTransform = async (request) => 
   }
 }
 
-const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request) => {
-  const commonHeaders = request.commonHeaders
+const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, customConfig) => {
+  const commonHeaders = customConfig.commonHeaders
 
   if (!commonHeaders) {
     return
@@ -160,6 +198,7 @@ const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request) => 
 }
 
 const defaultDecryptTransform: XResponseTransform = (response) => {
+  console.log('defaultDecryptTransform', response)
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
   if (!config || !config.useEncrypt) { return }
 
@@ -167,11 +206,19 @@ const defaultDecryptTransform: XResponseTransform = (response) => {
   const appKey = config.appKey
   const data = response.data
 
-  // TODO: 校验encryptVersion/appKey
   if (!appKey) { return }
-  if (!isEncryptedData(data)) {
-    console.error('返回数据非加密数据格式，不做处理')
-    return
+  if (encryptVersion === EncryptVersion.v1) {
+    if (!isEncryptedData(data)) {
+      console.error('返回数据非加密数据格式，不做处理')
+      return
+    }
+  } else {
+    if (encryptVersion === EncryptVersion.v2) {
+      if (!isEncryptedData(data.body)) {
+        console.error('返回数据非加密数据格式，不做处理')
+        return
+      }
+    }
   }
 
   const decryptV1 = <T = any>(data: T, key: string): T => {
@@ -293,9 +340,9 @@ const getCustomConfig = (response: XApiResponse<any, any>) => {
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
-  config.useEncrypt && instance.addRequestTransform(defaultEncryptTransform)
-  config.commonParams && instance.addAsyncRequestTransform(defaultCommonParamsTransform)
-  config.commonHeaders && instance.addAsyncRequestTransform(defaultCommonHeadersTrasform)
+  config.useEncrypt && instance.addRequestTransform(withCustomConfig(config, defaultEncryptTransform))
+  config.commonParams && instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonParamsTransform))
+  config.commonHeaders && instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonHeadersTrasform))
   config.useEncrypt && instance.addResponseTransform(defaultDecryptTransform)
   instance.addResponseTransform(defaultTokenCheckTransform)
   !config.noFail && instance.addResponseTransform(defaultFailTransform)
