@@ -13,6 +13,7 @@ let server: any = null
 
 const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
 
+// TODO: 启动 mock server 移动到单独的模块
 beforeAll(async () => {
   port = await getFreePort() as number
   app = await createApp()

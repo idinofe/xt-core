@@ -142,13 +142,13 @@ export function createApp () {
 
     if (!dd) {
       ctx.set('returnCode', RETURN_CODE_FAIL)
-      ctx.set('returnDes', '解密失败')
+      ctx.set('returnDes', encodeURIComponent('解密失败')) // FIX: Invalid character in header content
       return
     }
 
     if (!dd.id) {
       ctx.set('returnCode', RETURN_CODE_FAIL)
-      ctx.set('returnDes', '解密失败')
+      ctx.set('returnDes', encodeURIComponent('解密失败'))
       return
     }
     ctx.set('returnCode', RETURN_CODE_SUCCESS)

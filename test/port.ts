@@ -1,6 +1,6 @@
 import net from 'net'
 
-export function getFreePort () {
+export function getFreePort (): Promise<number> {
   return new Promise(resolve => {
     const server = net.createServer()
     server.listen(() => {
