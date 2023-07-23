@@ -1,4 +1,4 @@
-import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform } from 'apisauce'
+import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
 import { isPromise, isNormalObject, isDef, isString } from './common'
@@ -272,17 +272,34 @@ const defaultDecryptTransform: XResponseTransform = (response) => {
 const defaultResponseTransform: XResponseTransform = (response) => {
   const data = response.data
   const headers = response.headers
-  console.log(response)
-  const returnCode = headers && headers.returnCode
-                      ? headers.returnCode
-                      : data && isNormalObject(data) && data.returnCode
-                      ? data.returnCode
+  // console.log(response, response.headers, (response.headers as any)['returnCode'])
+
+  // FIX: axios transform all the response headers to lowercase
+  const getHeader = (data: Record<string, string> | undefined, key: string) => {
+    if (!data) {
+      return undefined
+    }
+    return isDef(data[key])
+            ? data[key]
+            : isDef(data[key.toLowerCase()])
+            ? data[key.toLowerCase()]
+            : data[key]
+  }
+  const _returnCode1 = getHeader(headers, 'returnCode')
+  const _returnCode2 = getHeader(data, 'returnCode')
+  const _returnDes1 = getHeader(headers, 'returnDes')
+  const _returnDes2 = getHeader(data, 'returnDes')
+
+  const returnCode = headers && isDef(_returnCode1)
+                      ? _returnCode1
+                      : data && isNormalObject(data) && _returnCode2
+                      ? _returnCode2
                       : undefined
 
-  const returnDes = headers && headers.returnDes
-                    ? headers.returnDes
-                    : data && isNormalObject(data) && isDef(data.returnDes)
-                    ? data.returnDes
+  const returnDes = headers && isDef(_returnDes1)
+                    ? _returnDes1
+                    : data && isNormalObject(data) && isDef(_returnDes2)
+                    ? _returnDes2
                     : undefined
 
   response.success = returnCode === RETURN_CODE_SUCCESS

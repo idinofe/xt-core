@@ -12,6 +12,7 @@ let app: any = null
 let server: any = null
 
 const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
+const log = (...args: any[]) => console.log('[http.test] ', ...args)
 
 // TODO: 启动 mock server 移动到单独的模块
 beforeAll(async () => {
@@ -20,7 +21,7 @@ beforeAll(async () => {
   server = await startServer(port, app)
   baseURL = `http://127.0.0.1:${port}`
   // server = await createServer(port, MOCK1)
-  console.log('server created at ', baseURL)
+  log('server created at ', baseURL)
 })
 
 afterAll(() => {
@@ -108,7 +109,7 @@ describe('check config', () => {
       commonHeaders: getCommonHeaders
     })
     return http.post('/number/200').then(response => {
-      // console.log(response)
+      // log(response)
       expect(getCommonHeaders).toBeCalledTimes(1)
       expect(response.config?.commonHeaders).toStrictEqual(getCommonHeaders)
       expect(response.config?.headers).toHaveProperty('msgId', '202306071636235632966')
@@ -140,7 +141,7 @@ describe('check config', () => {
       header2: 'header2header2',
     })
     return http.post('/number/200').then(response => {
-      // console.log(response)
+      // log(response)
       expect(getCommonHeaders).toBeCalledTimes(1)
       expect(response.config?.commonHeaders).toStrictEqual(getCommonHeaders)
       expect(response.config?.headers).toHaveProperty('msgId', '202306071636235632966')
@@ -175,7 +176,7 @@ describe('response success', () => {
   it('empty data with status 200', () => {
     const http = createHttp({ baseURL })
     return http.post('/number/200').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(false)
@@ -188,7 +189,7 @@ describe('response success', () => {
   it('normal data with returnCode = SUCCESS data is number', () => {
     const http = createHttp({ baseURL })
     return http.post('/number/success').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(true)
@@ -210,7 +211,7 @@ describe('response success', () => {
 
     const http = createHttp({ baseURL, onFail, onInvalidToken, noStatusTransform: true })
     return http.post('/number/success').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(onFail).not.toHaveBeenCalled()
       expect(onInvalidToken).not.toHaveBeenCalled()
@@ -224,7 +225,7 @@ describe('response success', () => {
   it('normal data with returnCode = SUCCESS data is json', () => {
     const http = createHttp({ baseURL })
     return http.post('/json/success').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(true)
@@ -246,7 +247,7 @@ describe('response success', () => {
 
     const http = createHttp({ baseURL, onFail, onInvalidToken, noStatusTransform: true })
     return http.post('/json/success').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(onFail).not.toHaveBeenCalled()
       expect(onInvalidToken).not.toHaveBeenCalled()
@@ -307,7 +308,7 @@ describe('response fail', () => {
   it('normal data with returnCode = FAIL data is null', () => {
     const http = createHttp({ baseURL })
     return http.post('/json/fail').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(false)
@@ -329,7 +330,7 @@ describe('response fail', () => {
     
     const http = createHttp({ baseURL, onFail, onInvalidToken })
     return http.post('/json/fail').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.success).toEqual(false)
       expect(onFail).toBeCalledTimes(1)
       expect(onFail).toHaveBeenLastCalledWith('参数校验未通过', response)
@@ -348,7 +349,7 @@ describe('response fail', () => {
     
     const http = createHttp({ baseURL, onFail, onInvalidToken, noFail: true })
     return http.post('/json/fail').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.success).toEqual(false)
       expect(onFail).not.toHaveBeenCalled()
       expect(onInvalidToken).not.toHaveBeenCalled()
@@ -358,7 +359,7 @@ describe('response fail', () => {
   it('normal data with returnCode = ERR001 data is null', () => {
     const http = createHttp({ baseURL })
     return http.post('/json/fail/ERR001').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(false)
@@ -379,7 +380,7 @@ describe('response fail', () => {
 
     const http = createHttp({ baseURL, onFail, onInvalidToken })
     return http.post('/json/fail/ERR001').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.success).toEqual(false)
       expect(onFail).toHaveBeenCalledTimes(1)
       expect(onFail).toHaveBeenCalledWith('业务处理失败', response)
@@ -398,7 +399,7 @@ describe('response fail', () => {
 
     const http = createHttp({ baseURL, onFail, onInvalidToken, noFail: true })
     return http.post('/json/fail/ERR001').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.success).toEqual(false)
       expect(onFail).not.toHaveBeenCalled()
       expect(onInvalidToken).not.toHaveBeenCalled()
@@ -494,7 +495,7 @@ describe('request error', () => {
   it('response status 404', () => {
     const http = createHttp({ baseURL })
     return http.get('/number/404').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.status).toEqual(404)
       expect(response.data).toEqual('Not Found')
       expect(response.success).toEqual(false)
@@ -506,7 +507,7 @@ describe('request error', () => {
   it('response status 500', () => {
     const http = createHttp({ baseURL })
     return http.get('/number/500').then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.status).toEqual(500)
       expect(response.data).toEqual('Internal Server Error')
       expect(response.success).toEqual(false)
@@ -526,8 +527,8 @@ describe('encrypt/decrypt success', () => {
       encryptVersion: EncryptVersion.v1,
       appKey: appKey1,
     })
-    return http.post('/encrypt/v1/success/json/', { id: '313141' }).then(response => {
-      // console.log(response)
+    return http.post('/encrypt/v1/success/json/', { id: '313141', msgId: 12311111 }).then(response => {
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(true)
@@ -545,7 +546,7 @@ describe('encrypt/decrypt success', () => {
       appKey: appKey1,
     })
     return http.post('/encrypt/v2/success/json/', { id: '131131' }).then(response => {
-      // console.log(response)
+      // log(response)
       expect(response.ok).toEqual(true)
       expect(response.status).toEqual(200)
       expect(response.success).toEqual(true)

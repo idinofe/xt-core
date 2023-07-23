@@ -9,6 +9,7 @@ import { isDef, isString } from '../src/common'
 import { RETURN_CODE_FAIL, RETURN_CODE_SUCCESS } from '../src'
 
 const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
+const log = (...args: any[]) => console.log('[service] ', ...args)
 
 export function createApp () {
   const app = new Koa();
@@ -104,7 +105,7 @@ export function createApp () {
       // 不真实写入文件
       // const stream = fs.createWriteStream(filePath);
       // reader.pipe(stream);
-      console.log(filePath);
+      log(filePath);
   
       ctx.body = {
         data: filePath,
@@ -127,15 +128,15 @@ export function createApp () {
       if (isDef(body) && isString(body)) {
         body = body.replaceAll('"', '')
       }
-      console.log('start decrypt', body, appKey1)
+      log('start decrypt', body, appKey1)
       dd = decrypt(body, appKey1)
-      console.log('decrypted ', dd)
+      log('decrypted ', dd)
       data = { foo: 'bar' }
-      console.log('start encrypt', data, appKey1)
+      log('start encrypt', data, appKey1)
       ed = encrypt(data, appKey1) as any
-      console.log('encrypted ', ed)
+      log('encrypted ', ed)
     } catch (e) {
-      console.log(e)
+      log(e)
     }
 
     ctx.set('content-type', 'application/json')
@@ -161,15 +162,15 @@ export function createApp () {
     let dd, data, ed
     try {
       // encryptVersion = 2
-      console.log('start decrypt', ctx.request.body.body, appKey1)
+      log('start decrypt', ctx.request.body.body, appKey1)
       dd = decrypt(ctx.request.body.body, appKey1)
-      console.log('decrypted ', dd)
+      log('decrypted ', dd)
       data = { foo: 'bar' }
-      console.log('start encrypt', data, appKey1)
+      log('start encrypt', data, appKey1)
       ed = encrypt(data, appKey1) as any
-      console.log('encrypted ', ed)
+      log('encrypted ', ed)
     } catch (e) {
-      console.log(e)
+      log(e)
     }
 
     if (!dd) {
@@ -198,7 +199,7 @@ export function createApp () {
   })
 
   app.use(koaBody({ multipart: true, onError: (err, ctx) => {
-    console.log('onError', err)
+    log('onError', err)
     ctx.request.body = (err as any).body // 非 JSON 字符串解析失败，直接使用原始值
   } }))
     .use(router.routes())
