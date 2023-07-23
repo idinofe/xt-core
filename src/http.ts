@@ -101,7 +101,7 @@ const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(http
   }
 }
 
-const defaultEncryptTransform: XRequestTransform = (request, customConfig) => {
+const defaultEncryptTransform: XAsyncRequestTransform = async (request, customConfig) => {
   // console.log(request, customConfig)
   const useEncrypt = customConfig.useEncrypt
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
@@ -144,7 +144,9 @@ const defaultEncryptTransform: XRequestTransform = (request, customConfig) => {
     } as T
   }
 
-  const ed = encryptVersion === EncryptVersion.v1 ? encryptV1<string>(request.data, appKey as any, useSign) : encryptV2<BaseObject>(request.data, appKey as any, useSign)
+  const ed = encryptVersion === EncryptVersion.v1
+              ? encryptV1<string>(request.data, appKey as any, useSign)
+              : encryptV2<BaseObject>(request.data, appKey as any, useSign)
 
   if (encryptVersion === EncryptVersion.v1) {
     if (request.headers) {
@@ -170,17 +172,22 @@ const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, cus
 
   if (useEncrypt) {
     if (encryptVersion === EncryptVersion.v1) {
-      // 加密方式一：commonParams 无效
-    } else if (encryptVersion === EncryptVersion.v2) {
+      // 加密方法一
       request.data = {
-        ...request.data,
         ...params,
+        ...request.data,
+      }
+    } else if (encryptVersion === EncryptVersion.v2) {
+      // 加密方法二
+      request.data = {
+        ...params,
+        ...request.data,
       }
     }
   } else {
     request.data = {
+      ...params,
       ...request.data,
-      ...params
     }
   }
 }
@@ -377,9 +384,9 @@ const getCustomConfig = (response: XApiResponse<any, any>) => {
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
-  config.useEncrypt && instance.addRequestTransform(withCustomConfig(config, defaultEncryptTransform))
   config.commonParams && instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonParamsTransform))
   config.commonHeaders && instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonHeadersTrasform))
+  config.useEncrypt && instance.addAsyncRequestTransform(withCustomConfig(config, defaultEncryptTransform))
   config.useEncrypt && instance.addResponseTransform(defaultDecryptTransform)
   instance.addResponseTransform(defaultTokenCheckTransform)
   !config.noFail && instance.addResponseTransform(defaultFailTransform)

@@ -4,6 +4,7 @@ import path from 'path'
 import { createHttp, EncryptVersion } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
+import { AppConfig } from './type'
 
 // 创建一个本地的接口服务，用于真实的接口逻辑测试
 let port: number
@@ -89,7 +90,7 @@ describe('check config', () => {
     return http.post('/number/200', data).then(response => {
       expect(getCommonParams).toBeCalledTimes(1)
       expect(response.config?.commonParams).toStrictEqual(getCommonParams)
-      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...data, ...commonParams }))
+      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...commonParams, ...data }))
     })
   })
 
@@ -195,7 +196,7 @@ describe('response success', () => {
       expect(response.success).toEqual(true)
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
-      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', data: 123 })
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: 123 })
     })
   })
 
@@ -218,7 +219,7 @@ describe('response success', () => {
       expect(response.success).toBeUndefined()
       expect(response.code).toBeUndefined()
       expect(response.msg).toBeUndefined()
-      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', data: 123 })
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: 123 })
     })
   })
 
@@ -231,7 +232,7 @@ describe('response success', () => {
       expect(response.success).toEqual(true)
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
-      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', data: { foo: 'bar' } })
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } })
     })
   })
 
@@ -254,7 +255,7 @@ describe('response success', () => {
       expect(response.success).toBeUndefined()
       expect(response.code).toBeUndefined()
       expect(response.msg).toBeUndefined()
-      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', data: { foo: 'bar' } })
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } })
     })
   })
 
@@ -271,7 +272,7 @@ describe('response success', () => {
       expect(response.msg).toEqual('')
       expect((response.data as any).returnCode).toEqual('SUCCESS')
       expect((response.data as any).returnDes).toEqual('')
-      expect((response.data as any).data).not.toBeUndefined()
+      expect((response.data as any).body).not.toBeUndefined()
     })
   })
 
@@ -298,7 +299,7 @@ describe('response success', () => {
       expect(response.msg).toBeUndefined()
       expect((response.data as any).returnCode).toEqual('SUCCESS')
       expect((response.data as any).returnDes).toEqual('')
-      expect((response.data as any).data).not.toBeUndefined()
+      expect((response.data as any).body).not.toBeUndefined()
     })
   })
 })
@@ -314,7 +315,7 @@ describe('response fail', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toEqual('FAIL')
       expect(response.msg).toEqual('参数校验未通过')
-      expect(response.data).toStrictEqual({ returnCode: 'FAIL', returnDes: '参数校验未通过', data: null })
+      expect(response.data).toStrictEqual({ returnCode: 'FAIL', returnDes: '参数校验未通过', body: null })
     })
   })
 
@@ -365,7 +366,7 @@ describe('response fail', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toEqual('ERR001')
       expect(response.msg).toEqual('业务处理失败')
-      expect(response.data).toStrictEqual({ returnCode: 'ERR001', returnDes: '业务处理失败', data: null })
+      expect(response.data).toStrictEqual({ returnCode: 'ERR001', returnDes: '业务处理失败', body: null })
     })
   })
 
@@ -417,7 +418,7 @@ describe('token intercept', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toEqual('INVALID_TOKEN')
       expect(response.msg).toEqual('登录信息已失效')
-      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', data: null })
+      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', body: null })
     })
   })
 
@@ -435,7 +436,7 @@ describe('token intercept', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toEqual('INVALID_TOKEN')
       expect(response.msg).toEqual('登录信息已失效')
-      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', data: null })
+      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', body: null })
       expect(onInvalidToken).toBeCalledTimes(1)
       // expect(isInvalidToken).toBeCalledWith()
     })
@@ -458,7 +459,7 @@ describe('token intercept', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toEqual('INVALID_TOKEN')
       expect(response.msg).toEqual('登录信息已失效')
-      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', data: null })
+      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', body: null })
       expect(isInvalidToken).toBeCalledTimes(1)
       // expect(isInvalidToken).toBeCalledWith()
     })
@@ -482,7 +483,7 @@ describe('token intercept', () => {
       expect(response.success).toEqual(false)
       expect(response.code).toEqual('INVALID_TOKEN')
       expect(response.msg).toEqual('登录信息已失效')
-      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', data: null })
+      expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', body: null })
       expect(isInvalidToken).toBeCalledTimes(1)
       expect(onInvalidToken).not.toBeCalled()
       // expect(isInvalidToken).toBeCalledWith()
@@ -553,6 +554,132 @@ describe('encrypt/decrypt success', () => {
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
       expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } })
+    })
+  })
+  // 带完整参数的请求
+  it ('with complete parameters succees encryptVersion = v1', () => {
+    afterEach(() => {
+      vi.clearAllMocks()
+    })
+
+    const appParams: AppConfig = {
+      appId: '1203032031009',
+      merNo: '203032031009',
+      deviceId: 'htmlid',
+      indexDoc: 'xxx_h5',
+      domain: 'https://www.example.com/',
+      basic: 'xxx-interface',
+      basicImgUrl: 'https://www.example.com/static/'
+    }
+    const getToken = vi.fn()
+    const getCommonHeaders = vi.fn()
+    const getCommonParams = vi.fn()
+
+    getToken.mockImplementation(() => "tokentoken")
+    getCommonHeaders.mockImplementation(() => {
+      return {
+        appId: appParams.appId,
+        merNo: appParams.merNo,
+        Authorization: getToken(),
+      }
+    })
+    getCommonParams.mockImplementation(() => {
+      return {
+        appId: appParams.appId,
+        merNoNo: appParams.merNo,
+      }
+    })
+
+    const http = createHttp({
+      baseURL,
+      useEncrypt: true,
+      useSign: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+      commonHeaders: getCommonHeaders,
+      commonParams: getCommonParams
+    })
+
+    return http.post('/encrypt/v1/success/real/', { id: '713641' }).then(response => {
+      expect(getToken).toBeCalledTimes(1)
+      expect(getCommonHeaders).toBeCalledTimes(1)
+      expect(getCommonParams).toBeCalledTimes(1)
+      expect(response.ok).toEqual(true)
+      expect(response.status).toEqual(200)
+      expect(response.success).toEqual(true)
+      expect(response.code).toEqual('SUCCESS')
+      expect(response.msg).toEqual('')
+      expect(response.data).toHaveProperty('id', '713641')
+      expect(response.data).toHaveProperty('appId', appParams.appId)
+      expect(response.data).toHaveProperty('merNoNo', appParams.merNo)
+      expect(response.data).toHaveProperty('foo', 'bar')
+      expect(response.data).toHaveProperty('token', getToken())
+      expect(response.data).toStrictEqual({ ...getCommonParams(), ...{ id: '713641' }, ...{ foo: 'bar' }, token: getToken() })
+    })
+  })
+
+  // 带完整参数的请求
+  it ('with complete parameters succees encryptVersion = v2', () => {
+    afterEach(() => {
+      vi.clearAllMocks()
+    })
+
+    const appParams: AppConfig = {
+      appId: '1203032031009',
+      merNo: '203032031009',
+      deviceId: 'htmlid',
+      indexDoc: 'xxx_h5',
+      domain: 'https://www.example.com/',
+      basic: 'xxx-interface',
+      basicImgUrl: 'https://www.example.com/static/'
+    }
+    const getToken = vi.fn()
+    const getCommonHeaders = vi.fn()
+    const getCommonParams = vi.fn()
+
+    getToken.mockImplementation(() => "tokentoken")
+    getCommonHeaders.mockImplementation(() => {
+      return {
+        appId: appParams.appId,
+        merNo: appParams.merNo,
+        Authorization: getToken(),
+      }
+    })
+    getCommonParams.mockImplementation(() => {
+      return {
+        appId: appParams.appId,
+        merNoNo: appParams.merNo,
+      }
+    })
+
+    const http = createHttp({
+      baseURL,
+      useEncrypt: true,
+      useSign: true,
+      encryptVersion: EncryptVersion.v2,
+      appKey: appKey1,
+      commonHeaders: getCommonHeaders,
+      commonParams: getCommonParams
+    })
+
+    return http.post('/encrypt/v2/success/real/', { id: '713642' }).then(response => {
+      expect(getToken).toBeCalledTimes(1)
+      expect(getCommonHeaders).toBeCalledTimes(1)
+      expect(getCommonParams).toBeCalledTimes(1)
+      expect(response.ok).toEqual(true)
+      expect(response.status).toEqual(200)
+      expect(response.success).toEqual(true)
+      expect(response.code).toEqual('SUCCESS')
+      expect(response.msg).toEqual('')
+      expect((response.data as any).body).toHaveProperty('id', '713642')
+      expect((response.data as any).body).toHaveProperty('appId', appParams.appId)
+      expect((response.data as any).body).toHaveProperty('merNoNo', appParams.merNo)
+      expect((response.data as any).body).toHaveProperty('foo', 'bar')
+      expect(response.data).toStrictEqual({
+        body: { ...getCommonParams(), ...{ id: '713642' }, ...{ foo: 'bar' }, token: getToken() },
+        returnCode: 'SUCCESS',
+        returnDes: '',
+      })
     })
   })
 })
