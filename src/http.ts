@@ -2,6 +2,7 @@ import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncReque
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
 import { isPromise, isNormalObject, isDef, isString } from './common'
+import { AppConfig } from './type'
 
 interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
@@ -15,6 +16,15 @@ interface CustomConfig {
   appKey?: string // 加密秘钥（在 useEncrypt 为 true 时比传）
   commonParams?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用参数，会拼接到接口调用时传递的参数上
   commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用 Header，自动拼接到 Header 上
+}
+
+interface UploadConfig<T = any> {
+  imageType: string,
+  onUploadProgress?: (e: T) => void
+}
+
+interface UploadInstance extends ApisauceInstance {
+  upload: <T, U = T>(url: string, imageData: string, config: UploadConfig) => Promise<ApiResponse<T, U>>
 }
 
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
@@ -409,5 +419,20 @@ export function createBaseHttp({ encrypt }: {
     useSign: encrypt,
     encryptVersion: EncryptVersion.v2
   })
+  return instance
+}
+
+// TODO: 添加说明次方法只能在 web 环境使用？
+export function createUploadHttp(appConfig: AppConfig, config: ApisauceConfig): UploadInstance {
+  const instance = create(config) as UploadInstance
+  instance.upload = (url: string, imageData: string, uploadConfig: UploadConfig) => {
+    const { imageType, onUploadProgress } = uploadConfig
+    console.log(imageType)
+    // base64转为blob，是否兼容 web、Node.js
+    const blob = new Blob([imageData])
+    const formData = new FormData()
+    formData.append('file', blob)
+    return instance.post<any>(url, formData, { ...config, onUploadProgress: onUploadProgress || config.onUploadProgress })
+  }
   return instance
 }
