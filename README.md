@@ -79,3 +79,7 @@ import { decodeOAuthUrl } from '@dinofe/xt-core'
 
 const wechatOptions = decodeOAuthUrl(url) // wechatOptions是个对象
 ```
+
+# 开源协议
+
+[MIT License](./LICENSE)
