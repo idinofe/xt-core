@@ -24,7 +24,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build:types": "npx tsc --declaration --outDir types --emitDeclarationOnly",
+    "build:types": "npx tsc --declaration --outDir types --emitDeclarationOnly -p tsconfig.build.json",
     "build": "npm run build:types && father build",
     "test": "node test/index.test.js",
     "vitest": "vitest",
