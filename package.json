@@ -29,7 +29,8 @@
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
-    "vitest:ui": "vitest --ui"
+    "vitest:ui": "vitest --ui",
+    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest"
   },
   "sideEffects": false,
   "files": [
