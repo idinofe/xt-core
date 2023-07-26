@@ -8,10 +8,21 @@
 <script>
 /* eslint-disable import/no-duplicates */
 import { genOAuthUrl, WxScope } from '@dinofe/xt-core'
+import { createHttp } from '@dinofe/xt-core/http'
 import { isString } from '@dinofe/xt-core/common'
 import DStorage from '@dinofe/xt-core/storage/index'
 import Storage from '@dinofe/xt-core/storage'
 import HelloWorld from './components/HelloWorld.vue'
+
+const http = createHttp({
+  baseURL: '/api-hbccb'
+  // useEncrypt: false,
+  // commonParams: () => Promise.resolve({
+  //   appId: '3130042001040',
+  //   merNoNo: '130042001040',
+  //   deviceId: 'hbjh_h5',
+  // })
+})
 
 export default {
   name: 'App',
@@ -30,6 +41,20 @@ export default {
     console.log(isString(url))
     console.log(DStorage)
     console.log(Storage)
+
+    http.post('/user/bankQuickLogin', {
+      openid: '123',
+      headimgurl: '',
+      nickname: ''
+    }).then(res => {
+      if (res.success) {
+        console.log('登录成功')
+      } else {
+        console.log(res.msg)
+      }
+    }).catch(e => {
+      console.log(e)
+    })
   }
 }
 </script>

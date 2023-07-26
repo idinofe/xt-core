@@ -12,5 +12,14 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    proxy: {
+      '/api-hbccb': {
+        target: 'https://yfzx.whty.com.cn/dev-c2b/hbccb-interface',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api-hbccb/, ''),
+      },
+    }
   }
 })
