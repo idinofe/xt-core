@@ -3,6 +3,7 @@ import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
 import { isPromise, isNormalObject, isDef, isString } from './common'
 import { AppConfig } from './type'
+import { base64ToBlob, MIME_TYPE } from './web'
 
 interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
@@ -19,12 +20,19 @@ interface CustomConfig {
 }
 
 interface UploadConfig<T = any> {
-  imageType: string,
+  fileKey?: string
   onUploadProgress?: (e: T) => void
 }
 
+type UploadData = {
+  data: string
+  mimeType: MIME_TYPE
+} & {
+  file: Blob | File
+}
+
 interface UploadInstance extends ApisauceInstance {
-  upload: <T, U = T>(url: string, imageData: string, config: UploadConfig) => Promise<ApiResponse<T, U>>
+  upload: <T, U = T>(url: string, data: UploadData, config: UploadConfig) => Promise<ApiResponse<T, U>>
 }
 
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
@@ -405,9 +413,9 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
 }
 
 /**
- * @deprecated
- * @param param0 
- * @param config 
+ * 创建基础 API 实例
+ * @param param0 { encrypt: boolean } 若为 true，则加密加签同时启用，默认采用 V2 版本加密协议
+ * @param config {HttpConfig}
  * @returns 
  */
 export function createBaseHttp({ encrypt }: {
@@ -422,16 +430,26 @@ export function createBaseHttp({ encrypt }: {
   return instance
 }
 
-// TODO: 添加说明次方法只能在 web 环境使用？
+/**
+ * 上传文件（使用了 FormData，故只能在 web 环境使用）
+ * @platform web
+ * @param appConfig {AppConfig}
+ * @param config {ApiSauceConfig}
+ * @returns {UploadInstance}
+ */
 export function createUploadHttp(appConfig: AppConfig, config: ApisauceConfig): UploadInstance {
   const instance = create(config) as UploadInstance
-  instance.upload = (url: string, imageData: string, uploadConfig: UploadConfig) => {
-    const { imageType, onUploadProgress } = uploadConfig
-    console.log(imageType)
-    // base64转为blob，是否兼容 web、Node.js
-    const blob = new Blob([imageData])
+  instance.upload = (url: string, uploadData: UploadData, uploadConfig: UploadConfig) => {
+    let blob
+    if (uploadData.data) {
+      blob = base64ToBlob(uploadData.data, uploadData.mimeType)
+    } else {
+      blob = uploadData.file
+    }
+    const { onUploadProgress, fileKey } = uploadConfig
     const formData = new FormData()
-    formData.append('file', blob)
+    formData.append(fileKey || 'file', blob)
+    // TODO: 生成签名 sign
     return instance.post<any>(url, formData, { ...config, onUploadProgress: onUploadProgress || config.onUploadProgress })
   }
   return instance
