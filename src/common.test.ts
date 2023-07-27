@@ -49,7 +49,6 @@ describe('genMessageId', () => {
   })
   it('content matched to Date', () => {
     const date = new Date(2023, 6, 27)
-    console.log(date)
     vi.setSystemTime(date)
     expect(genMessageId().slice(0, 8)).toEqual('20230727')
     expect(genMessageId().slice(8, 16)).toEqual('00000000')
