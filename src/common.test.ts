@@ -1,6 +1,60 @@
 import Big from "big.js"
-import { divide, floatDivide, floatMultiply, isEncodeURILike, isFunction, isNormalObject, isPromise, minus, multiply, plus, toNonExponential } from "./common"
+import { divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, randomNumber, toNonExponential } from "./common"
 
+describe('isNumber', () => {
+  it('normal case', () => {
+    [1, 100, Infinity].forEach(i => {
+      expect(isNumber(i)).toEqual(true)
+    })
+  })
+  it('error case', () => {
+    ['aa', '11', true, false, null, undefined, Symbol(), {}].forEach(i => {
+      expect(isNumber(i)).toEqual(false)
+    })
+  })
+})
+
+describe('randomNumber', () => {
+  it('normal case', () => {
+    expect(randomNumber(0)).toHaveLength(0)
+    expect(randomNumber(10)).toHaveLength(10)
+    expect(randomNumber(15)).toHaveLength(15)
+    expect(randomNumber(20)).toHaveLength(20)
+    expect(randomNumber()).toHaveLength(20)
+    expect(randomNumber(100)).toHaveLength(100)
+    expect(randomNumber(1000)).toHaveLength(1000)
+  })
+  it('error case', () => {
+    expect(() => randomNumber(-1)).toThrowError('len must great than -1')
+    expect(() => randomNumber(undefined)).not.toThrowError('len must be an Number')
+    expect(() => randomNumber(null as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber({} as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber('aaa' as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber('111' as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber(true as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber(Symbol() as any)).toThrowError('len must be an Number')
+  })
+})
+
+describe('genMessageId', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+  it('normal case', () => {
+    expect(() => genMessageId()).not.toThrowError()
+    expect(genMessageId()).toHaveLength(21)
+  })
+  it('content matched to Date', () => {
+    const date = new Date(2023, 6, 27)
+    console.log(date)
+    vi.setSystemTime(date)
+    expect(genMessageId().slice(0, 8)).toEqual('20230727')
+    expect(genMessageId().slice(8, 16)).toEqual('00000000')
+  })
+})
 
 describe('isEncodeURILike', () => {
   const mockDatas1 = [

@@ -27,6 +27,15 @@ export const isString = (a: any): boolean => {
 }
 
 /**
+ * 是否为Number
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isNumber = (a: any): boolean => {
+  return typeof a === 'number'
+}
+
+/**
  * 是否为 Promise 对象
  * @param a {any}
  * @returns {boolean}
@@ -88,6 +97,53 @@ export const isBlobUrlLike = (url: string): boolean => {
  * 空函数
  */
 export const noop = () => {}
+
+/**
+ * 生成随机数字符串
+ * @param len {number}
+ * @returns {string}
+ */
+export const randomNumber = (len: number = 20): string => {
+  if (!isNumber(len)) {
+    throw new Error("len must be an Number")
+  }
+  if (len < 0) {
+    throw new Error("len must great than -1")
+  }
+  const random = () => (Math.random() + '').replace('0.', '')
+  let rand = random().slice(0, len)
+  while (rand.length < len) {
+    rand += random()
+  }
+  return rand.slice(0, len)
+}
+
+/**
+ * 生成 21 位长度的消息 ID
+ * @returns {string}
+ */
+export const genMessageId = (): string => {
+  const date = new Date()
+  const Y = date.getFullYear()
+  const M = date.getMonth() + 1
+  const D = date.getDate()
+  const H = date.getHours()
+  const m = date.getMinutes()
+  const s = date.getSeconds()
+  const ms = date.getMilliseconds()
+  const month = M >= 10 ? '' + M : '0' + M
+  const day = D >= 10 ? '' + D : '0' + D
+  const hour = H >= 10 ? '' + H : '0' + H
+  const minute = m >= 10 ? '' + m : '0' + m
+  const second = s >= 10 ? '' + s : '0' + s
+  let minsec = '' + ms
+  if (ms < 10) {
+    minsec = '00' + ms
+  } else if (ms < 100 && ms >= 10) {
+    minsec = '0' + ms
+  }
+  return Y + month + day + hour + minute + second + minsec + randomNumber(4)
+}
 
 /**
  * 将科学计数法的数字转为字符串
