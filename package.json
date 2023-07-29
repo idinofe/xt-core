@@ -1,7 +1,6 @@
 {
   "name": "@dinofe/xt-core",
   "version": "0.0.12",
-  "main": "lib/index.js",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -14,6 +13,7 @@
     "@types/koa-router": "^7.4.4",
     "@types/qs": "^6.9.7",
     "@vitest/ui": "^0.32.2",
+    "father": "^4.2.3",
     "husky": "^7.0.1",
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
@@ -25,23 +25,44 @@
   "scripts": {
     "prepare": "husky install",
     "clean": "rimraf lib && rimraf types",
-    "build": "npm run clean && tsc --outDir lib --declarationDir types -p tsconfig.build.json",
     "clean:service": "rimraf service",
     "build:service": "npm run clean:service && tsc -p tsconfig.service.json",
     "mock:service": "npm run build:service && node service/test/start_service.js",
+    "build:types": "npx tsc --declaration --outDir types --emitDeclarationOnly -p tsconfig.build.json",
+    "build": "npm run build:types && father build",
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
-    "vitest:ui": "vitest --ui"
+    "vitest:ui": "vitest --ui",
+    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest"
   },
-  "directories": {
-    "lib": "lib"
-  },
+  "sideEffects": false,
   "files": [
-    "lib",
+    "dist",
     "types"
   ],
-  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    },
+    "./*": {
+      "types": "./types/*.d.ts",
+      "import": "./dist/esm/*.js",
+      "default": "./dist/cjs/*.js"
+    },
+    "./storage/*": {
+      "types": "./types/storage/*.d.ts",
+      "import": "./dist/esm/storage/*.js",
+      "default": "./dist/cjs/storage/*.js"
+    }
+  },
+  "types": "./types/index.d.ts",
+  "module": "./dist/esm/index",
+  "main": "./dist/cjs/index",
+  "unpkg": "./dist/umd/xt-core.min.js",
+  "jsdelivr": "./dist/umd/xt-core.min.js",
   "dependencies": {
     "@types/big.js": "^6.1.6",
     "apisauce": "^3.0.1",
