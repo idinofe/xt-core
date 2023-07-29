@@ -28,12 +28,12 @@ interface UploadConfig<T = any> {
 type UploadData = {
   data: string
   mimeType: MIME_TYPE
-} & {
+} | {
   file: Blob | File
 }
 
 interface UploadInstance extends ApisauceInstance {
-  upload: <T, U = T>(url: string, data: UploadData, config?: UploadConfig) => Promise<ApiResponse<T, U>>
+  upload: <T, U = T>(url: string, data: UploadData, config?: UploadConfig) => Promise<XApiResponse<T, U>>
 }
 
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
@@ -438,7 +438,12 @@ export function createBaseHttp({ encrypt }: {
 }
 
 /**
- * 上传文件（使用了 FormData，故只能在 web 环境使用）
+ * 上传文件（Web 环境）
+ * 注意：
+ * 1.使用了 FormData，故只能在 web 环境使用
+ * 2.返回值是 UploadInstance 实例，建议只使用其 upload 方法，
+ *  ApisauceInstance 实例提供的其他发请求方法不要使用，可能导
+ *  致错误逻辑
  * @platform web
  * @param appConfig {AppConfig}
  * @param config {ApiSauceConfig}
@@ -482,10 +487,10 @@ export function createUploadHttp(
     uploadConfig: UploadConfig = {}
   ) => {
     let blob
-    if (uploadData.data) {
-      blob = base64ToBlob(uploadData.data, uploadData.mimeType)
+    if ((uploadData as any).data) {
+      blob = base64ToBlob((uploadData as any).data, (uploadData as any).mimeType)
     } else {
-      blob = uploadData.file
+      blob = (uploadData as any).file
     }
     const { onUploadProgress, fileKey } = uploadConfig
     const formData = new FormData()

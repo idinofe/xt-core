@@ -1,10 +1,11 @@
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { createHttp, EncryptVersion } from './http'
+import { createHttp, createUploadHttp, EncryptVersion } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
 import { AppConfig } from './type'
+import { MIME_TYPE } from './web'
 
 // 创建一个本地的接口服务，用于真实的接口逻辑测试
 let port: number
@@ -680,6 +681,48 @@ describe('encrypt/decrypt success', () => {
         returnCode: 'SUCCESS',
         returnDes: '',
       })
+    })
+  })
+})
+
+// 文件上传-createUploadHttp
+describe('createUploadHttp success', () => {
+  const baseURL = 'https://example.com'
+  it('baseURL is correct', () => {
+    const http = createUploadHttp({
+      appId: 'appId',
+      merNo: 'merNo',
+      deviceId: 'deviceId'
+    }, {
+      baseURL,
+      appKey: appKey1,
+      getToken: function (): string {
+        return 'tokentoken'
+      }
+    })
+    expect(http.getBaseURL()).toEqual(baseURL)
+  })
+  // TODO: 此用例需要在真实的浏览器环境执行
+  it('normal data with returnCode = SUCCESS data is base64', () => {
+    const http = createUploadHttp({
+      appId: '3130042001040',
+      merNo: '130042001040',
+      deviceId: 'xxx_h5'
+    }, {
+      getToken: () => "tokentoken",
+      baseURL,
+      appKey: appKey1
+    })
+    return http.upload('/file/upload/sign/success', {
+      data: 'aadadada',
+      mimeType: MIME_TYPE.JPG,
+    }).then(response => {
+      expect(response.ok).toEqual(true)
+      expect(response.status).toEqual(200)
+      expect(response.success).toEqual(false)
+      expect(response.code).toEqual(undefined)
+      expect(response.msg).toEqual(undefined)
+      expect(response.data).toStrictEqual({ body: 'no path', returnCode: 'SUCCESS', returnDes: '' })
     })
   })
 })
