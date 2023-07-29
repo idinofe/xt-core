@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isPromise, isNormalObject, isDef, isString } from './common'
+import { isPromise, isNormalObject, isDef, isString, randomNumber, genMessageId } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -20,6 +20,7 @@ interface CustomConfig {
 }
 
 interface UploadConfig<T = any> {
+  fileName?: string
   fileKey?: string
   onUploadProgress?: (e: T) => void
 }
@@ -32,7 +33,7 @@ type UploadData = {
 }
 
 interface UploadInstance extends ApisauceInstance {
-  upload: <T, U = T>(url: string, data: UploadData, config: UploadConfig) => Promise<ApiResponse<T, U>>
+  upload: <T, U = T>(url: string, data: UploadData, config?: UploadConfig) => Promise<ApiResponse<T, U>>
 }
 
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
@@ -67,11 +68,17 @@ interface BaseTransform {
 }
 
 // export type XAsyncRequestTransform = ( request: CustomAxiosRequestConfig) => Promise<void> | ((request: CustomAxiosRequestConfig) => Promise<void>)
-export type XAsyncRequestTransform = ( request: AxiosRequestConfig, customConfig: CustomConfig) => Promise<void> | ((request: AxiosRequestConfig) => Promise<void>)
+export type XAsyncRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => Promise<void> | ((request: AxiosRequestConfig) => Promise<void>)
 
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
 export type HttpConfig = ApisauceConfig & CustomConfig
+
+export type UploadAppConfig = Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'>
+
+export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'useSign' | 'commonHeaders'> & {
+  getToken: () => string
+}
 
 export type CustomAxiosRequestConfig = AxiosRequestConfig & CustomConfig
 
@@ -125,7 +132,7 @@ const defaultEncryptTransform: XAsyncRequestTransform = async (request, customCo
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
   const appKey = customConfig.appKey
   const useSign = !!customConfig.useSign
-  
+
   if (!useEncrypt) {
     // console.log('未开启加密，不做处理')
     return
@@ -136,7 +143,7 @@ const defaultEncryptTransform: XAsyncRequestTransform = async (request, customCo
     return
   }
 
-  const encryptV1 = <T = any>(data: T, key: string, useSign: boolean): T  => {
+  const encryptV1 = <T = any>(data: T, key: string, useSign: boolean): T => {
     if (typeof data === 'undefined') {
       return data
     }
@@ -163,8 +170,8 @@ const defaultEncryptTransform: XAsyncRequestTransform = async (request, customCo
   }
 
   const ed = encryptVersion === EncryptVersion.v1
-              ? encryptV1<string>(request.data, appKey as any, useSign)
-              : encryptV2<BaseObject>(request.data, appKey as any, useSign)
+    ? encryptV1<string>(request.data, appKey as any, useSign)
+    : encryptV2<BaseObject>(request.data, appKey as any, useSign)
 
   if (encryptVersion === EncryptVersion.v1) {
     if (request.headers) {
@@ -216,7 +223,7 @@ const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, cus
   if (!commonHeaders) {
     return
   }
-  
+
   const p = commonHeaders(request)
   const params = isPromise(p) ? await p : p
   const headerKeys = Object.keys(params)
@@ -305,10 +312,10 @@ const defaultResponseTransform: XResponseTransform = (response) => {
       return undefined
     }
     return isDef(data[key])
-            ? data[key]
-            : isDef(data[key.toLowerCase()])
-            ? data[key.toLowerCase()]
-            : data[key]
+      ? data[key]
+      : isDef(data[key.toLowerCase()])
+        ? data[key.toLowerCase()]
+        : data[key]
   }
   const _returnCode1 = getHeader(headers, 'returnCode')
   const _returnCode2 = getHeader(data, 'returnCode')
@@ -316,16 +323,16 @@ const defaultResponseTransform: XResponseTransform = (response) => {
   const _returnDes2 = getHeader(data, 'returnDes')
 
   const returnCode = headers && isDef(_returnCode1)
-                      ? _returnCode1
-                      : data && isNormalObject(data) && _returnCode2
-                      ? _returnCode2
-                      : undefined
+    ? _returnCode1
+    : data && isNormalObject(data) && _returnCode2
+      ? _returnCode2
+      : undefined
 
   const returnDes = headers && isDef(_returnDes1)
-                    ? _returnDes1
-                    : data && isNormalObject(data) && isDef(_returnDes2)
-                    ? _returnDes2
-                    : undefined
+    ? _returnDes1
+    : data && isNormalObject(data) && isDef(_returnDes2)
+      ? _returnDes2
+      : undefined
 
   response.success = returnCode === RETURN_CODE_SUCCESS
   response.code = returnCode
@@ -363,7 +370,7 @@ const defaultTokenCheckTransform: XResponseTransform = (response) => {
 const defaultFailTransform: ResponseTransform = (response) => {
   const config = getCustomConfig(response)
   const data = response.data
-  const onFail =  config && config.onFail
+  const onFail = config && config.onFail
   const warn = () => {
     if (!onFail && process.env.NODE_ENV === 'development') {
       console.warn('config.onFail hook not configured')
@@ -437,9 +444,43 @@ export function createBaseHttp({ encrypt }: {
  * @param config {ApiSauceConfig}
  * @returns {UploadInstance}
  */
-export function createUploadHttp(appConfig: AppConfig, config: ApisauceConfig): UploadInstance {
-  const instance = create(config) as UploadInstance
-  instance.upload = (url: string, uploadData: UploadData, uploadConfig: UploadConfig) => {
+export function createUploadHttp(
+    appConfig: UploadAppConfig,
+    config: UploadHttpConfig
+  ): UploadInstance {
+
+  if (!config.appKey) {
+    throw new Error('appKey is required')
+  }
+
+  // const instance = create(config) as UploadInstance
+
+  const instance = createHttp({
+    ...config,
+    useEncrypt: false,
+    useSign: false,
+    commonHeaders: () => {
+      const signBody = createSign({
+        appId: appConfig.appId,
+        merNoNo: appConfig.merNo,
+        msgId: genMessageId(),
+        random: randomNumber(15),
+      }, config.appKey as string)
+      return Promise.resolve({
+        Authorization: config.getToken ? config.getToken() : null,
+        encodeMethod: '1',
+        signMethod: '1',
+        appId: appConfig.appId,
+        signBody
+      })
+    }
+  }) as UploadInstance
+
+  instance.upload = (
+    url: string,
+    uploadData: UploadData,
+    uploadConfig: UploadConfig = {}
+  ) => {
     let blob
     if (uploadData.data) {
       blob = base64ToBlob(uploadData.data, uploadData.mimeType)
@@ -448,8 +489,7 @@ export function createUploadHttp(appConfig: AppConfig, config: ApisauceConfig): 
     }
     const { onUploadProgress, fileKey } = uploadConfig
     const formData = new FormData()
-    formData.append(fileKey || 'file', blob)
-    // TODO: 生成签名 sign
+    formData.append(fileKey || 'file', blob, uploadConfig.fileName || 'image.jpg')
     return instance.post<any>(url, formData, { ...config, onUploadProgress: onUploadProgress || config.onUploadProgress })
   }
   return instance
