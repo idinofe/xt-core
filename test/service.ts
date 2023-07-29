@@ -4,7 +4,7 @@ import { koaBody } from 'koa-body'
 // import fs from 'fs'
 import http from 'http'
 import path from 'path'
-import { decrypt, encrypt } from 'decrypt-core'
+import { createSign, decrypt, encrypt } from 'decrypt-core'
 import { isDef, isString } from '../src/common'
 import { RETURN_CODE_FAIL, RETURN_CODE_SUCCESS } from '../src'
 
@@ -114,6 +114,55 @@ export function createApp () {
       };
     }
   });
+
+  // 文件上传-验签
+  router.post('/file/upload/sign/success', async (ctx) => {
+    if (!ctx.request.files) {
+      ctx.body = {
+        body: 'no path',
+        returnCode: 'SUCCESS',
+        returnDes: '',
+      }
+    } else {
+      // 验签
+      log(ctx.request.headers)
+
+      const data = {
+        appid: ctx.request.headers.appid,
+        merNoNo: ctx.request.headers.mernono,
+        msgId: ctx.request.headers.msgid,
+        random: ctx.request.headers.random,
+      }
+
+      const sign = createSign(data, appKey1)
+
+      log('sign data', data)
+      log('received sign', ctx.request.headers.signbody, 'generated sign', sign)
+
+      if (sign !== ctx.request.headers.signbody) {
+        ctx.body = {
+          body: null,
+          returnCode: 'FAIL',
+          returnDes: '验签失败'
+        }
+        return
+      }
+
+      const fileExtension = '.txt';
+      const _path = `uploads/${Date.now()}${fileExtension}`; // 保存文件的相对路径
+      const filePath = path.resolve(__dirname, _path)
+      // 不真实写入文件
+      // const stream = fs.createWriteStream(filePath);
+      // reader.pipe(stream);
+      log(filePath);
+  
+      ctx.body = {
+        body: filePath,
+        returnCode: 'SUCCESS',
+        returnDes: '',
+      };
+    }
+  })
 
   // 加解密v1
   router.post('/encrypt/v1/success/json/', async (ctx) => {
