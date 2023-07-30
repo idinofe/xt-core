@@ -703,26 +703,26 @@ describe('createUploadHttp success', () => {
     expect(http.getBaseURL()).toEqual(baseURL)
   })
   // TODO: 此用例需要在真实的浏览器环境执行
-  it('normal data with returnCode = SUCCESS data is base64', () => {
-    const http = createUploadHttp({
-      appId: '3130042001040',
-      merNo: '130042001040',
-      deviceId: 'xxx_h5'
-    }, {
-      getToken: () => "tokentoken",
-      baseURL,
-      appKey: appKey1
-    })
-    return http.upload('/file/upload/sign/success', {
-      data: 'aadadada',
-      mimeType: MIME_TYPE.JPG,
-    }).then(response => {
-      expect(response.ok).toEqual(true)
-      expect(response.status).toEqual(200)
-      expect(response.success).toEqual(false)
-      expect(response.code).toEqual(undefined)
-      expect(response.msg).toEqual(undefined)
-      expect(response.data).toStrictEqual({ body: 'no path', returnCode: 'SUCCESS', returnDes: '' })
-    })
-  })
+  // it('normal data with returnCode = SUCCESS data is base64', () => {
+  //   const http = createUploadHttp({
+  //     appId: '3130042001040',
+  //     merNo: '130042001040',
+  //     deviceId: 'xxx_h5'
+  //   }, {
+  //     getToken: () => "tokentoken",
+  //     baseURL,
+  //     appKey: appKey1
+  //   })
+  //   return http.upload('/file/upload/sign/success', {
+  //     data: 'aadadada',
+  //     mimeType: MIME_TYPE.JPG,
+  //   }).then(response => {
+  //     expect(response.ok).toEqual(true)
+  //     expect(response.status).toEqual(200)
+  //     expect(response.success).toEqual(false)
+  //     expect(response.code).toEqual(undefined)
+  //     expect(response.msg).toEqual(undefined)
+  //     expect(response.data).toStrictEqual({ body: 'no path', returnCode: 'SUCCESS', returnDes: '' })
+  //   })
+  // })
 })

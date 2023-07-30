@@ -2,6 +2,7 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
     <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <UploadFile></UploadFile>
   </div>
 </template>
 
@@ -11,8 +12,10 @@ import { genOAuthUrl, WxScope } from '@dinofe/xt-core'
 import { createHttp } from '@dinofe/xt-core/http'
 import { isString } from '@dinofe/xt-core/common'
 import DStorage from '@dinofe/xt-core/storage/index'
-import Storage from '@dinofe/xt-core/storage'
+// FIXME: 这个引入写法会报错：找不到模块
+// import Storage from '@dinofe/xt-core/storage'
 import HelloWorld from './components/HelloWorld.vue'
+import UploadFile from './components/UploadFile.vue'
 
 const http = createHttp({
   baseURL: '/api-hbccb'
@@ -27,7 +30,8 @@ const http = createHttp({
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    UploadFile
   },
   mounted () {
     const url = genOAuthUrl({
@@ -40,7 +44,7 @@ export default {
     // exports 导出的方法能正常引入使用，但是没有类型提示
     console.log(isString(url))
     console.log(DStorage)
-    console.log(Storage)
+    // console.log(Storage)
 
     http.post('/user/bankQuickLogin', {
       openid: '123',
