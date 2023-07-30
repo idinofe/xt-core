@@ -91,7 +91,7 @@ describe('check config', () => {
     return http.post('/number/200', data).then(response => {
       expect(getCommonParams).toBeCalledTimes(1)
       expect(response.config?.commonParams).toStrictEqual(getCommonParams)
-      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...commonParams, ...data }))
+      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...commonParams, body: data }))
     })
   })
 
@@ -632,7 +632,8 @@ describe('encrypt/decrypt success', () => {
       indexDoc: 'xxx_h5',
       domain: 'https://www.example.com/',
       basic: 'xxx-interface',
-      basicImgUrl: 'https://www.example.com/static/'
+      basicImgUrl: 'https://www.example.com/static/',
+      appKey: appKey1
     }
     const getToken = vi.fn()
     const getCommonHeaders = vi.fn()
@@ -672,12 +673,13 @@ describe('encrypt/decrypt success', () => {
       expect(response.success).toEqual(true)
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
-      expect((response.data as any).body).toHaveProperty('id', '713642')
+      expect((response.data as any).body).toHaveProperty('body')
+      expect((response.data as any).body.body).toHaveProperty('id', '713642')
       expect((response.data as any).body).toHaveProperty('appId', appParams.appId)
       expect((response.data as any).body).toHaveProperty('merNoNo', appParams.merNo)
       expect((response.data as any).body).toHaveProperty('foo', 'bar')
       expect(response.data).toStrictEqual({
-        body: { ...getCommonParams(), ...{ id: '713642' }, ...{ foo: 'bar' }, token: getToken() },
+        body: { ...getCommonParams(), body: { id: '713642' }, ...{ foo: 'bar' }, token: getToken() },
         returnCode: 'SUCCESS',
         returnDes: '',
       })

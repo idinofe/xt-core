@@ -298,7 +298,7 @@ export function createApp () {
       log('start decrypt', ctx.request.body.body, appKey1)
       dd = decrypt(ctx.request.body.body, appKey1)
       log('decrypted ', dd)
-      data = { ...dd, foo: 'bar', token: ctx.request.headers.authorization }
+      data = { appId: dd.appId, merNoNo: dd.merNoNo, body: dd.body, foo: 'bar', token: ctx.request.headers.authorization }
       log('start encrypt', data, appKey1)
       ed = encrypt(data, appKey1) as any
       log('encrypted ', ed)
@@ -308,7 +308,7 @@ export function createApp () {
 
     // TODO: 添加验签逻辑
 
-    if (!dd) {
+    if (!dd || !dd) {
       ctx.body = {
         body: null,
         returnCode: 'FAIL',
@@ -317,7 +317,7 @@ export function createApp () {
       return
     }
 
-    if (!dd.id) {
+    if (!dd.body || !dd.body.id) {
       ctx.body = {
         body: null,
         returnCode: 'FAIL',

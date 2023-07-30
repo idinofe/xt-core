@@ -206,13 +206,13 @@ const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, cus
       // 加密方法二
       request.data = {
         ...params,
-        ...request.data,
+        body: request.data,
       }
     }
   } else {
     request.data = {
       ...params,
-      ...request.data,
+      body: request.data,
     }
   }
 }
@@ -425,14 +425,16 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
  * @param config {HttpConfig}
  * @returns 
  */
-export function createBaseHttp({ encrypt }: {
-  encrypt: boolean
+export function createBaseHttp({ encrypt, commonParams = {} }: {
+  encrypt: boolean,
+  commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>
 }, config: HttpConfig): XApisauceInstance {
   const instance = createHttp({
     ...config,
     useEncrypt: encrypt,
     useSign: encrypt,
-    encryptVersion: EncryptVersion.v2
+    encryptVersion: EncryptVersion.v2,
+    commonParams: () => Promise.resolve(commonParams)
   })
   return instance
 }
@@ -495,7 +497,13 @@ export function createUploadHttp(
     const { onUploadProgress, fileKey } = uploadConfig
     const formData = new FormData()
     formData.append(fileKey || 'file', blob, uploadConfig.fileName || 'image.jpg')
-    return instance.post<any>(url, formData, { ...config, onUploadProgress: onUploadProgress || config.onUploadProgress })
+    return instance.post<any>(url, formData, {
+      ...config,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: onUploadProgress || config.onUploadProgress
+    })
   }
   return instance
 }
