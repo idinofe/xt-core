@@ -7,7 +7,7 @@
 </template>
 
 <script>
-/* eslint-disable import/no-duplicates */
+/* eslint-disable import/no-duplicates, no-unused-vars */
 import { genOAuthUrl, WxScope } from '@dinofe/xt-core'
 import { createHttp } from '@dinofe/xt-core/http'
 import { isString } from '@dinofe/xt-core/common'
@@ -46,19 +46,19 @@ export default {
     console.log(DStorage)
     // console.log(Storage)
 
-    http.post('/user/bankQuickLogin', {
-      openid: '123',
-      headimgurl: '',
-      nickname: ''
-    }).then(res => {
-      if (res.success) {
-        console.log('登录成功')
-      } else {
-        console.log(res.msg)
-      }
-    }).catch(e => {
-      console.log(e)
-    })
+    // http.post('/user/bankQuickLogin', {
+    //   openid: '123',
+    //   headimgurl: '',
+    //   nickname: ''
+    // }).then(res => {
+    //   if (res.success) {
+    //     console.log('登录成功')
+    //   } else {
+    //     console.log(res.msg)
+    //   }
+    // }).catch(e => {
+    //   console.log(e)
+    // })
   }
 }
 </script>
