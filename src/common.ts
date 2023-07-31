@@ -1,15 +1,14 @@
-import _Big from 'big.js'
+/**
+ * 基础公共方法（纯JS方法不依赖于执行环境）
+ */
 
+import _Big from 'big.js'
 import type TBig from 'big.js'
 
 export const Big = _Big
 
 /**
- * 核心库通用公共方法
- */
-
-/**
- * 是否为有效的值
+ * 是否为有效的值（非undefined/'undefined'/null）
  * @param a {any}
  * @returns {boolean}
  */
@@ -27,12 +26,12 @@ export const isString = (a: any): boolean => {
 }
 
 /**
- * 是否为Number
+ * 是否为有效Number
  * @param a {any}
  * @returns {boolean}
  */
 export const isNumber = (a: any): boolean => {
-  return typeof a === 'number'
+  return typeof a === 'number' && !Number.isNaN(a)
 }
 
 /**
