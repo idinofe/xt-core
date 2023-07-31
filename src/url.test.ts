@@ -1,3 +1,5 @@
+import { isEndWithSlash, isStartWithSlash } from "./common"
+import { appendBaiscUrl } from "./url"
 import { genRedirectUrl, genOAuthUrl } from "./wechat" 
 
 const options = {
@@ -18,6 +20,54 @@ const wechatOptions = {
   redirect_url: genRedirectUrl(options),
   state: '0'
 }
+
+describe('isStartWithSlash', () => {
+  it('normal', () => {
+    expect(isStartWithSlash('/')).toEqual(true)
+    expect(isStartWithSlash('/aaa/bbb')).toEqual(true)
+    expect(isStartWithSlash('//')).toEqual(true)
+  })
+})
+
+describe('isEndWithSlash', () => {
+  it('normal', () => {
+    expect(isEndWithSlash('/')).toEqual(true)
+    expect(isEndWithSlash('/aaa/bbbb/')).toEqual(true)
+    expect(isEndWithSlash('/aaa/bbbb//')).toEqual(true)
+  })
+})
+
+describe('appendBaiscUrl', () => {
+  it('normal', () => {
+    expect(appendBaiscUrl('http://www.example.com/haha/', '/page1/')).toEqual('http://www.example.com/haha/page1/')
+    expect(appendBaiscUrl('http://www.example.com/haha', '/page1/')).toEqual('http://www.example.com/haha/page1/')
+    expect(appendBaiscUrl('http://www.example.com/haha', 'page1/')).toEqual('http://www.example.com/haha/page1/')
+    expect(appendBaiscUrl('http://www.example.com/haha/', 'page1')).toEqual('http://www.example.com/haha/page1')
+    expect(appendBaiscUrl('http://www.example.com/haha', '/page1')).toEqual('http://www.example.com/haha/page1')
+    expect(appendBaiscUrl('http://www.example.com/haha', 'page1')).toEqual('http://www.example.com/haha/page1')
+  })
+  it('normal with empty string', () => {
+    expect(appendBaiscUrl('', 'aaa')).toEqual('/aaa')
+    expect(appendBaiscUrl('aaa', '')).toEqual('aaa/')
+    expect(appendBaiscUrl('', '')).toEqual('/')
+
+    expect(appendBaiscUrl('', 'aaa/bbb')).toEqual('/aaa/bbb')
+    expect(appendBaiscUrl('aaa/bbb', '')).toEqual('aaa/bbb/')
+
+    expect(appendBaiscUrl('', 'aaa/bbb/ccc/')).toEqual('/aaa/bbb/ccc/')
+    expect(appendBaiscUrl('aaa/bbb/ccc/', '')).toEqual('aaa/bbb/ccc/')
+  })
+  it('error with undefined', () => {
+    let a: any = undefined
+    let b: any = undefined
+    expect(() => appendBaiscUrl(a, b)).toThrowError()
+  })
+  it('error with null', () => {
+    let a: any = null
+    let b: any = null
+    expect(() => appendBaiscUrl(a, b)).toThrowError()
+  })
+})
 
 describe('genRedirectUrl', () => {
   it('normal', () => {

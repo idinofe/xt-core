@@ -17,6 +17,39 @@ export const isDef = (a: any): boolean => {
 }
 
 /**
+ * 是否为未定义（undefiend/null）
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isUndef = (a: any): boolean => {
+  return typeof a === 'undefined' || a === null
+}
+
+/**
+ * 字符串是否以/结尾
+ * @param a {string}
+ * @returns {boolean}
+ */
+export const isEndWithSlash = (a: string): boolean => {
+  if (!isString(a)) {
+    throw new Error('param is not string')
+  }
+  return /\/$/.test(a)
+}
+
+/**
+ * 字符串是否以/开头
+ * @param a {string}
+ * @returns {boolean}
+ */
+export const isStartWithSlash = (a: string): boolean => {
+  if (!isString(a)) {
+    throw new Error('param is not string')
+  }
+  return /^\//.test(a)
+}
+
+/**
  * 是否为字符串
  * @param a {any}
  * @returns {boolean}

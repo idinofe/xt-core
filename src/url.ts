@@ -4,6 +4,7 @@
  * 2.拼接图片基础域名
  */
 
+import { isEndWithSlash, isStartWithSlash, isUndef } from './common'
 import { AppConfig } from './type'
 
 export type BasicUrlConfig = Partial<AppConfig>
@@ -37,10 +38,27 @@ function trim(url: string) {
  * @param {String} url 相对路径（不以/开头）
  */
 export const appendBaiscUrl = (basicUrl: string, url: string) => {
-  if (!isUrl(url) || !basicUrl) {
-    return url
+  if (isUndef(basicUrl)) {
+    throw new Error('basicUrl is undefined')
   }
-  return `${trim(basicUrl)}/${url}`
+  if (isUndef(url)) {
+    throw new Error('url is undefined')
+  }
+
+  let _basicUrl = basicUrl.trim()
+  let _url = url.trim()
+
+  if (isEndWithSlash(_basicUrl)) {
+    console.log(_basicUrl)
+    _basicUrl = _basicUrl.slice(0, -2)
+    console.log(_basicUrl)
+  }
+
+  if (isStartWithSlash(_url)) {
+    _url = _url.slice(1, _url.length)
+  }
+
+  return `${trim(_basicUrl)}/${_url}`
 }
 
 /**
