@@ -8,6 +8,7 @@ import DStorage from '@dinofe/xt-core/storage/index'
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
 import UploadFile from './components/UploadFile.vue'
+import LoginWithEncrypt from './components/LoginWithEncrypt.vue'
 
 const http = createHttp({
   baseURL: '/api-hbccb',
@@ -57,6 +58,7 @@ onMounted(() => {
       <HelloWorld msg="You did it!" />
     </div>
     <UploadFile></UploadFile>
+    <LoginWithEncrypt></LoginWithEncrypt>
   </header>
 
   <main>
