@@ -50,7 +50,7 @@ export const appendBaiscUrl = (basicUrl: string, url: string) => {
 
   if (isEndWithSlash(_basicUrl)) {
     console.log(_basicUrl)
-    _basicUrl = _basicUrl.slice(0, -2)
+    _basicUrl = _basicUrl.slice(0, -1)
     console.log(_basicUrl)
   }
 
