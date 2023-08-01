@@ -7,6 +7,7 @@ import DStorage from '@dinofe/xt-core/storage/index'
 // import Storage from '@dinofe/xt-core/storage'
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
+import UploadFile from './components/UploadFile.vue'
 
 const http = createHttp({
   baseURL: '/api-hbccb',
@@ -55,6 +56,7 @@ onMounted(() => {
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
     </div>
+    <UploadFile></UploadFile>
   </header>
 
   <main>
