@@ -65,7 +65,7 @@ export default {
 
       if (!token.get()) {
         console.log('未登录，开始自动登录...')
-        await this.login()
+        await this.login('15856151')
       }
 
       uploadHttp.upload('/api-hbccb/file/upload/stream/sign', { file }, { onUploadProgress: this.onUploadProgress })
