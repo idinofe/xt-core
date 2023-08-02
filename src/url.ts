@@ -49,9 +49,7 @@ export const appendBaiscUrl = (basicUrl: string, url: string) => {
   let _url = url.trim()
 
   if (isEndWithSlash(_basicUrl)) {
-    console.log(_basicUrl)
     _basicUrl = _basicUrl.slice(0, -1)
-    console.log(_basicUrl)
   }
 
   if (isStartWithSlash(_url)) {

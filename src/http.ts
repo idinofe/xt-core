@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isPromise, isNormalObject, isDef, isString, randomNumber, genMessageId } from './common'
+import { isPromise, isNormalObject, isDef, isString, randomNumber, genMessageId, isFunction, promisify } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -425,16 +425,36 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
  * @param config {HttpConfig}
  * @returns 
  */
-export function createBaseHttp({ encrypt, commonParams = {} }: {
+export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
   encrypt: boolean,
-  commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>
+  commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>,
+  authorization: string | null | (() => (string | null)) | (() => Promise<string | null>)
 }, config: HttpConfig): XApisauceInstance {
+  // let getAuthorization: any
+  // if (isFunction(authorization)) {
+  //   let token = (authorization as any)()
+  //   if (isPromise(token)) {
+  //     getAuthorization = () => token
+  //   } else {
+  //     getAuthorization = () => Promise.resolve(token)
+  //   }
+  // } else {
+  //   let token = authorization
+  //   getAuthorization = () => Promise.resolve(token)
+  // }
+  const getAuthorization = () => promisify(authorization)
   const instance = createHttp({
     ...config,
     useEncrypt: encrypt,
     useSign: encrypt,
     encryptVersion: EncryptVersion.v2,
-    commonParams: () => Promise.resolve(commonParams)
+    commonParams: async () => {
+      const token = await getAuthorization()
+      return {
+        ...commonParams,
+        authorization: token
+      }
+    }
   })
   return instance
 }

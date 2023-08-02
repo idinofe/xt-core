@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, randomNumber, toNonExponential } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -11,6 +11,101 @@ describe('isNumber', () => {
     ['aa', '11', true, false, null, undefined, Symbol(), {}].forEach(i => {
       expect(isNumber(i)).toEqual(false)
     })
+  })
+})
+
+describe('promisify', () => {
+  it('normal case', () => {
+    expect(isPromise(promisify(1113151))).toEqual(true)
+    expect(isPromise(promisify('foo bar'))).toEqual(true)
+    expect(isPromise(promisify(true))).toEqual(true)
+    expect(isPromise(promisify(false))).toEqual(true)
+    expect(isPromise(promisify(undefined))).toEqual(true)
+    expect(isPromise(promisify(null))).toEqual(true)
+    expect(isPromise(promisify(Symbol()))).toEqual(true)
+    expect(isPromise(promisify({}))).toEqual(true)
+    expect(isPromise(promisify(new Date()))).toEqual(true)
+    expect(isPromise(promisify(() => {}))).toEqual(true)
+    expect(isPromise(promisify(Promise.resolve()))).toEqual(true)
+    let p1 = Promise.resolve('p1')
+    expect(promisify(p1)).toEqual(p1)
+  })
+  it('resolve values are the same', () => {
+    let p1 = Promise.resolve('p1')
+
+    return Promise.all([
+      promisify(145635672).then(a => {
+        expect(a).toEqual(145635672)
+      }),
+      promisify('foo').then(a => {
+        expect(a).toEqual('foo')
+      }),
+      promisify(true).then(a => {
+        expect(a).toEqual(true)
+      }),
+      promisify(false).then(a => {
+        expect(a).toEqual(false)
+      }),
+      promisify(undefined).then(a => {
+        expect(a).toEqual(undefined)
+      }),
+      promisify(null).then(a => {
+        expect(a).toEqual(null)
+      }),
+      promisify(Symbol('foo')).then(a => {
+        expect(a.toString()).toEqual('Symbol(foo)')
+      }),
+      promisify({}).then(a => {
+        expect(JSON.stringify(a)).toEqual(JSON.stringify({}))
+      }),
+      promisify(new Date()).then(a => {
+        expect(Object.prototype.toString.call(a)).toEqual('[object Date]')
+      }),
+      promisify(p1).then(a => {
+        expect(a).toEqual('p1')
+      })
+    ])
+  })
+  it('promise function', () => {
+    let fn1 = () => Promise.resolve('fn1')
+    let fn2 = async () => {
+      throw new Error('error')
+    }
+
+    return Promise.all([
+      promisify(fn1).then(a => {
+        expect(isFunction(a)).toEqual(true)
+        a().then(b => {
+          expect(b).toEqual('fn1')
+        })
+      }),
+      promisify(fn2).then(a => {
+        expect(a).toEqual(fn2)
+        expect(isFunction(a)).toEqual(true)
+        return a().catch(e => {
+          expect(e.message).toEqual('error')
+        })
+        // expect(() => a()).toThrowError('error')
+      })
+    ])
+
+  })
+})
+
+describe('delay', () => {
+  it('normal case', () => {
+    expect(isPromise(delay(100))).toEqual(true)
+    expect(isPromise(delay(undefined))).toEqual(true)
+  })
+  it('error case', () => {
+    expect(() => delay(-60)).toThrowError()
+    expect(() => delay('foo bar' as any)).toThrowError()
+    expect(() => delay(true as any)).toThrowError()
+    expect(() => delay(false as any)).toThrowError()
+    expect(() => delay(null as any)).toThrowError()
+    expect(() => delay({} as any)).toThrowError()
+    expect(() => delay(Symbol() as any)).toThrowError()
+    expect(() => delay((() => {}) as any)).toThrowError()
   })
 })
 
@@ -355,6 +450,7 @@ describe('isFunction', () => {
   it('function', () => {
     expect(isFunction(() => {})).toEqual(true)
     expect(isFunction(function () {})).toEqual(true)
+    expect(isFunction(async () => {})).toEqual(true)
   })
   it('not function', () => {
     expect(isFunction('')).toEqual(false)

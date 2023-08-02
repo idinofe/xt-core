@@ -82,7 +82,7 @@ export const isPromise = (a: any): boolean => {
  * @returns {boolean}
  */
 export const isFunction = (a: any): boolean => {
-  return Object.prototype.toString.call(a) === '[object Function]'
+  return ['[object Function]', '[object AsyncFunction]'].includes(Object.prototype.toString.call(a))
 }
 
 /**
@@ -123,6 +123,37 @@ export const isUrlLike = (url: string): boolean => {
 export const isBlobUrlLike = (url: string): boolean => {
   const reg = /^blob:/ // TODO:
   return reg.test(url)
+}
+
+/**
+ * 转换为 resolved 的 Promise对象
+ * 1.传入Promise对象则直接返回
+ * 2.传入非Promise则包装之后再返回
+ * @param a {any}
+ * @returns Promise
+ */
+export const promisify = <T = any>(a: T): Promise<T> => {
+  if (isPromise(a)) {
+    return a as Promise<T>
+  }
+  return Promise.resolve(a)
+}
+
+/**
+ * 延迟
+ * @param time {number}
+ * @returns Promise
+ */
+export const delay = (time: number = 1000) => {
+  if (!isNumber(time)) {
+    throw new Error('time should be number')
+  }
+  if (time < 0) {
+    throw new Error('time should not small than 0')
+  }
+  return new Promise((resolve) => {
+    setTimeout(resolve, time)
+  })
 }
 
 /**
