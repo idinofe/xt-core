@@ -291,6 +291,47 @@ export function createApp () {
     }
   })
 
+  router.post('/encrypt/v2/success/json/params', async (ctx) => {
+    let dd, data, ed
+    const body = ctx.request.body
+    try {
+      // encryptVersion = 2
+      log('start decrypt', body.body, appKey1)
+      dd = decrypt(body.body, appKey1)
+      log('decrypted ', dd)
+      data = { foo: 'bar', appId: body.appId, merNo: body.merNo, deviceId: body.deviceId }
+      log('start encrypt', data, appKey1)
+      ed = encrypt(data, appKey1) as any
+      log('encrypted ', ed)
+    } catch (e) {
+      log(e)
+    }
+
+    if (!dd) {
+      ctx.body = {
+        body: null,
+        returnCode: 'FAIL',
+        returnDes: '解密失败',
+      }
+      return
+    }
+
+    if (!dd.id) {
+      ctx.body = {
+        body: null,
+        returnCode: 'FAIL',
+        returnDes: '参数错误',
+      }
+      return
+    }
+
+    ctx.body = {
+      body: ed,
+      returnCode: 'SUCCESS',
+      returnDes: '',
+    }
+  })
+
   router.post('/encrypt/v2/success/real/', async (ctx) => {
     let dd, data, ed
     try {

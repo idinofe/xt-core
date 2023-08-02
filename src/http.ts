@@ -107,7 +107,7 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
  * @returns XAsyncRequestTransform
  */
 // const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform, D extends BaseTransform = RequestTransform>(httpConfig: HttpConfig, transform: T): D => {
-const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(httpConfig: HttpConfig, transform: T): RequestTransform & AsyncRequestTransform => {
+export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(httpConfig: HttpConfig, transform: T): RequestTransform & AsyncRequestTransform => {
   const config: CustomConfig = {
     noStatusTransform: httpConfig.noStatusTransform,
     isInvalidToken: httpConfig.isInvalidToken,
@@ -126,7 +126,7 @@ const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(http
   }
 }
 
-const defaultEncryptTransform: XAsyncRequestTransform = async (request, customConfig) => {
+export const defaultEncryptTransform: XAsyncRequestTransform = async (request, customConfig) => {
   // console.log(request, customConfig)
   const useEncrypt = customConfig.useEncrypt
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
@@ -171,7 +171,7 @@ const defaultEncryptTransform: XAsyncRequestTransform = async (request, customCo
 
   const ed = encryptVersion === EncryptVersion.v1
     ? encryptV1<string>(request.data, appKey as any, useSign)
-    : encryptV2<BaseObject>(request.data, appKey as any, useSign)
+    : encryptV2<BaseObject>(request.data.body, appKey as any, useSign)
 
   if (encryptVersion === EncryptVersion.v1) {
     if (request.headers) {
@@ -179,12 +179,13 @@ const defaultEncryptTransform: XAsyncRequestTransform = async (request, customCo
       (request.headers as any).signMethod = '1';
       (request.headers as any).sign = createSign(request.data, appKey as any);
     }
+    request.data = ed
+  } else if (encryptVersion === EncryptVersion.v2) {
+    request.data.body = ed
   }
-
-  request.data = ed
 }
 
-const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
+export const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonParams = customConfig.commonParams
   const useEncrypt = customConfig.useEncrypt
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
@@ -218,7 +219,7 @@ const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, cus
   }
 }
 
-const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, customConfig) => {
+export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonHeaders = customConfig.commonHeaders
 
   if (!commonHeaders) {
@@ -236,7 +237,7 @@ const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, cus
   }
 }
 
-const defaultDecryptTransform: XResponseTransform = (response) => {
+export const defaultDecryptTransform: XResponseTransform = (response) => {
   // console.log('defaultDecryptTransform', response)
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
   if (!config || !config.useEncrypt) { return }
@@ -302,7 +303,7 @@ const defaultDecryptTransform: XResponseTransform = (response) => {
  * returnDes 的取值顺序：Headers -> response.data
  * @param response ApiResponse<any, any>
  */
-const defaultResponseTransform: XResponseTransform = (response) => {
+export const defaultResponseTransform: XResponseTransform = (response) => {
   const data = response.data
   const headers = response.headers
   // console.log(response, response.headers, (response.headers as any)['returnCode'])
@@ -340,11 +341,11 @@ const defaultResponseTransform: XResponseTransform = (response) => {
   response.msg = returnDes
 }
 
-const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
+export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
   return data.returnCode === 'INVALID_TOKEN'
 }
 
-const defaultTokenCheckTransform: XResponseTransform = (response) => {
+export const defaultTokenCheckTransform: XResponseTransform = (response) => {
   if (!response.ok || !response.data) { return }
 
   // 判断是否有传递isInvalidToken，没有则使用默认的defaultIsInvalidToken
@@ -368,7 +369,7 @@ const defaultTokenCheckTransform: XResponseTransform = (response) => {
 }
 
 // 业务状态码失败时 Toast 提示
-const defaultFailTransform: ResponseTransform = (response) => {
+export const defaultFailTransform: ResponseTransform = (response) => {
   const config = getCustomConfig(response)
   const data = response.data
   const onFail = config && config.onFail
@@ -399,7 +400,7 @@ const defaultFailTransform: ResponseTransform = (response) => {
   }
 }
 
-const getCustomConfig = (response: XApiResponse<any, any>) => {
+export const getCustomConfig = (response: XApiResponse<any, any>) => {
   return response.ok ? response.config as CustomAxiosRequestConfig : null
 }
 
