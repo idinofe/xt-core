@@ -1,11 +1,28 @@
 {
   "name": "@dinofe/xt-core",
   "version": "0.0.14",
+  "author": {
+    "name": "JohnieXu",
+    "email": "281910378@qq.com",
+    "url": "https://github.com/johniexu"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/idinotes/xt-core.git"
+    "url": "https://github.com/idinofe/xt-core.git"
   },
+  "keywords": [
+    "utils",
+    "business lib",
+    "http"
+  ],
+  "homepage": "https://github.com/idinofe/xt-core",
+  "bugs": {
+    "url": "https://github.com/idinofe/xt-core/issues"
+  },
+  "contributors": [
+    "JohnieXu (https://github.com/johniexu)"
+  ],
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-angular": "^12.1.4",
