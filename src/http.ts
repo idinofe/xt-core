@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isPromise, isNormalObject, isDef, isString, randomNumber, genMessageId, isFunction, promisify } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -192,8 +192,9 @@ const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, cus
   if (!commonParams) {
     return
   }
-  const p = commonParams(request)
-  const params = isPromise(p) ? await p : p
+
+  const promise = promisify(commonParams(request))
+  const params = await promise
 
   if (useEncrypt) {
     if (encryptVersion === EncryptVersion.v1) {
@@ -224,8 +225,8 @@ const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, cus
     return
   }
 
-  const p = commonHeaders(request)
-  const params = isPromise(p) ? await p : p
+  const promise = promisify(commonHeaders(request))
+  const params = await promise
   const headerKeys = Object.keys(params)
 
   if (request.headers !== null && request.headers !== undefined) {
