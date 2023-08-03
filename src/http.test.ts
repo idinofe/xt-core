@@ -1,12 +1,12 @@
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { createHttp, createUploadHttp, EncryptVersion } from './http'
+import { createHttp, createUploadHttp, defaultEncryptTransform, EncryptVersion, withCustomConfig } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
 import { AppConfig } from './type'
 import { MIME_TYPE } from './web'
-import { delay } from './common'
+import { delay, isFunction, isPromise } from './common'
 
 // 创建一个本地的接口服务，用于真实的接口逻辑测试
 let port: number
@@ -32,6 +32,147 @@ afterAll(() => {
     (server as any).close(() => {
       resolve()
     })
+  })
+})
+
+// 内部方法
+describe('internal methods', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('withCustomConfig', () => {
+    let transform1 = vi.fn()
+    let commonParams1 = vi.fn()
+    let commonHeaders1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '123131'
+    }))
+    commonHeaders1.mockImplementation(() => ({
+      deviceId: '651112'
+    }))
+
+    let wrapped1 = withCustomConfig({
+      baseURL: '/test',
+      noStatusTransform: true,
+      noFail: true,
+      useEncrypt: true,
+      useSign: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+      commonParams: commonParams1,
+      commonHeaders: commonHeaders1,
+    }, transform1)
+
+    expect(isFunction(wrapped1)).toEqual(true)
+    wrapped1({})
+    expect(transform1).toBeCalledTimes(1)
+    expect(transform1).toHaveBeenCalledWith({}, {
+      noStatusTransform: true,
+      // isInvalidToken: httpConfig.isInvalidToken,
+      // onInvalidToken: httpConfig.onInvalidToken,
+      noFail: true,
+      // onFail: httpConfig.onFail,
+      useEncrypt: true,
+      useSign: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+      commonParams: commonParams1,
+      commonHeaders: commonHeaders1,
+    })
+    wrapped1({ baseURL: '/testest' })
+    expect(transform1).toBeCalledTimes(2)
+    expect(transform1).toHaveBeenCalledWith({ baseURL: '/testest' }, {
+      noStatusTransform: true,
+      // isInvalidToken: httpConfig.isInvalidToken,
+      // onInvalidToken: httpConfig.onInvalidToken,
+      noFail: true,
+      // onFail: httpConfig.onFail,
+      useEncrypt: true,
+      useSign: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+      commonParams: commonParams1,
+      commonHeaders: commonHeaders1,
+    })
+  })
+
+  it('defaultEncryptTransform', async () => {
+    // 不加密
+    let request: any = {}
+    let customConfig: any = {
+      useEncrypt: false
+    }
+    let promise = defaultEncryptTransform(request, customConfig)
+    expect(isPromise(promise)).toEqual(true)
+
+    let res = await promise
+    expect(res).toEqual(undefined)
+
+    // 加密-未提供秘钥
+    customConfig = {
+      useEncrypt: true,
+    }
+
+    promise = defaultEncryptTransform(request, customConfig)
+    expect(isPromise(promise)).toEqual(true)
+
+    res = await promise
+    expect(res).toEqual(undefined)
+
+    // 加密-加签-V1
+    request = {
+      data: {
+        id: '1646131',
+        name: 'foo'
+      }
+    }
+    customConfig = {
+      useEncrypt: true,
+      useSign: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+    }
+
+    promise = defaultEncryptTransform(request, customConfig)
+    expect(isPromise(promise)).toEqual(true)
+
+    res = await promise
+    expect(res).toEqual(undefined)
+    expect(request).toHaveProperty('data')
+    // request.data 是被加密后的数据
+    expect(typeof request.data === 'string').toEqual(true)
+
+    // 加密加签-V2
+    request = {
+      data: {
+        appId: '131531',
+        merNo: '62462741',
+        body: {
+          id: '1646131',
+          name: 'foo'
+        }
+      }
+    }
+    customConfig = {
+      useEncrypt: true,
+      useSign: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v2,
+    }
+
+    promise = defaultEncryptTransform(request, customConfig)
+    expect(isPromise(promise)).toEqual(true)
+
+    res = await promise
+    expect(res).toEqual(undefined)
+    expect(request).toHaveProperty('data.body')
+    log(request)
+    // request.data.body 是被加密后的数据
+    expect(typeof request.data.body === 'string').toEqual(true)
+    // commonParams 正常
+    expect(request.data).toHaveProperty('appId', '131531')
+    expect(request.data).toHaveProperty('merNo', '62462741')
   })
 })
 
@@ -572,6 +713,30 @@ describe('encrypt/decrypt success', () => {
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
       expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' } })
+    })
+  })
+  it('normal data with returnCode = SUCCESS data is json ecnryptVersion = v2 with commonParams', () => {
+    const commonParams = {
+      appId: '123456',
+      merNo: '123457',
+      deviceId: '123458',
+    }
+    const http = createHttp({
+      baseURL,
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v2,
+      useSign: true,
+      appKey: appKey1,
+      commonParams: () => commonParams
+    })
+    return http.post('/encrypt/v2/success/json/params', { id: '131132' }).then(response => {
+      log(response)
+      expect(response.ok).toEqual(true)
+      expect(response.status).toEqual(200)
+      expect(response.success).toEqual(true)
+      expect(response.code).toEqual('SUCCESS')
+      expect(response.msg).toEqual('')
+      expect(response.data).toStrictEqual({ returnCode: 'SUCCESS', returnDes: '', body: { foo: 'bar' }, ...commonParams })
     })
   })
   // 带完整参数的请求
