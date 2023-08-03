@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -459,6 +459,21 @@ describe('isFunction', () => {
     expect(isFunction(undefined)).toEqual(false)
     expect(isFunction(null)).toEqual(false)
     expect(isFunction({})).toEqual(false)
+  })
+})
+
+describe('isFormData', () => {
+  // TODO: 怎么修复 Node.js 环境无法模拟真实的 FormData？
+  it('normal case', () => {
+    expect(isFormData(() => {})).toEqual(false)
+    expect(isFormData(function () {})).toEqual(false)
+    expect(isFormData(async () => {})).toEqual(false)
+    expect(isFormData('')).toEqual(false)
+    expect(isFormData(1231)).toEqual(false)
+    expect(isFormData(undefined)).toEqual(false)
+    expect(isFormData(undefined)).toEqual(false)
+    expect(isFormData(null)).toEqual(false)
+    expect(isFormData({})).toEqual(false)
   })
 })
 

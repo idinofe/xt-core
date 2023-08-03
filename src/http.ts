@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -244,6 +244,24 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
   const promise = promisify(commonParams(request))
   const params = await promise
 
+  const appendParams = (data: FormData | BaseObject, params: BaseObject) => {
+    if (isFormData(data)) {
+      let paramsStr = JSON.stringify(params)
+      if (!['{}', '[]', '""', 'null', 'undefined'].includes(paramsStr)) {
+        if (data.has('params')) {
+          console.warn('FormData 中已有 params 字段，commonParams 将被忽略')
+        } else {
+          data.append('params', JSON.stringify(params))
+        }
+      }
+      return data
+    }
+    return {
+      ...params,
+      ...data,
+    }
+  }
+
   if (useEncrypt) {
     if (encryptVersion === EncryptVersion.v1) {
       // 加密方法一
@@ -259,12 +277,19 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
       }
     }
   } else {
-    request.data = nestBizData === false ? {
-      ...params,
-      ...request.data,
-    } : {
-      ...params,
-      [isString(nestBizData) ? nestBizData as string : 'body']: request.data,
+    // 不加密
+    if (
+      (nestBizData === true || nestBizData === undefined)
+      && isFormData(request.data)
+    ) {
+      request.data = appendParams(request.data, params)
+    } else {
+      request.data = nestBizData === false
+        ? appendParams(request.data, params)
+        : {
+          ...params,
+          [isString(nestBizData) ? nestBizData as string : 'body']: request.data,
+        }
     }
   }
 }
@@ -567,6 +592,7 @@ export function createUploadHttp(
     ...config,
     useEncrypt: false,
     useSign: false,
+    nestBizData: false,
     commonHeaders: () => {
       const signBody = createSign({
         appId: appConfig.appId,

@@ -86,6 +86,15 @@ export const isFunction = (a: any): boolean => {
 }
 
 /**
+ * 是否为 FormData 对象
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isFormData = (a: any): boolean => {
+  return '[object FormData]' === Object.prototype.toString.call(a)
+}
+
+/**
  * 是否为普通对象
  * @param a {any}
  * @returns {boolean}
