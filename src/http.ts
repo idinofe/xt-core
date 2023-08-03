@@ -5,7 +5,7 @@ import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify 
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
-interface CustomConfig {
+export interface CustomConfig {
   noStatusTransform?: boolean // 不开启业务状态码转换
   isInvalidToken?: (data: any, response: XApiResponse<any, any>) => boolean // 判定状态码为无效 token 的钩子函数
   onInvalidToken?: (response: XApiResponse<any, any>) => void // 无效 token 的钩子函数
@@ -126,10 +126,16 @@ export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransfor
   }
 }
 
+/**
+ * 加密
+ * @param request 
+ * @param customConfig 
+ * @returns 
+ */
 export const defaultEncryptTransform: XAsyncRequestTransform = async (request, customConfig) => {
   // console.log(request, customConfig)
   const useEncrypt = customConfig.useEncrypt
-  const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
+  const encryptVersion = customConfig.encryptVersion || EncryptVersion.v2
   const appKey = customConfig.appKey
   const useSign = !!customConfig.useSign
 
@@ -139,8 +145,11 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
   }
 
   if (useEncrypt && !appKey) {
-    console.error('加密秘钥未提供，不做处理')
-    return
+    throw new Error('appKey is required when useEncrypt is true')
+  }
+
+  if (useEncrypt && ![EncryptVersion.v1, EncryptVersion.v2].includes(encryptVersion)) {
+    throw new Error('encryptVersion should be one of EncryptVersion when useEncrypt is true')
   }
 
   const encryptV1 = <T = any>(data: T, key: string, useSign: boolean): T => {
@@ -179,11 +188,11 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
       (request.headers as any).signMethod = '1';
       (request.headers as any).sign = createSign(request.data, appKey as any);
     }
-    request.data = ed
+    request.data = ed as string
   } else if (encryptVersion === EncryptVersion.v2) {
     request.data = {
       ...request.data,
-      ...ed as any,
+      ...ed as BaseObject,
     }
   }
 }
@@ -191,7 +200,7 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
 export const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonParams = customConfig.commonParams
   const useEncrypt = customConfig.useEncrypt
-  const encryptVersion = customConfig.encryptVersion || EncryptVersion.v1
+  const encryptVersion = customConfig.encryptVersion || EncryptVersion.v2
 
   if (!commonParams) {
     return
@@ -217,7 +226,9 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
   } else {
     request.data = {
       ...params,
-      body: request.data,
+      ...request.data,
+      // 不加密时，commonParams值与提交参数直接合并
+      // body: request.data,
     }
   }
 }
@@ -408,7 +419,7 @@ export const getCustomConfig = (response: XApiResponse<any, any>) => {
 }
 
 /**
- * 根据配置创建 API 实例
+ * 根据配置创建 HTTP 实例
  * @param config HttpConfig
  * @returns ApisauceInstance
  */
@@ -428,6 +439,7 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
  * 创建基础 API 实例
  * @param param0 { encrypt: boolean } 若为 true，则加密加签同时启用，默认采用 V2 版本加密协议
  * @param config {HttpConfig}
+ * @param authorization {string | null | (() => (string | null)) | (() => Promise<string | null>)} token
  * @returns 
  */
 export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
@@ -465,7 +477,7 @@ export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
 }
 
 /**
- * 上传文件（Web 环境）
+ * 创建上传文件 HTTP 实例（Web 环境）
  * 注意：
  * 1.使用了 FormData，故只能在 web 环境使用
  * 2.返回值是 UploadInstance 实例，建议只使用其 upload 方法，

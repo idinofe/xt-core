@@ -1,12 +1,14 @@
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { createHttp, createUploadHttp, defaultEncryptTransform, EncryptVersion, withCustomConfig } from './http'
+import { createHttp, createUploadHttp, CustomConfig, defaultCommonHeadersTrasform, defaultCommonParamsTransform, defaultEncryptTransform, EncryptVersion, withCustomConfig } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
 import { AppConfig } from './type'
 import { MIME_TYPE } from './web'
-import { delay, isFunction, isPromise } from './common'
+import { delay, isFunction, isPromise, isString } from './common'
+import { AxiosRequestConfig } from 'axios'
+import { decrypt } from 'decrypt-core'
 
 // 创建一个本地的接口服务，用于真实的接口逻辑测试
 let port: number
@@ -165,6 +167,337 @@ describe('internal methods', () => {
     // commonParams 正常
     expect(request.data).toHaveProperty('appId', '131531')
     expect(request.data).toHaveProperty('merNo', '62462741')
+  })
+
+  it('defaultCommonParamsTransform no commonParams no encrypt', async () => {
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: false
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(request.data).toEqual({ id: '54262125', name: 'foo' })
+  })
+
+  it('defaultCommonParamsTransform no commonParams encrypt', async () => {
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+  })
+
+  it('defaultCommonParamsTransform with commonParams encrypt v1', async () => {
+    let commonParams1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '16442432',
+      merNo: '1644623886'
+    }))
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      commonParams: commonParams1
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(commonParams1).toBeCalledTimes(1)
+    expect(request.data).toEqual({
+      appId: '16442432',
+      merNo: '1644623886',
+      id: '54262125',
+      name: 'foo',
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams encrypt v1 priority', async () => {
+    let commonParams1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '16442432',
+      merNo: '1644623886'
+    }))
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo',
+        merNo: '888888888', // 会覆盖commonParams.merNo
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      commonParams: commonParams1
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(commonParams1).toBeCalledTimes(1)
+    expect(request.data).toEqual({
+      appId: '16442432',
+      merNo: '888888888',
+      id: '54262125',
+      name: 'foo',
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams encrypt v2', async () => {
+    let commonParams1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '16442432',
+      merNo: '1644623886'
+    }))
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v2,
+      commonParams: commonParams1
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(commonParams1).toBeCalledTimes(1)
+    expect(request.data).toEqual({
+      appId: '16442432',
+      merNo: '1644623886',
+      body: {
+        id: '54262125',
+        name: 'foo',
+      },
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams encrypt v2 priority', async () => {
+    let commonParams1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '16442432',
+      merNo: '1644623886'
+    }))
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo',
+        merNo: '99999999', // 不会覆盖 commonParams.merNo
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v2,
+      commonParams: commonParams1
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(commonParams1).toBeCalledTimes(1)
+    expect(request.data).toEqual({
+      appId: '16442432',
+      merNo: '1644623886',
+      body: {
+        id: '54262125',
+        name: 'foo',
+        merNo: '99999999',
+      },
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams no encrypt', async () => {
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: false, // 当 useEncrypt 为 false 时下方配置应不生效
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(request.data).toEqual({
+      id: '54262125',
+      name: 'foo'
+    })
+  })
+
+  it('defaultCommonHeadersTrasform no commonHeaders', async () => {
+    let request = {
+      headers: {
+        'Header-A': 'goadgagaaa',
+      }
+    }
+    let customConfig: CustomConfig = {}
+    await defaultCommonHeadersTrasform(request, customConfig)
+    expect(request.headers).toEqual({
+      'Header-A': 'goadgagaaa',
+    })
+  })
+
+  it('defaultCommonHeadersTrasform with commonHeaders', async () => {
+    let request = {
+      headers: {
+        'Header-A': 'goadgagaaa',
+      }
+    }
+    let customConfig: CustomConfig = {
+      commonHeaders: () => ({
+        'My-Token': 'tokentoken',
+      })
+    }
+    await defaultCommonHeadersTrasform(request, customConfig)
+    expect(request.headers).toEqual({
+      'Header-A': 'goadgagaaa',
+      'My-Token': 'tokentoken',
+    })
+  })
+
+  it('defaultEncryptTransform no encrypt', async () => {
+    let request = {
+      data: {
+        id: '155252554',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: false,
+    }
+    await defaultEncryptTransform(request, customConfig)
+    expect(request.data).toEqual({
+      id: '155252554',
+      name: 'foo',
+    })
+  })
+
+  it('defaultEncryptTransform encrypt v1 no commonParams', async () => {
+    let request = {
+      data: {
+        id: '155252554',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+    }
+    await defaultEncryptTransform(request, customConfig)
+    expect(isString(request.data)).toEqual(true)
+    expect(decrypt(request.data, appKey1)).toEqual({
+      id: '155252554',
+      name: 'foo',
+    })
+  })
+
+  it('defaultEncryptTransform encrypt v1 with commonParams', async () => {
+    let commonParams1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '856864142',
+      merNo: '5631850145',
+    }))
+    let request = {
+      data: {
+        id: '155252554',
+        name: 'foo',
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+      commonParams: commonParams1
+    }
+    // commonParams 配置需要 defaultCommonParamsTransform 先处理，再交给 defaultEncryptTransform
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(request.data).toEqual({
+      appId: '856864142',
+      merNo: '5631850145',
+      id: '155252554',
+      name: 'foo',
+    })
+    await defaultEncryptTransform(request, customConfig)
+    expect(isString(request.data)).toEqual(true)
+    expect(decrypt(request.data, appKey1)).toEqual({
+      appId: '856864142',
+      merNo: '5631850145',
+      id: '155252554',
+      name: 'foo',
+    })
+  })
+
+  it('defaultEncryptTransform encrypt v2 no commonParams', async () => {
+    let request = {
+      data: {
+        id: '155252554',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+    }
+    await defaultEncryptTransform(request, customConfig)
+  })
+
+  it('defaultEncryptTransform encrypt v2 with commonParams', async () => {
+    let request = {
+      data: {
+        id: '155252554',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v1,
+      appKey: appKey1,
+    }
+    await defaultEncryptTransform(request, customConfig)
+  })
+
+  it('defaultEncryptTransform parameters mismatch', async () => {
+    let request = {
+      data: {
+        id: '155252554',
+        name: 'foo'
+      }
+    }
+    // 无 appKey
+    let customConfig: CustomConfig = {
+      useEncrypt: true,
+      encryptVersion: EncryptVersion.v1,
+    }
+
+    try {
+      await defaultEncryptTransform(request, customConfig)
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error)
+    }
+
+    // encryptVersion 错误
+    customConfig = {
+      useEncrypt: true,
+      appKey: appKey1,
+      encryptVersion: '3' as any,
+    }
+    try {
+      await defaultEncryptTransform(request, customConfig)
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error)
+    }
   })
 })
 
