@@ -15,6 +15,7 @@ export interface CustomConfig {
   useSign?: boolean // 是否对接口数据进行验签
   encryptVersion?: EncryptVersion // 加密方法版本（在 useEncrypt 为 true 时才生效）
   appKey?: string // 加密秘钥（在 useEncrypt 为 true 时比传）
+  cascadeBizData?: boolean // TODO:
   commonParams?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用参数，会拼接到接口调用时传递的参数上
   commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用 Header，自动拼接到 Header 上
 }
@@ -219,6 +220,7 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
   const commonParams = customConfig.commonParams || function () { return {} }
   const useEncrypt = customConfig.useEncrypt
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v2
+  const cascadeBizData = customConfig.cascadeBizData || true
 
   const promise = promisify(commonParams(request))
   const params = await promise
@@ -238,12 +240,19 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
       }
     }
   } else {
-    request.data = {
+    request.data = cascadeBizData ? {
+      ...params,
+      body: request.data,
+    } : {
       ...params,
       ...request.data,
-      // 不加密时，commonParams值与提交参数直接合并
-      // body: request.data,
     }
+    // request.data = {
+    //   ...params,
+    //   ...request.data,
+    //   // 不加密时，commonParams值与提交参数直接合并
+    //   // body: request.data,
+    // }
   }
 }
 
