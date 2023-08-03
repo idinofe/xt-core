@@ -165,23 +165,28 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
   }
 
   const encryptV2 = <T = any>(data: T, key: string, useSign: boolean): T => {
-    const ed = encrypt(data as DataType, key)
-    if (useSign) {
-      const sign = createSign(data as BaseObject, key)
-      return {
-        body: ed,
-        sign,
-        encodeMethod: '1',
-        signMethod: '1'
-      } as T
+    if (typeof data === 'undefined') {
+      return data
     }
-    return {
-      body: ed,
-      encodeMethod: '1',
-      signMethod: '0'
-    } as T
+    const ed = encrypt(data as DataType, key)
+    return ed as T
+    // if (useSign) {
+    //   const sign = createSign(data as BaseObject, key)
+    //   return {
+    //     body: ed,
+    //     sign,
+    //     encodeMethod: '1',
+    //     signMethod: '1'
+    //   } as T
+    // }
+    // return {
+    //   body: ed,
+    //   encodeMethod: '1',
+    //   signMethod: '0'
+    // } as T
   }
 
+  // TODO: 补充验签测试用例
   const ed = encryptVersion === EncryptVersion.v1
     ? encryptV1<string>(request.data, appKey as any, useSign)
     : encryptV2<BaseObject>(request.data.body, appKey as any, useSign)
@@ -190,14 +195,23 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
     if (request.headers) {
       (request.headers as any).encodeMethod = '1';
       (request.headers as any).signMethod = '1';
-      (request.headers as any).sign = createSign(request.data, appKey as any);
+      if (useSign) {
+        // TODO: sign是根据原始数据计算还是ed计算？
+        (request.headers as any).sign = createSign(request.data, appKey as any)
+      }
     }
     request.data = ed as string
   } else if (encryptVersion === EncryptVersion.v2) {
-    request.data = {
+    let data: any = {
       ...request.data,
-      ...ed as BaseObject,
+      body: ed,
+      encodeMethod: '1',
     }
+    if (useSign) {
+      data.signMethod = '1'
+      data.sign = createSign(data, appKey as any)
+    }
+    request.data = data
   }
 }
 
