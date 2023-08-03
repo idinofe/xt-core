@@ -15,7 +15,7 @@ const http = createHttp({
   useSign: true,
   appKey: '3a2e424c56754e90a8948b74f163f0cb',
   encryptVersion: '2' as any,
-  commonParams: () => Promise.resolve({
+  commonParams: () => ({
     appId: '3130042001040',
     deviceId: 'hbjh_h5',
     merNoNo: '130042001040',
@@ -33,7 +33,8 @@ const handleLoginClick = (e: MouseEvent) => {
     .then(res => {
       log(res)
       if (res.success) {
-        log(res.msg)
+        log('登录成功')
+        log(res.code)
       } else {
         log('登录失败', res.msg)
       }
