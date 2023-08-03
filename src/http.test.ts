@@ -1,14 +1,15 @@
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { createHttp, createUploadHttp, CustomConfig, defaultCommonHeadersTrasform, defaultCommonParamsTransform, defaultEncryptTransform, EncryptVersion, withCustomConfig } from './http'
+import { createHttp, createUploadHttp, CustomConfig, defaultCommonHeadersTrasform, defaultCommonParamsTransform, defaultDecryptTransform, defaultEncryptTransform, defaultIsInvalidToken, defaultTokenCheckTransform, EncryptVersion, getCustomConfig, withCustomConfig, XApiResponse } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
 import { AppConfig } from './type'
 import { MIME_TYPE } from './web'
 import { delay, isFunction, isPromise, isString } from './common'
 import { AxiosRequestConfig } from 'axios'
-import { decrypt } from 'decrypt-core'
+import { decrypt, encrypt } from 'decrypt-core'
+import { clone, deepClone } from '@vitest/utils'
 
 // 创建一个本地的接口服务，用于真实的接口逻辑测试
 let port: number
@@ -17,7 +18,7 @@ let app: any = null
 let server: any = null
 
 const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
-const log = (...args: any[]) => console.log('[http.test] ', ...args)
+const log = (...args: any[]) => console.log('\x1b[32m[http.test]\x1b[0m ', ...args)
 
 // TODO: 启动 mock server 移动到单独的模块
 beforeAll(async () => {
@@ -499,6 +500,253 @@ describe('internal methods', () => {
       expect(e).toBeInstanceOf(Error)
     }
   })
+
+  it('defaultDecryptTransform no useEncrypt', async () => {
+    let response: any = {
+      ok: true,
+      data: {
+        id: '1427762',
+      },
+      config: {
+        useSign: true,
+        appKey: appKey1,
+      },
+    }
+    let _response = deepClone(response)
+    await defaultDecryptTransform(response)
+    expect(response).toEqual(_response)
+  })
+
+  it('defaultDecryptTransform with wrong encryptVersion', async () => {
+    let response: any = {
+      ok: true,
+      data: {
+        id: '1656713545',
+      },
+      config: {
+        useEncrypt: true,
+        useSign: true,
+        appkey: appKey1,
+        encryptVersion: '55',
+      },
+    }
+    let _response = deepClone(response)
+    await defaultDecryptTransform(response) 
+    expect(response).toEqual(_response)
+  })
+
+  it('defaultDecryptTransform useEncrypt no appKey', async () => {
+    let response: any = {
+      ok: true,
+      data: {
+        id: '1656713545',
+      },
+      config: {
+        useEncrypt: true,
+        useSign: true,
+        encryptVersion: EncryptVersion.v2,
+      },
+    }
+    let _response = deepClone(response)
+    await defaultDecryptTransform(response) 
+    expect(response).toEqual(_response)
+  })
+
+  it('defaultDecryptTransform useEncrypt v1', async () => {
+    let data = {
+      id: '1656713545',
+    }
+    let response: any = {
+      ok: true,
+      data: encrypt(data, appKey1),
+      config: {
+        useEncrypt: true,
+        useSign: true,
+        encryptVersion: EncryptVersion.v1,
+        appKey: appKey1,
+      },
+    }
+    await defaultDecryptTransform(response) 
+    expect(response).toEqual({
+      ok: true,
+      data,
+      config: {
+        useEncrypt: true,
+        useSign: true,
+        encryptVersion: EncryptVersion.v1,
+        appKey: appKey1,
+      },
+    })
+  })
+
+  it('defaultDecryptTransform useEncrypt v2', async () => {
+    let data = {
+      id: '1656713545',
+    }
+    let response: any = {
+      ok: true,
+      data: {
+        appId: '15676242',
+        merNo: '465967686',
+        body: encrypt(data, appKey1),
+      },
+      config: {
+        useEncrypt: true,
+        useSign: true,
+        encryptVersion: EncryptVersion.v2,
+        appKey: appKey1,
+      },
+    }
+    await defaultDecryptTransform(response) 
+    expect(response).toEqual({
+      ok: true,
+      data: {
+        appId: '15676242',
+        merNo: '465967686',
+        body: data,
+      },
+      config: {
+        useEncrypt: true,
+        useSign: true,
+        encryptVersion: EncryptVersion.v2,
+        appKey: appKey1,
+      },
+    })
+  })
+
+  it('defaultIsInvalidToken normal case', () => {
+    expect(defaultIsInvalidToken({
+      returnCode: 'INVALID_TOKEN'
+    })).toEqual(true)
+  })
+
+  it('defaultIsInvalidToken error case', () => {
+    expect(defaultIsInvalidToken({})).toEqual(false)
+    expect(defaultIsInvalidToken({ returnCode: '145141' })).toEqual(false)
+    expect(defaultIsInvalidToken({ returnCode: 'abdaa' })).toEqual(false)
+    expect(defaultIsInvalidToken(undefined)).toEqual(false)
+  })
+
+  it('defaultTokenCheckTransform no isInvalidToken use default', () => {
+    let onInvalidToken = vi.fn()
+    let response: any = {
+      ok: true,
+      data: {
+        returnCode: 'INVALID_TOKEN'
+      },
+      config: {
+        onInvalidToken
+      }
+    }
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(1)
+    expect(onInvalidToken).toBeCalledWith(response)
+  })
+
+  it('defaultTokenCheckTransform with isInvalidToken true', () => {
+    let isInvalidToken = vi.fn()
+    let onInvalidToken = vi.fn()
+    isInvalidToken.mockImplementation(() => true)
+    let response: any = {
+      ok: true,
+      data: {
+        returnCode: 'INVALID_TOKEN'
+      },
+      config: {
+        isInvalidToken,
+        onInvalidToken
+      }
+    }
+    defaultTokenCheckTransform(response)
+    expect(isInvalidToken).toBeCalledTimes(1)
+    expect(onInvalidToken).toBeCalledTimes(1)
+    expect(onInvalidToken).toBeCalledWith(response)
+  })
+
+  it('defaultTokenCheckTransform with isInvalidToken false', () => {
+    let isInvalidToken = vi.fn()
+    let onInvalidToken = vi.fn()
+    isInvalidToken.mockImplementation(() => false)
+    let response: any = {
+      ok: true,
+      data: {
+        returnCode: 'INVALID_TOKEN'
+      },
+      config: {
+        isInvalidToken,
+        onInvalidToken
+      }
+    }
+    defaultTokenCheckTransform(response)
+    expect(isInvalidToken).toBeCalledTimes(1)
+    expect(onInvalidToken).not.toBeCalled()
+  })
+  
+  it('defaultTokenCheckTransform with wrong isInvalidToken use default', () => {
+    let isInvalidToken: any = 1233151
+    let onInvalidToken = vi.fn()
+    let response: any = {
+      ok: true,
+      data: {
+        returnCode: 'INVALID_TOKEN'
+      },
+      config: {
+        isInvalidToken,
+        onInvalidToken
+      }
+    }
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(1)
+    
+    isInvalidToken = 'agaha'
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(2)
+
+    isInvalidToken = true
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(3)
+
+    isInvalidToken = false
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(4)
+
+    isInvalidToken = undefined
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(5)
+
+    isInvalidToken = null
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(6)
+    
+    isInvalidToken = Symbol()
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(7)
+
+    isInvalidToken = {}
+    defaultTokenCheckTransform(response)
+    expect(onInvalidToken).toBeCalledTimes(8)
+  })
+
+  it('getCustomConfig normal case', () => {
+    let config = {
+      useEncrypt: true,
+    }
+    let response: any = {
+      ok: true,
+      config,
+    }
+    expect(getCustomConfig(response)).toEqual(config)
+
+    response = {
+      ok: false,
+      config,
+    }
+    expect(getCustomConfig(response)).toEqual(null)
+  })
+
+  it('getCustomConfig error case', () => {
+    expect(() => getCustomConfig(undefined as any)).toThrowError()
+  })
 })
 
 // 配置
@@ -563,7 +811,7 @@ describe('check config', () => {
     http.post('/number/200', data).then(response => {
       expect(getCommonParams).toBeCalledTimes(1)
       expect(response.config?.commonParams).toStrictEqual(getCommonParams)
-      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...commonParams, body: data }))
+      expect(response.config?.data).toStrictEqual(JSON.stringify({ ...commonParams, ...data }))
     })
 
     // FIX: 偶尔出现单元测试超时，暂时通过延迟退出解决
@@ -1172,6 +1420,7 @@ describe('encrypt/decrypt success', () => {
     })
 
     return http.post('/encrypt/v2/success/real/', { id: '713642' }).then(response => {
+      // log('response', response)
       expect(getToken).toBeCalledTimes(1)
       expect(getCommonHeaders).toBeCalledTimes(1)
       expect(getCommonParams).toBeCalledTimes(1)
@@ -1180,13 +1429,20 @@ describe('encrypt/decrypt success', () => {
       expect(response.success).toEqual(true)
       expect(response.code).toEqual('SUCCESS')
       expect(response.msg).toEqual('')
-      expect((response.data as any).body).toHaveProperty('body')
-      expect((response.data as any).body.body).toHaveProperty('id', '713642')
-      expect((response.data as any).body).toHaveProperty('appId', appParams.appId)
-      expect((response.data as any).body).toHaveProperty('merNoNo', appParams.merNo)
-      expect((response.data as any).body).toHaveProperty('foo', 'bar')
+      // expect((response.data as any).body).toHaveProperty('body')
+      // expect((response.data as any).body.body).toHaveProperty('id', '713642')
+      // expect((response.data as any).body).toHaveProperty('appId', appParams.appId)
+      // expect((response.data as any).body).toHaveProperty('merNoNo', appParams.merNo)
+      // expect((response.data as any).body).toHaveProperty('foo', 'bar')
       expect(response.data).toStrictEqual({
-        body: { ...getCommonParams(), body: { id: '713642' }, ...{ foo: 'bar' }, token: getToken() },
+        ...getCommonParams(),
+        body: {
+          body: {
+            id: '713642'
+          },
+          ...{ foo: 'bar' },
+          token: getToken()
+        },
         returnCode: 'SUCCESS',
         returnDes: '',
       })

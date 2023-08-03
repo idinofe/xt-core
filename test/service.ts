@@ -9,7 +9,7 @@ import { isDef, isString } from '../src/common'
 import { RETURN_CODE_FAIL, RETURN_CODE_SUCCESS } from '../src'
 
 const appKey1 = '3fccc522c79b4bd0848e6a86fec365a7'
-const log = (...args: any[]) => console.log('[service] ', ...args)
+const log = (...args: any[]) => console.log('\x1b[33m[service]\x1b[0m ', ...args)
 
 export function createApp () {
   const app = new Koa();
@@ -299,7 +299,7 @@ export function createApp () {
       log('start decrypt', body.body, appKey1)
       dd = decrypt(body.body, appKey1)
       log('decrypted ', dd)
-      data = { foo: 'bar', appId: body.appId, merNo: body.merNo, deviceId: body.deviceId }
+      data = { foo: 'bar' }
       log('start encrypt', data, appKey1)
       ed = encrypt(data, appKey1) as any
       log('encrypted ', ed)
@@ -326,6 +326,9 @@ export function createApp () {
     }
 
     ctx.body = {
+      appId: body.appId,
+      merNo: body.merNo,
+      deviceId: body.deviceId,
       body: ed,
       returnCode: 'SUCCESS',
       returnDes: '',
@@ -334,12 +337,17 @@ export function createApp () {
 
   router.post('/encrypt/v2/success/real/', async (ctx) => {
     let dd, data, ed
+    const body = ctx.request.body
     try {
       // encryptVersion = 2
-      log('start decrypt', ctx.request.body.body, appKey1)
-      dd = decrypt(ctx.request.body.body, appKey1)
+      log('start decrypt', body.body, appKey1)
+      dd = decrypt(body.body, appKey1)
       log('decrypted ', dd)
-      data = { appId: dd.appId, merNoNo: dd.merNoNo, body: dd.body, foo: 'bar', token: ctx.request.headers.authorization }
+      data = {
+        body: dd,
+        foo: 'bar',
+        token: ctx.request.headers.authorization
+      }
       log('start encrypt', data, appKey1)
       ed = encrypt(data, appKey1) as any
       log('encrypted ', ed)
@@ -349,7 +357,7 @@ export function createApp () {
 
     // TODO: 添加验签逻辑
 
-    if (!dd || !dd) {
+    if (!dd) {
       ctx.body = {
         body: null,
         returnCode: 'FAIL',
@@ -358,7 +366,7 @@ export function createApp () {
       return
     }
 
-    if (!dd.body || !dd.body.id) {
+    if (!dd.id) {
       ctx.body = {
         body: null,
         returnCode: 'FAIL',
@@ -368,6 +376,8 @@ export function createApp () {
     }
 
     ctx.body = {
+      appId: body.appId,
+      merNoNo: body.merNoNo,
       body: ed,
       returnCode: 'SUCCESS',
       returnDes: '',

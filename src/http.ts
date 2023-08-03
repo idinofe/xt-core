@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -152,6 +152,10 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
     throw new Error('encryptVersion should be one of EncryptVersion when useEncrypt is true')
   }
 
+  if (useEncrypt && encryptVersion === EncryptVersion.v2 && !request.data.body) {
+    throw new Error('request.data.body should exist when encryptVersion = "2"')
+  }
+
   const encryptV1 = <T = any>(data: T, key: string, useSign: boolean): T => {
     if (typeof data === 'undefined') {
       return data
@@ -198,13 +202,9 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
 }
 
 export const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
-  const commonParams = customConfig.commonParams
+  const commonParams = customConfig.commonParams || function () { return {} }
   const useEncrypt = customConfig.useEncrypt
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v2
-
-  if (!commonParams) {
-    return
-  }
 
   const promise = promisify(commonParams(request))
   const params = await promise
@@ -251,22 +251,39 @@ export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (reque
   }
 }
 
+/**
+ * 解密
+ * 1.对接口返回的数据进行解密
+ * 2.根据config配置项决定解密行为，config是createHttp时传入的配置
+ * 3.不抛出错误阻塞后续逻辑
+ * @param response 
+ * @returns 
+ */
 export const defaultDecryptTransform: XResponseTransform = (response) => {
   // console.log('defaultDecryptTransform', response)
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
   if (!config || !config.useEncrypt) { return }
 
-  const encryptVersion = config.encryptVersion || EncryptVersion.v1
-  const appKey = config.appKey
+  const encryptVersion = config.encryptVersion || EncryptVersion.v2
+  const appKey = config.appKey as string
   let data = response.data
 
-  if (!appKey) { return }
+  if (config.useEncrypt && ![EncryptVersion.v1, EncryptVersion.v2].includes(encryptVersion as any)) {
+    console.error('加密数据版本配置错误，不作处理')
+    return
+  }
+
+  if (!appKey) {
+    console.error('秘钥 appKey 未配置，不作处理')
+    return
+  }
+  
   if (encryptVersion === EncryptVersion.v1) {
     if (isDef(data) && isString(data)) {
       data = data.replaceAll('"', '') // V1 协议返回的密文数据头尾包含引号，需要去掉再解密
     }
     if (!isEncryptedData(data)) {
-      console.error('返回数据非加密数据格式，不做处理')
+      console.error('返回数据非加密数据格式，不作处理')
       return
     }
   } else {
@@ -285,7 +302,7 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
     const de = decrypt(data as any, key)
     if (!de) {
       console.error('解密失败，不做处理')
-      // TODO: 解密失败
+      // TODO: 如何判断解密是否成功、失败了如何处理
       return data
     } else {
       return de
@@ -298,7 +315,7 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
     }
     const de = decrypt((data as any).body, key)
     if (!de) {
-      // TODO: 解密失败
+      // TODO: 如何判断解密是否成功、失败了如何处理
       return data
     } else {
       return {
@@ -355,17 +372,28 @@ export const defaultResponseTransform: XResponseTransform = (response) => {
   response.msg = returnDes
 }
 
+/**
+ * 判断业务状态码是否是token失效
+ * @param data 
+ * @param response 
+ * @returns 
+ */
 export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
-  return data.returnCode === 'INVALID_TOKEN'
+  return !!(data && data.returnCode === 'INVALID_TOKEN')
 }
 
+/**
+ * token失效校验
+ * @param response 
+ * @returns 
+ */
 export const defaultTokenCheckTransform: XResponseTransform = (response) => {
   if (!response.ok || !response.data) { return }
 
   // 判断是否有传递isInvalidToken，没有则使用默认的defaultIsInvalidToken
   const config = getCustomConfig(response) as CustomAxiosRequestConfig
   let invalid = false
-  if (!config.isInvalidToken) {
+  if (!config.isInvalidToken || !isFunction(config.isInvalidToken)) {
     invalid = defaultIsInvalidToken(response.data)
   } else {
     invalid = config.isInvalidToken(response.data, response)
@@ -377,7 +405,7 @@ export const defaultTokenCheckTransform: XResponseTransform = (response) => {
       config.onInvalidToken(response)
     }
     if (process.env.NODE_ENV === 'development') {
-      console.warn('token invalid')
+      console.warn('token invalid onInvalidToken not found')
     }
   }
 }
@@ -425,8 +453,8 @@ export const getCustomConfig = (response: XApiResponse<any, any>) => {
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
-  config.commonParams && instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonParamsTransform))
-  config.commonHeaders && instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonHeadersTrasform))
+  instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonParamsTransform))
+  instance.addAsyncRequestTransform(withCustomConfig(config, defaultCommonHeadersTrasform))
   config.useEncrypt && instance.addAsyncRequestTransform(withCustomConfig(config, defaultEncryptTransform))
   config.useEncrypt && instance.addResponseTransform(defaultDecryptTransform)
   instance.addResponseTransform(defaultTokenCheckTransform)
