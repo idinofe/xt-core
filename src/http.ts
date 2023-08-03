@@ -181,7 +181,10 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
     }
     request.data = ed
   } else if (encryptVersion === EncryptVersion.v2) {
-    request.data.body = ed
+    request.data = {
+      ...request.data,
+      ...ed as any,
+    }
   }
 }
 

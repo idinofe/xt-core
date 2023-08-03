@@ -97,7 +97,7 @@ describe('internal methods', () => {
     })
   })
 
-  it('defaultEncryptTransform', async () => {
+  it('defaultEncryptTransform no encrypt', async () => {
     // 不加密
     let request: any = {}
     let customConfig: any = {
@@ -108,43 +108,35 @@ describe('internal methods', () => {
 
     let res = await promise
     expect(res).toEqual(undefined)
+  })
 
-    // 加密-未提供秘钥
-    customConfig = {
-      useEncrypt: true,
-    }
-
-    promise = defaultEncryptTransform(request, customConfig)
-    expect(isPromise(promise)).toEqual(true)
-
-    res = await promise
-    expect(res).toEqual(undefined)
-
-    // 加密-加签-V1
-    request = {
+  it('defaultEncryptTransform encryt v1', async () => {
+    let request = {
       data: {
         id: '1646131',
         name: 'foo'
       }
     }
-    customConfig = {
+    let customConfig = {
       useEncrypt: true,
       useSign: true,
       appKey: appKey1,
       encryptVersion: EncryptVersion.v1,
     }
 
-    promise = defaultEncryptTransform(request, customConfig)
+    let promise = defaultEncryptTransform(request, customConfig)
     expect(isPromise(promise)).toEqual(true)
 
-    res = await promise
+    let res = await promise
     expect(res).toEqual(undefined)
     expect(request).toHaveProperty('data')
     // request.data 是被加密后的数据
     expect(typeof request.data === 'string').toEqual(true)
+  })
 
+  it('defaultEncryptTransform encrypt v2', async () => {
     // 加密加签-V2
-    request = {
+    let request = {
       data: {
         appId: '131531',
         merNo: '62462741',
@@ -154,20 +146,20 @@ describe('internal methods', () => {
         }
       }
     }
-    customConfig = {
+    let customConfig = {
       useEncrypt: true,
       useSign: true,
       appKey: appKey1,
       encryptVersion: EncryptVersion.v2,
     }
 
-    promise = defaultEncryptTransform(request, customConfig)
+    let promise = defaultEncryptTransform(request, customConfig)
     expect(isPromise(promise)).toEqual(true)
 
-    res = await promise
+    let res = await promise
     expect(res).toEqual(undefined)
     expect(request).toHaveProperty('data.body')
-    log(request)
+    // log('defaultEncryptTransform', request)
     // request.data.body 是被加密后的数据
     expect(typeof request.data.body === 'string').toEqual(true)
     // commonParams 正常
