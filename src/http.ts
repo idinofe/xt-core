@@ -137,6 +137,7 @@ export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransfor
     useSign: httpConfig.useSign,
     encryptVersion: httpConfig.encryptVersion,
     appKey: httpConfig.appKey,
+    nestBizData: httpConfig.nestBizData,
     commonParams: httpConfig.commonParams,
     commonHeaders: httpConfig.commonHeaders,
   }

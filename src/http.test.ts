@@ -904,7 +904,8 @@ describe('check config', () => {
 
     const http = createHttp({
       baseURL,
-      commonParams: getCommonParams
+      commonParams: getCommonParams,
+      nestBizData: false,
     })
 
     http.post('/number/200', data).then(response => {
