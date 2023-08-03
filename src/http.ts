@@ -6,18 +6,36 @@ import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
 export interface CustomConfig {
-  noStatusTransform?: boolean // 不开启业务状态码转换
-  isInvalidToken?: (data: any, response: XApiResponse<any, any>) => boolean // 判定状态码为无效 token 的钩子函数
-  onInvalidToken?: (response: XApiResponse<any, any>) => void // 无效 token 的钩子函数
-  noFail?: boolean // 不开启业务处理失败的校验
-  onFail?: (msg: FailMessageType, response: XApiResponse<any, any>) => void // 业务处理失败的钩子函数
-  useEncrypt?: boolean // 是否对接口数据进行加密
-  useSign?: boolean // 是否对接口数据进行验签
-  encryptVersion?: EncryptVersion // 加密方法版本（在 useEncrypt 为 true 时才生效）
-  appKey?: string // 加密秘钥（在 useEncrypt 为 true 时比传）
-  cascadeBizData?: boolean // TODO:
-  commonParams?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用参数，会拼接到接口调用时传递的参数上
-  commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>> // 通用 Header，自动拼接到 Header 上
+  // 不开启业务状态码转换
+  noStatusTransform?: boolean
+  // 判定状态码为无效 token 的钩子函数
+  isInvalidToken?: (data: any, response: XApiResponse<any, any>) => boolean
+  // 无效 token 的钩子函数
+  onInvalidToken?: (response: XApiResponse<any, any>) => void
+  // 不开启业务处理失败的校验
+  noFail?: boolean
+  // 业务处理失败的钩子函数
+  onFail?: (msg: FailMessageType, response: XApiResponse<any, any>) => void
+  // 是否对接口数据进行加密
+  useEncrypt?: boolean
+  // 是否对接口数据进行加签
+  useSign?: boolean 
+  // 加密方法版本（在 useEncrypt 为 true 时才生效）
+  encryptVersion?: EncryptVersion
+  // 加密秘钥（在 useEncrypt 为 true 时必传）
+  appKey?: string
+  /**
+   * commonParams 基础参数与业务参数保持嵌套 
+   * true | undefined: 保持嵌套在 body 下
+   * false: 不嵌套 string: 签到在 nestBizData 下；
+   * 默认：undefined；
+   * 在 encryptVersion = '2' 时嵌套在 body 下，此配置无效
+   */
+  nestBizData?: boolean | string
+  // 通用参数，会拼接到发送请求时传递的参数上
+  commonParams?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>>
+  // 通用 Header，自动拼接到 Header 上
+  commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>>
 }
 
 interface UploadConfig<T = any> {
@@ -220,7 +238,7 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
   const commonParams = customConfig.commonParams || function () { return {} }
   const useEncrypt = customConfig.useEncrypt
   const encryptVersion = customConfig.encryptVersion || EncryptVersion.v2
-  const cascadeBizData = customConfig.cascadeBizData || true
+  const nestBizData = customConfig.nestBizData
 
   const promise = promisify(commonParams(request))
   const params = await promise
@@ -240,19 +258,13 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
       }
     }
   } else {
-    request.data = cascadeBizData ? {
-      ...params,
-      body: request.data,
-    } : {
+    request.data = nestBizData === false ? {
       ...params,
       ...request.data,
+    } : {
+      ...params,
+      [isString(nestBizData) ? nestBizData as string : 'body']: request.data,
     }
-    // request.data = {
-    //   ...params,
-    //   ...request.data,
-    //   // 不加密时，commonParams值与提交参数直接合并
-    //   // body: request.data,
-    // }
   }
 }
 

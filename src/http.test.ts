@@ -178,7 +178,8 @@ describe('internal methods', () => {
       }
     }
     let customConfig: CustomConfig = {
-      useEncrypt: false
+      useEncrypt: false,
+      nestBizData: false,
     }
     await defaultCommonParamsTransform(request, customConfig)
     expect(request.data).toEqual({ id: '54262125', name: 'foo' })
@@ -284,6 +285,37 @@ describe('internal methods', () => {
     })
   })
 
+  it('defaultCommonParamsTransform with commonParams encrypt v2 custom nestBizData', async () => {
+    let commonParams1 = vi.fn()
+    commonParams1.mockImplementation(() => ({
+      appId: '16442432',
+      merNo: '1644623886'
+    }))
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo'
+      }
+    }
+    let customConfig: CustomConfig = {
+      nestBizData: 'data',
+      useEncrypt: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v2,
+      commonParams: commonParams1,
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(commonParams1).toBeCalledTimes(1)
+    expect(request.data).toEqual({
+      appId: '16442432',
+      merNo: '1644623886',
+      body: {
+        id: '54262125',
+        name: 'foo',
+      },
+    })
+  })
+
   it('defaultCommonParamsTransform with commonParams encrypt v2 priority', async () => {
     let commonParams1 = vi.fn()
     commonParams1.mockImplementation(() => ({
@@ -316,7 +348,7 @@ describe('internal methods', () => {
     })
   })
 
-  it('defaultCommonParamsTransform with commonParams no encrypt', async () => {
+  it('defaultCommonParamsTransform with commonParams no encrypt no nestBizData', async () => {
     let request: AxiosRequestConfig = {
       data: {
         id: '54262125',
@@ -324,6 +356,7 @@ describe('internal methods', () => {
       }
     }
     let customConfig: CustomConfig = {
+      nestBizData: false,
       useEncrypt: false, // 当 useEncrypt 为 false 时下方配置应不生效
       appKey: appKey1,
       encryptVersion: EncryptVersion.v1,
@@ -332,6 +365,72 @@ describe('internal methods', () => {
     expect(request.data).toEqual({
       id: '54262125',
       name: 'foo'
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams no encrypt nestBizData', async () => {
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo',
+      }
+    }
+    let customConfig: CustomConfig = {
+      nestBizData: true,
+      useEncrypt: false, // 当 useEncrypt 为 false 时下方配置应不生效
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(request.data).toEqual({
+      body: {
+        id: '54262125',
+        name: 'foo',
+      },
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams no encrypt custom nestBizData', async () => {
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo',
+      }
+    }
+    let customConfig: CustomConfig = {
+      nestBizData: 'data',
+      useEncrypt: false, // 当 useEncrypt 为 false 时下方配置应不生效
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(request.data).toEqual({
+      data: {
+        id: '54262125',
+        name: 'foo',
+      },
+    })
+  })
+
+  it('defaultCommonParamsTransform with commonParams no encrypt wrong nestBizData', async () => {
+    let request: AxiosRequestConfig = {
+      data: {
+        id: '54262125',
+        name: 'foo',
+      }
+    }
+    let customConfig: CustomConfig = {
+      nestBizData: null as any,
+      useEncrypt: false, // 当 useEncrypt 为 false 时下方配置应不生效
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+    }
+    await defaultCommonParamsTransform(request, customConfig)
+    expect(request.data).toEqual({
+      body: {
+        id: '54262125',
+        name: 'foo',
+      },
     })
   })
 
