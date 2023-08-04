@@ -78,10 +78,6 @@ export default {
         })
     },
     login (openid: string): Promise<any> {
-      // FIXME: createHttp需要兼容：不管是否开启加密，
-      // post方法都不需要body一节点，createHttp方法内
-      // 部进行判断，否则加密与不加密方法进行post请求时
-      // 传递的参数结构不一致
       return http.post<any, any>('/user/bankQuickLogin', { openid })
       .then(res => {
           console.log('login', res)
