@@ -93,10 +93,10 @@ export type XResponseTransform = (response: XApiResponse<any>) => void
 
 export type HttpConfig = ApisauceConfig & CustomConfig
 
-export type UploadAppConfig = Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'>
+export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'> & { appKey: string }>
 
 export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'useSign' | 'commonHeaders'> & {
-  getToken: () => string
+  getToken?: () => string | undefined | null
 }
 
 export type CustomAxiosRequestConfig = AxiosRequestConfig & CustomConfig
@@ -582,11 +582,11 @@ export function createUploadHttp(
     config: UploadHttpConfig
   ): UploadInstance {
 
-  if (!config.appKey) {
+  const appKey = appConfig.appKey || config.appKey
+
+  if (!appKey) {
     throw new Error('appKey is required')
   }
-
-  // const instance = create(config) as UploadInstance
 
   const instance = createHttp({
     ...config,
@@ -599,7 +599,7 @@ export function createUploadHttp(
         merNoNo: appConfig.merNo,
         msgId: genMessageId(),
         random: randomNumber(15),
-      }, config.appKey as string)
+      }, appKey)
       return Promise.resolve({
         Authorization: config.getToken ? config.getToken() : null,
         encodeMethod: '1',
