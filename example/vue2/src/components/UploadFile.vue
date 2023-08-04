@@ -1,17 +1,16 @@
 <template>
   <div class="upload-file">
-    <label for="file">选择文件</label>
-    <input id="file" type="file" accept="image/png, image/jpeg" @change="handleFileChange">
+    <div class="card">
+      <p>createUploadHttp</p>
+      <label for="file">选择文件</label>
+      <input id="file" type="file" accept="image/png, image/jpeg" @change="handleFileChange">
+    </div>
   </div>
 </template>
 
 <script>
-/* eslint-disable no-unused-vars */
-import axios from 'axios'
-import { create } from 'apisauce'
-import { createUploadHttp, createBaseHttp, createHttp } from '@dinofe/xt-core/http'
-// import { createUploadHttp, createBaseHttp, createHttp } from '../../../../dist/cjs/http'
-import token from '../utils/token'
+import { createHttp, createUploadHttp } from '@dinofe/xt-core/http'
+import token from '@/utils/token'
 
 const appParams = {
   appId: '3130042001040',
@@ -19,20 +18,7 @@ const appParams = {
   deviceId: 'hbjh_h5'
 }
 
-const appConfig = {
-  basicImageUrl: 'https://yfzx.whty.com.cn/dev-c2b/'
-}
-
-const appKey = '123'
-
-const baseHttp = createBaseHttp({
-  encrypt: false,
-  commonParams: {
-    appId: appParams.appId,
-    merNoNo: appParams.merNo,
-    authorization: token.get()
-  }
-}, { baseURL: '/api-hbccb' })
+const appKey = '3a2e424c56754e90a8948b74f163f0cb'
 
 const http = createHttp({
   baseURL: '/api-hbccb',
@@ -44,69 +30,58 @@ const http = createHttp({
     authorization: token.get()
   })
 })
-const uploadHttp = createUploadHttp(appParams, { appKey: appKey, getToken: () => token.get() })
+const uploadHttp = createUploadHttp(appParams, {
+  appKey: appKey,
+  getToken: () => {
+    return token.get()
+  },
+  baseURL: '/api-hbccb'
+})
 
 export default {
-  data () {
-    return {}
-  },
   methods: {
     /**
      * 文件change
-     * @param {HTMLInputElement} e Event
+     * @param e {Event}
      */
     async handleFileChange (e) {
-      console.log(e.target.files)
-      if (!e.target.files[0]) {
+      if (!(e).target.files[0]) {
         return
       }
-      const file = e.target.files[0]
-      console.log(file)
-
       if (!token.get()) {
         console.log('未登录，开始自动登录...')
         await this.login('15856151')
+      } else {
+        console.log('已登录，开始上传文件...')
       }
 
-      uploadHttp.upload('/api-hbccb/file/upload/stream/sign', { file }, { onUploadProgress: this.onUploadProgress })
+      const file = (e.target).files[0]
+
+      uploadHttp.upload('/file/upload/stream/sign', { file }, { onUploadProgress: this.onUploadProgress })
         .then(res => {
-          console.log(res)
           if (res.success) {
             console.log('上传成功')
             console.log('core', res.data)
-            const { body: { imgUrl } = {} } = res.data || {}
+            const { body: { imgUrl = '' } = {} } = res.data || {}
             console.log('上传结果：', imgUrl)
           } else {
             console.log(res.msg)
           }
-        }).catch(e => {
-          console.error(e)
         })
-
-      // 测试 axios 上传
-      // const fd = new FormData()
-      // fd.append('file', file)
-      // axios.post('/api-hbccb/file/upload/stream/sign', fd)
-      //   .then(res => {
-      //     console.log('axios', res)
-      //   }).catch(e => {
-      //     console.log('axios', e)
-      //   })
-
-      // 测试apisauce上传
-      // const ashttp = create({
-      //   baseURL: ''
-      // })
-      // ashttp.post('/api-hbccb/file/upload/stream/sign', fd)
-      //   .then(res => {
-      //     console.log('ashttp', res)
-      //   })
+        .then(() => {
+          const fileEl = document.querySelector('#file')
+          if (fileEl) {
+            console.log(fileEl.value)
+            fileEl.value = ''
+          }
+        })
     },
     login (openid) {
       return http.post('/user/bankQuickLogin', { openid })
         .then(res => {
           console.log('login', res)
           if (res.success) {
+            console.log('登录成功')
             return Promise.resolve(res.data.body)
           } else {
             return Promise.reject(res.msg)
@@ -115,23 +90,36 @@ export default {
         .then(body => {
           return Promise.resolve(body.token)
         })
+        .then(t => {
+          token.set(t)
+          return t
+        })
         .catch(msg => {
           console.log(msg)
         })
     },
     onUploadProgress (e) {
-      console.log(e)
+      console.log(e, e.loaded, e.total)
     }
   },
   mounted () {
-    this.login('15856151').then(_token => {
-      console.log(_token)
-      token.set(_token)
-      console.log('token ', token.get())
-    })
+    // this.login('15856151').then(_token => {
+    //   console.log(_token)
+    //   token.set(_token)
+    //   console.log('token ', token.get())
+    // })
   }
 }
 </script>
 
-<style>
+<style scoped>
+.card {
+  text-align: left;
+  border: 1px solid #efefef;
+  border-radius: 5px;
+  padding: 8px;
+}
+.card:not(:last-child) {
+  margin-bottom: 16px;
+}
 </style>
