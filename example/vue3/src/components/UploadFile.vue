@@ -1,13 +1,15 @@
 <template>
   <div class="upload-file">
-    <label for="file">选择文件</label>
-    <input id="file" type="file" accept="image/png, image/jpeg" @change="handleFileChange">
+    <div class="card">
+      <p>createUploadHttp</p>
+      <label for="file">选择文件</label>
+      <input id="file" type="file" accept="image/png, image/jpeg" @change="handleFileChange">
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { onMounted } from 'vue'
-import { createHttp, createBaseHttp, createUploadHttp } from '@dinofe/xt-core/http'
+import { createHttp, createUploadHttp } from '@dinofe/xt-core/http'
 import token from '@/utils/token'
 
 const appParams = {
@@ -16,20 +18,7 @@ const appParams = {
   deviceId: 'hbjh_h5'
 }
 
-const appConfig = {
-  basicImageUrl: 'https://yfzx.whty.com.cn/dev-c2b/'
-}
-
-const appKey = '123'
-
-const baseHttp = createBaseHttp({
-  encrypt: false,
-  commonParams: {
-    appId: appParams.appId,
-    merNoNo: appParams.merNo,
-    authorization: token.get()
-  }
-}, { baseURL: '/api-hbccb' })
+const appKey = '3a2e424c56754e90a8948b74f163f0cb'
 
 const http = createHttp({
   baseURL: '/api-hbccb',
@@ -42,7 +31,8 @@ const http = createHttp({
   })
 })
 const uploadHttp = createUploadHttp(appParams, {
-  appKey: appKey, getToken: () => {
+  appKey: appKey,
+  getToken: () => {
     return token.get() as any
   },
   baseURL: '/api-hbccb'
@@ -62,6 +52,8 @@ export default {
       if (!token.get()) {
         console.log('未登录，开始自动登录...')
         await this.login('15856151')
+      } else {
+        console.log('已登录，开始上传文件...')
       }
 
       const file = (e.target as any).files[0]
@@ -77,18 +69,24 @@ export default {
             console.log(res.msg)
           }
         })
+        .then(() => {
+          const fileEl = document.querySelector('#file') as HTMLInputElement
+          if (fileEl) {
+            console.log(fileEl.value)
+            fileEl.value = ''
+          }
+        })
     },
     login (openid: string): Promise<any> {
       // FIXME: createHttp需要兼容：不管是否开启加密，
       // post方法都不需要body一节点，createHttp方法内
       // 部进行判断，否则加密与不加密方法进行post请求时
       // 传递的参数结构不一致
-      return http.post<any, any>('/user/bankQuickLogin', {
-        body: { openid }
-      })
+      return http.post<any, any>('/user/bankQuickLogin', { openid })
       .then(res => {
           console.log('login', res)
           if (res.success) {
+            console.log('登录成功')
             return Promise.resolve(res.data.body)
           } else {
             return Promise.reject(res.msg)
@@ -96,6 +94,10 @@ export default {
         })
         .then(body => {
           return Promise.resolve(body.token)
+        })
+        .then(t => {
+          token.set(t)
+          return t
         })
         .catch(msg => {
           console.log(msg)
@@ -106,13 +108,22 @@ export default {
     }
   },
   mounted () {
-    this.login('15856151').then(_token => {
-      console.log(_token)
-      token.set(_token)
-      console.log('token ', token.get())
-    })
+    // this.login('15856151').then(_token => {
+    //   console.log(_token)
+    //   token.set(_token)
+    //   console.log('token ', token.get())
+    // })
   }
 }
 </script>
 
-<style></style>
+<style scoped>
+.card {
+  border: 1px solid #efefef;
+  border-radius: 5px;
+  padding: 8px;
+}
+.card:not(:last-child) {
+  margin-bottom: 16px;
+}
+</style>
