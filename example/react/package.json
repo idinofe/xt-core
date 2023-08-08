@@ -36,7 +36,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "https://yfzx.whty.com.cn/dev-c2b/hbccb-interface",
   "devDependencies": {
     "http-proxy-middleware": "^2.0.6"
   }
