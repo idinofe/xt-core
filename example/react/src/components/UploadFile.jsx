@@ -25,7 +25,7 @@ const uploadHttp = createUploadHttp({
   deviceId: '',
 }, {
   baseURL: '',
-  appKey: ''
+  appKey: '123',
 })
 
 /**

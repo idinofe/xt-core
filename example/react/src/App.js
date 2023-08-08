@@ -5,7 +5,7 @@ import DStorage from '@dinofe/xt-core/storage/index'
 // FIXME: 这个引入写法会报错：找不到模块
 // import Storage from '@dinofe/xt-core/storage'
 
-// import UploadFile from './components/UploadFile'
+import UploadFile from './components/UploadFile'
 
 import './App.css';
 
@@ -41,7 +41,7 @@ function App() {
   
   return (
     <div className="App">
-      {/* <UploadFile></UploadFile> */}
+      <UploadFile></UploadFile>
     </div>
   );
 }
