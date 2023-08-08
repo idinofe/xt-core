@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@dinofe/xt-core": "^0.0.14",
+    "@dinofe/xt-core": "^0.0.21",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -35,5 +35,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "proxy": "https://yfzx.whty.com.cn/dev-c2b/hbccb-interface",
+  "devDependencies": {
+    "http-proxy-middleware": "^2.0.6"
   }
 }

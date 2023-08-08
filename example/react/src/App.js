@@ -2,9 +2,26 @@ import { useEffect } from 'react'
 import { genOAuthUrl, WxScope } from '@dinofe/xt-core'
 import { isString } from '@dinofe/xt-core/common'
 import DStorage from '@dinofe/xt-core/storage/index'
-import Storage from '@dinofe/xt-core/storage'
-import logo from './logo.svg';
+// FIXME: 这个引入写法会报错：找不到模块
+// import Storage from '@dinofe/xt-core/storage'
+
+// import UploadFile from './components/UploadFile'
+
 import './App.css';
+
+// 测试接口代理功能 https://create-react-app.dev/docs/proxying-api-requests-in-development/
+fetch('/api-hbccb/user/bankQuickLogin', { method: 'POST', body: JSON.stringify({
+  "authorization": "undefined",
+  "deviceId": "hbjh_h5",
+  "merNoNo": "130042001040",
+  "appId": "3130042001040",
+  "msgId": "1691490053678",
+  "body": {
+    "openid": "19411131"
+  }
+}), headers: { 'content-type': 'application/json' } }).then(res => res.json()).then(res => {
+  console.log(res)
+})
 
 function App() {
 
@@ -19,25 +36,12 @@ function App() {
     // exports 导出的方法能正常引入使用，但是没有类型提示
     console.log(isString(url))
     console.log(DStorage)
-    console.log(Storage)
+    // console.log(Storage)
   }, [])
   
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {/* <UploadFile></UploadFile> */}
     </div>
   );
 }
