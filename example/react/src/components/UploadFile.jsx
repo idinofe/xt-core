@@ -5,27 +5,30 @@ import token from '../utils/token'
 
 const log = (...args) => console.log(`[UploadFile]`, ...args)
 
+const appKey = '3a2e424c56754e90a8948b74f163f0cb'
+
+const appParams = {
+  appId: '3130042001040',
+  merNo: '130042001040',
+  deviceId: 'hbjh_h5'
+}
+
 const http = createHttp({
   baseURL: '/api-hbccb',
   useEncrypt: false,
   useSign: false,
-  commonParams: () => {
-    return {
-      appId: '',
-      merNoNo: '',
-      deviceId: '',
-      authorization: token.get(),
-    }
-  }
+  appKey: appKey,
+  commonParams: () => Promise.resolve({
+    appId: appParams.appId,
+    merNoNo: appParams.merNo,
+    authorization: token.get()
+  })
 })
 
-const uploadHttp = createUploadHttp({
-  appId: '',
-  merNo: '',
-  deviceId: '',
-}, {
-  baseURL: '',
-  appKey: '123',
+const uploadHttp = createUploadHttp(appParams, {
+  baseURL: '/api-hbccb',
+  getToken: () => token.get(),
+  appKey: appKey,
 })
 
 /**
@@ -37,7 +40,7 @@ function onUploadProgress (e) {
 }
 
 function login (openid) {
-  return http.post('', { openid })
+  return http.post('/user/bankQuickLogin', { openid })
     .then(res => {
       if (res.success) {
         log('登录成功')
@@ -60,7 +63,7 @@ function login (openid) {
 }
 
 function upload (file) {
-  return uploadHttp.upload('', { file }, { onUploadProgress })
+  return uploadHttp.upload('/file/upload/stream/sign', { file }, { onUploadProgress })
       .then(res => {
         log(res)
         if (res.success) {
@@ -99,8 +102,11 @@ function UploadFile () {
   }
   return (
     <>
-      <label htmlFor="file">请选择文件</label>
-      <input type="file" id="file" onChange={handleFileChange} />
+      <div className='card'>
+        <p>createUploadHttp</p>
+        <label htmlFor="file">请选择文件</label>
+        <input type="file" id="file" onChange={handleFileChange} />
+      </div>
     </>
   )
 }
