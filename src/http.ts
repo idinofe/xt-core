@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -55,6 +55,8 @@ interface UploadInstance extends ApisauceInstance {
   upload: <T, U = T>(url: string, data: UploadData, config?: UploadConfig) => Promise<XApiResponse<T, U>>
 }
 
+type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
+
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
 export const RETURN_CODE_FAIL = 'FAIL'
 
@@ -95,9 +97,7 @@ export type HttpConfig = ApisauceConfig & CustomConfig
 
 export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'> & { appKey: string }>
 
-export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'useSign' | 'commonHeaders'> & {
-  getToken?: () => string | undefined | null
-}
+export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'useSign' | 'commonHeaders'> & { authorization?: Authorization }
 
 export type CustomAxiosRequestConfig = AxiosRequestConfig & CustomConfig
 
@@ -525,7 +525,7 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
 }
 
 /**
- * 创建基础 API 实例
+ * 创建基础 HTTP 实例
  * @param param0 { encrypt: boolean } 若为 true，则加密加签同时启用，默认采用 V2 版本加密协议
  * @param config {HttpConfig}
  * @param authorization {string | null | (() => (string | null)) | (() => Promise<string | null>)} token
@@ -536,18 +536,6 @@ export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
   commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>,
   authorization: string | null | (() => (string | null)) | (() => Promise<string | null>)
 }, config: HttpConfig): XApisauceInstance {
-  // let getAuthorization: any
-  // if (isFunction(authorization)) {
-  //   let token = (authorization as any)()
-  //   if (isPromise(token)) {
-  //     getAuthorization = () => token
-  //   } else {
-  //     getAuthorization = () => Promise.resolve(token)
-  //   }
-  // } else {
-  //   let token = authorization
-  //   getAuthorization = () => Promise.resolve(token)
-  // }
   const getAuthorization = () => promisify(authorization)
   const instance = createHttp({
     ...config,
@@ -579,10 +567,15 @@ export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
  */
 export function createUploadHttp(
     appConfig: UploadAppConfig,
-    config: UploadHttpConfig
+    config: UploadHttpConfig = { baseURL: '' }
   ): UploadInstance {
 
-  const appKey = appConfig.appKey || config.appKey
+  if (isUndef(appConfig)) {
+    throw new Error('appConfig is required')
+  }
+  
+  // config.appKey 优先
+  const appKey = config.appKey || appConfig.appKey
 
   if (!appKey) {
     throw new Error('appKey is required')
@@ -593,20 +586,27 @@ export function createUploadHttp(
     useEncrypt: false,
     useSign: false,
     nestBizData: false,
-    commonHeaders: () => {
+    commonHeaders: async () => {
+      let authorization = null
+      if (isFunction(config.authorization)) {
+        authorization = await promisify(config.authorization)
+      } else {
+        authorization = config.authorization
+      }
+      // TODO: 是否签名改为配置项
       const signBody = createSign({
         appId: appConfig.appId,
         merNoNo: appConfig.merNo,
         msgId: genMessageId(),
         random: randomNumber(15),
       }, appKey)
-      return Promise.resolve({
-        Authorization: config.getToken ? config.getToken() : null,
+      return {
+        Authorization: authorization,
         encodeMethod: '1',
         signMethod: '1',
         appId: appConfig.appId,
         signBody
-      })
+      }
     }
   }) as UploadInstance
 
