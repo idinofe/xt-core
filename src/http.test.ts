@@ -1425,7 +1425,8 @@ describe('encrypt/decrypt success', () => {
       indexDoc: 'xxx_h5',
       domain: 'https://www.example.com/',
       basic: 'xxx-interface',
-      basicImgUrl: 'https://www.example.com/static/'
+      basicImgUrl: 'https://www.example.com/static/',
+      appKey: appKey1,
     }
     const getToken = vi.fn()
     const getCommonHeaders = vi.fn()
@@ -1561,7 +1562,7 @@ describe('createUploadHttp success', () => {
     }, {
       baseURL,
       appKey: appKey1,
-      getToken: function (): string {
+      authorization: function (): string {
         return 'tokentoken'
       }
     })
