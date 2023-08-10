@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef, isPromise } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -97,7 +97,7 @@ export type HttpConfig = ApisauceConfig & CustomConfig
 
 export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'> & { appKey: string }>
 
-export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'useSign' | 'commonHeaders'> & { authorization?: Authorization }
+export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'commonHeaders'> & { authorization?: Authorization, signKey?: string }
 
 export type CustomAxiosRequestConfig = AxiosRequestConfig & CustomConfig
 
@@ -576,6 +576,9 @@ export function createUploadHttp(
   
   // config.appKey 优先
   const appKey = config.appKey || appConfig.appKey
+  const useSign = config.useSign === true
+  // TODO: 需要判断 signKey 是否和现有headers重复吗？
+  const signKey = isString(config.signKey) && config.signKey ? config.signKey : 'signBody'
 
   if (!appKey) {
     throw new Error('appKey is required')
@@ -584,28 +587,38 @@ export function createUploadHttp(
   const instance = createHttp({
     ...config,
     useEncrypt: false,
-    useSign: false,
+    useSign,
     nestBizData: false,
     commonHeaders: async () => {
       let authorization = null
       if (isFunction(config.authorization)) {
-        authorization = await promisify(config.authorization)
+        authorization = await promisify((config.authorization as any)())
+      } else if (isPromise(config.authorization)) {
+        authorization = await config.authorization
       } else {
         authorization = config.authorization
       }
-      // TODO: 是否签名改为配置项
-      const signBody = createSign({
-        appId: appConfig.appId,
-        merNoNo: appConfig.merNo,
-        msgId: genMessageId(),
-        random: randomNumber(15),
-      }, appKey)
-      return {
-        Authorization: authorization,
-        encodeMethod: '1',
-        signMethod: '1',
-        appId: appConfig.appId,
-        signBody
+      if (useSign) {
+        const signBody = createSign({
+          appId: appConfig.appId,
+          merNoNo: appConfig.merNo,
+          msgId: genMessageId(),
+          random: randomNumber(15),
+        }, appKey)
+        return {
+          Authorization: authorization,
+          encodeMethod: '1',
+          signMethod: '1',
+          appId: appConfig.appId,
+          [signKey]: signBody
+        }
+      } else {
+        return {
+          Authorization: authorization,
+          encodeMethod: '1',
+          signMethod: '1',
+          appId: appConfig.appId,
+        }
       }
     }
   }) as UploadInstance

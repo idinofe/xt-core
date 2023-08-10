@@ -1004,7 +1004,7 @@ describe('check config', () => {
   })
 })
 
-//成功请求
+// 成功请求
 describe('response success', () => {
   it('empty data with status 200', () => {
     const http = createHttp({ baseURL })
