@@ -2,6 +2,7 @@
   <div class="card">
     <p>createHttp</p>
     <button @click="handleLoginClick">开始登录</button>
+    <button @click="handleLoginClick2">开始登录</button>
   </div>
   <div class="card">
     <p>createBaseHttp</p>
@@ -53,6 +54,19 @@ const baseHttp = createBaseHttp({
 
 const handleLoginClick = (e: MouseEvent) => {
   http.post('/user/bankQuickLogin', { openid: '1652454242' })
+    .then(res => {
+      log(res)
+      if (res.success) {
+        log('登录成功')
+        log(res.code)
+      } else {
+        log('登录失败', res.msg)
+      }
+    })
+}
+
+const handleLoginClick2 = (e: MouseEvent) => {
+  http.post('/user/bankQuickLogin', {}, { data: { openid: '1652454242' } })
     .then(res => {
       log(res)
       if (res.success) {

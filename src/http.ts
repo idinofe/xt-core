@@ -1,5 +1,5 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
-import { AxiosRequestConfig } from 'axios'
+import { AxiosRequestConfig, AxiosProgressEvent } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
 import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef, isPromise } from './common'
 import { AppConfig } from './type'
@@ -38,11 +38,13 @@ export interface CustomConfig {
   commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>>
 }
 
-interface UploadConfig<T = any> {
+interface UploadConfig<D = any> {
   fileName?: string
   fileKey?: string
-  onUploadProgress?: (e: T) => void
+  onUploadProgress?: AxiosRequestConfig<D>['onUploadProgress']
 }
+
+type UploadRequestConfig = UploadConfig & CustomAxiosRequestConfig
 
 type UploadData = {
   data: string
@@ -52,7 +54,7 @@ type UploadData = {
 }
 
 interface UploadInstance extends ApisauceInstance {
-  upload: <T, U = T>(url: string, data: UploadData, config?: UploadConfig) => Promise<XApiResponse<T, U>>
+  upload: <T, U = T>(url: string, data: UploadData, config?: UploadRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
 type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
@@ -88,34 +90,41 @@ interface BaseTransform {
   (...args: any[]): any | Promise<any>
 }
 
-// export type XAsyncRequestTransform = ( request: CustomAxiosRequestConfig) => Promise<void> | ((request: CustomAxiosRequestConfig) => Promise<void>)
 export type XAsyncRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => Promise<void> | ((request: AxiosRequestConfig) => Promise<void>)
 
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
 export type HttpConfig = ApisauceConfig & CustomConfig
 
+export type BaseConfig = {
+  encrypt: boolean,
+  commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>,
+  authorization: string | null | (() => (string | null)) | (() => Promise<string | null>)
+}
+
 export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'> & { appKey: string }>
 
 export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'commonHeaders'> & { authorization?: Authorization, signKey?: string }
 
-export type CustomAxiosRequestConfig = AxiosRequestConfig & CustomConfig
+export type CustomAxiosRequestConfig<D = any> = Omit<AxiosRequestConfig<D> & CustomConfig, 'url' | 'method' | 'data'>
 
 /**
  * 修改Apisauce导出实例的类型声明
- * 1.业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse
+ * 
+ * 1. 业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse
  *  'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'这些方法类型定义需要重写
+ * 2. 示例对象post等方法的axiosConfig对象可覆盖创建示例对象时的config（除 'url' | 'method' | 'data' 之外）
  */
 export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'> {
-  any: <T, U = T>(config: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  get: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  delete: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  head: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  post: <T, U = T>(url: string, data?: any, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  put: <T, U = T>(url: string, data?: any, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  patch: <T, U = T>(url: string, data?: any, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  link: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
-  unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: AxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  any: <T, U = T>(config: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  get: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  delete: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  head: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  post: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  put: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  patch: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  link: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
 
@@ -125,7 +134,6 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
  * @param transform XAsyncRequestTransform
  * @returns XAsyncRequestTransform
  */
-// const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform, D extends BaseTransform = RequestTransform>(httpConfig: HttpConfig, transform: T): D => {
 export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(httpConfig: HttpConfig, transform: T): RequestTransform & AsyncRequestTransform => {
   const config: CustomConfig = {
     noStatusTransform: httpConfig.noStatusTransform,
@@ -190,20 +198,6 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
     }
     const ed = encrypt(data as DataType, key)
     return ed as T
-    // if (useSign) {
-    //   const sign = createSign(data as BaseObject, key)
-    //   return {
-    //     body: ed,
-    //     sign,
-    //     encodeMethod: '1',
-    //     signMethod: '1'
-    //   } as T
-    // }
-    // return {
-    //   body: ed,
-    //   encodeMethod: '1',
-    //   signMethod: '0'
-    // } as T
   }
 
   // TODO: 补充验签测试用例
@@ -314,9 +308,10 @@ export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (reque
 
 /**
  * 解密
- * 1.对接口返回的数据进行解密
- * 2.根据config配置项决定解密行为，config是createHttp时传入的配置
- * 3.不抛出错误阻塞后续逻辑
+ * 
+ * 1. 对接口返回的数据进行解密
+ * 2. 根据config配置项决定解密行为，config是createHttp时传入的配置
+ * 3. 不抛出错误阻塞后续逻辑
  * @param response 
  * @returns 
  */
@@ -390,10 +385,14 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
 }
 
 /**
- * 校验业务状态是否为成功，成功则会给response.data添加success=true，以及 code 和 msg
- * returnCode 的取值顺序：Headers -> response.data
- * returnDes 的取值顺序：Headers -> response.data
- * @param response ApiResponse<any, any>
+ * 校验业务状态成功与否
+ * 
+ * 校验业务状态是否为成功，成功则会给response.data添加success=true,code和msg
+ * 
+ * 1. returnCode 的取值顺序：Headers -> response.data
+ * 
+ * 2. returnDes 的取值顺序：Headers -> response.data
+ * @param response {ApiResponse<any, any>}
  */
 export const defaultResponseTransform: XResponseTransform = (response) => {
   const data = response.data
@@ -437,7 +436,7 @@ export const defaultResponseTransform: XResponseTransform = (response) => {
  * 判断业务状态码是否是token失效
  * @param data 
  * @param response 
- * @returns 
+ * @returns {boolean}
  */
 export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
   return !!(data && data.returnCode === 'INVALID_TOKEN')
@@ -509,8 +508,8 @@ export const getCustomConfig = (response: XApiResponse<any, any>) => {
 
 /**
  * 根据配置创建 HTTP 实例
- * @param config HttpConfig
- * @returns ApisauceInstance
+ * @param config {HttpConfig}
+ * @returns {ApisauceInstance}
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
@@ -526,16 +525,15 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
 
 /**
  * 创建基础 HTTP 实例
- * @param param0 { encrypt: boolean } 若为 true，则加密加签同时启用，默认采用 V2 版本加密协议
- * @param config {HttpConfig}
- * @param authorization {string | null | (() => (string | null)) | (() => Promise<string | null>)} token
- * @returns 
+ * @param baseConfig {BaseConfig} 基础配置
+ * @param config {HttpConfig} 通用配置
+ * @returns {XApisauceInstance}
  */
-export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
-  encrypt: boolean,
-  commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>,
-  authorization: string | null | (() => (string | null)) | (() => Promise<string | null>)
-}, config: HttpConfig): XApisauceInstance {
+export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApisauceInstance {
+  if (isUndef(baseConfig)) {
+    throw new Error('baseConfig is required')
+  }
+  const { encrypt, commonParams = {}, authorization } = baseConfig
   const getAuthorization = () => promisify(authorization)
   const instance = createHttp({
     ...config,
@@ -555,9 +553,10 @@ export function createBaseHttp({ encrypt, commonParams = {}, authorization }: {
 
 /**
  * 创建上传文件 HTTP 实例（Web 环境）
+ * 
  * 注意：
- * 1.使用了 FormData，故只能在 web 环境使用
- * 2.返回值是 UploadInstance 实例，建议只使用其 upload 方法，
+ * 1. 使用了 FormData，故只能在 web 环境使用
+ * 2. 返回值是 UploadInstance 实例，建议只使用其 upload 方法，
  *  ApisauceInstance 实例提供的其他发请求方法不要使用，可能导
  *  致错误逻辑
  * @platform web
@@ -626,7 +625,7 @@ export function createUploadHttp(
   instance.upload = (
     url: string,
     uploadData: UploadData,
-    uploadConfig: UploadConfig = {}
+    uploadConfig: UploadRequestConfig = {}
   ) => {
     let blob
     if ((uploadData as any).data) {
@@ -637,13 +636,18 @@ export function createUploadHttp(
     const { onUploadProgress, fileKey } = uploadConfig
     const formData = new FormData()
     formData.append(fileKey || 'file', blob, uploadConfig.fileName || 'image.jpg')
-    return instance.post<any>(url, formData, {
+
+    // config uploadConfig都合并到axiosRequestConfig，保证 instance.upload 实例方法调用时有机会覆盖 config
+    const axiosRequestConfig = {
       ...config,
+      ...uploadConfig,
       headers: {
         'Content-Type': 'multipart/form-data'
       },
       onUploadProgress: onUploadProgress || config.onUploadProgress
-    })
+    }
+
+    return instance.post<any>(url, formData, axiosRequestConfig)
   }
   return instance
 }

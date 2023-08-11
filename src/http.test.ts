@@ -1002,6 +1002,39 @@ describe('check config', () => {
     const http = createHttp({ baseURL, noFail: true, noStatusTransform: true })
     expect(http.responseTransforms.length).toEqual(1)
   })
+
+  it('config in instance should merge into factory config', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    const timeout = 300
+    const http = createHttp({ baseURL, noFail: true, noStatusTransform: true })
+    return http.post('/foo/bar', {}, {
+      timeout,
+      baseURL: baseURL + '/aaa',
+      noFail: false,
+      noStatusTransform: false,
+      useEncrypt: false,
+      useSign: false,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      onFail,
+      onInvalidToken,
+    }).then(res => {
+      expect(res).toHaveProperty('config')
+      expect(res.config?.timeout).toEqual(timeout)
+      expect(res.config?.baseURL).toEqual(baseURL + '/aaa')
+      expect(res.config?.noFail).toEqual(false)
+      expect(res.config?.noStatusTransform).toEqual(false)
+      expect(res.config?.useEncrypt).toEqual(false)
+      expect(res.config?.useSign).toEqual(false)
+      expect(res.config?.appKey).toEqual(appKey1)
+      expect(res.config?.encryptVersion).toEqual(EncryptVersion.v1)
+      expect(res.config?.onFail).toEqual(onFail)
+      expect(res.config?.onInvalidToken).toEqual(onInvalidToken)
+    })
+  }, {
+    timeout: 500
+  })
 })
 
 // 成功请求
