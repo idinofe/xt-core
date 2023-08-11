@@ -1035,6 +1035,39 @@ describe('check config', () => {
   }, {
     timeout: 500
   })
+
+  it('config in instance should not impact the origin config', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    const timeout = 300
+    const http = createHttp({ baseURL, noFail: false, noStatusTransform: false })
+    return http.post('/hello/world', undefined, {
+      timeout,
+      baseURL: baseURL + '/aaa',
+      noFail: true,
+      noStatusTransform: true,
+      useEncrypt: true,
+      useSign: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      onFail,
+      onInvalidToken,
+    }).then(() => {
+      expect(http.getBaseURL()).toEqual(baseURL)
+      return http.get('/foo/bar', {}, { timeout }).then(res => {
+        expect(res).toHaveProperty('config')
+        expect(http.getBaseURL()).toEqual(baseURL)
+        expect(res.config?.baseURL).toEqual(baseURL)
+        expect(res.config?.noFail).toEqual(false)
+        expect(res.config?.noStatusTransform).toEqual(false)
+        expect(res.config?.useEncrypt).toEqual(undefined)
+        expect(res.config?.useSign).toEqual(undefined)
+        expect(res.config?.appKey).toEqual(undefined)
+      })
+    })
+  }, {
+    timeout: 1500
+  })
 })
 
 // 成功请求
