@@ -10,6 +10,7 @@ yarn.lock
 
 lib
 types
+service
 dist
 
 # Diagnostic reports (https://nodejs.org/api/report.html)

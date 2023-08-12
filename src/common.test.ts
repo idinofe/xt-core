@@ -1,6 +1,154 @@
 import Big from "big.js"
-import { divide, floatDivide, floatMultiply, isEncodeURILike, minus, multiply, plus, toNonExponential } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential } from "./common"
 
+describe('isNumber', () => {
+  it('normal case', () => {
+    [1, 100, Infinity].forEach(i => {
+      expect(isNumber(i)).toEqual(true)
+    })
+  })
+  it('error case', () => {
+    ['aa', '11', true, false, null, undefined, Symbol(), {}].forEach(i => {
+      expect(isNumber(i)).toEqual(false)
+    })
+  })
+})
+
+describe('promisify', () => {
+  it('normal case', () => {
+    expect(isPromise(promisify(1113151))).toEqual(true)
+    expect(isPromise(promisify('foo bar'))).toEqual(true)
+    expect(isPromise(promisify(true))).toEqual(true)
+    expect(isPromise(promisify(false))).toEqual(true)
+    expect(isPromise(promisify(undefined))).toEqual(true)
+    expect(isPromise(promisify(null))).toEqual(true)
+    expect(isPromise(promisify(Symbol()))).toEqual(true)
+    expect(isPromise(promisify({}))).toEqual(true)
+    expect(isPromise(promisify(new Date()))).toEqual(true)
+    expect(isPromise(promisify(() => {}))).toEqual(true)
+    expect(isPromise(promisify(Promise.resolve()))).toEqual(true)
+    let p1 = Promise.resolve('p1')
+    expect(promisify(p1)).toEqual(p1)
+  })
+  it('resolve values are the same', () => {
+    let p1 = Promise.resolve('p1')
+
+    return Promise.all([
+      promisify(145635672).then(a => {
+        expect(a).toEqual(145635672)
+      }),
+      promisify('foo').then(a => {
+        expect(a).toEqual('foo')
+      }),
+      promisify(true).then(a => {
+        expect(a).toEqual(true)
+      }),
+      promisify(false).then(a => {
+        expect(a).toEqual(false)
+      }),
+      promisify(undefined).then(a => {
+        expect(a).toEqual(undefined)
+      }),
+      promisify(null).then(a => {
+        expect(a).toEqual(null)
+      }),
+      promisify(Symbol('foo')).then(a => {
+        expect(a.toString()).toEqual('Symbol(foo)')
+      }),
+      promisify({}).then(a => {
+        expect(JSON.stringify(a)).toEqual(JSON.stringify({}))
+      }),
+      promisify(new Date()).then(a => {
+        expect(Object.prototype.toString.call(a)).toEqual('[object Date]')
+      }),
+      promisify(p1).then(a => {
+        expect(a).toEqual('p1')
+      })
+    ])
+  })
+  it('promise function', () => {
+    let fn1 = () => Promise.resolve('fn1')
+    let fn2 = async () => {
+      throw new Error('error')
+    }
+
+    return Promise.all([
+      promisify(fn1).then(a => {
+        expect(isFunction(a)).toEqual(true)
+        a().then(b => {
+          expect(b).toEqual('fn1')
+        })
+      }),
+      promisify(fn2).then(a => {
+        expect(a).toEqual(fn2)
+        expect(isFunction(a)).toEqual(true)
+        return a().catch(e => {
+          expect(e.message).toEqual('error')
+        })
+        // expect(() => a()).toThrowError('error')
+      })
+    ])
+
+  })
+})
+
+describe('delay', () => {
+  it('normal case', () => {
+    expect(isPromise(delay(100))).toEqual(true)
+    expect(isPromise(delay(undefined))).toEqual(true)
+  })
+  it('error case', () => {
+    expect(() => delay(-60)).toThrowError()
+    expect(() => delay('foo bar' as any)).toThrowError()
+    expect(() => delay(true as any)).toThrowError()
+    expect(() => delay(false as any)).toThrowError()
+    expect(() => delay(null as any)).toThrowError()
+    expect(() => delay({} as any)).toThrowError()
+    expect(() => delay(Symbol() as any)).toThrowError()
+    expect(() => delay((() => {}) as any)).toThrowError()
+  })
+})
+
+describe('randomNumber', () => {
+  it('normal case', () => {
+    expect(randomNumber(0)).toHaveLength(0)
+    expect(randomNumber(10)).toHaveLength(10)
+    expect(randomNumber(15)).toHaveLength(15)
+    expect(randomNumber(20)).toHaveLength(20)
+    expect(randomNumber()).toHaveLength(20)
+    expect(randomNumber(100)).toHaveLength(100)
+    expect(randomNumber(1000)).toHaveLength(1000)
+  })
+  it('error case', () => {
+    expect(() => randomNumber(-1)).toThrowError('len must great than -1')
+    expect(() => randomNumber(undefined)).not.toThrowError('len must be an Number')
+    expect(() => randomNumber(null as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber({} as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber('aaa' as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber('111' as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber(true as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber(Symbol() as any)).toThrowError('len must be an Number')
+  })
+})
+
+describe('genMessageId', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+  })
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+  it('normal case', () => {
+    expect(() => genMessageId()).not.toThrowError()
+    expect(genMessageId()).toHaveLength(21)
+  })
+  it('content matched to Date', () => {
+    const date = new Date(2023, 6, 27)
+    vi.setSystemTime(date)
+    expect(genMessageId().slice(0, 8)).toEqual('20230727')
+    expect(genMessageId().slice(8, 16)).toEqual('00000000')
+  })
+})
 
 describe('isEncodeURILike', () => {
   const mockDatas1 = [
@@ -295,5 +443,64 @@ describe('minus', () => {
 
   it("undefined - 0.1 throw error", () => {
     expect(() => minus(undefined as any, 0.1)).toThrowError("Invalid number")
+  })
+})
+
+describe('isFunction', () => {
+  it('function', () => {
+    expect(isFunction(() => {})).toEqual(true)
+    expect(isFunction(function () {})).toEqual(true)
+    expect(isFunction(async () => {})).toEqual(true)
+  })
+  it('not function', () => {
+    expect(isFunction('')).toEqual(false)
+    expect(isFunction(1231)).toEqual(false)
+    expect(isFunction(undefined)).toEqual(false)
+    expect(isFunction(undefined)).toEqual(false)
+    expect(isFunction(null)).toEqual(false)
+    expect(isFunction({})).toEqual(false)
+  })
+})
+
+describe('isFormData', () => {
+  // TODO: 怎么修复 Node.js 环境无法模拟真实的 FormData？
+  it('normal case', () => {
+    expect(isFormData(() => {})).toEqual(false)
+    expect(isFormData(function () {})).toEqual(false)
+    expect(isFormData(async () => {})).toEqual(false)
+    expect(isFormData('')).toEqual(false)
+    expect(isFormData(1231)).toEqual(false)
+    expect(isFormData(undefined)).toEqual(false)
+    expect(isFormData(undefined)).toEqual(false)
+    expect(isFormData(null)).toEqual(false)
+    expect(isFormData({})).toEqual(false)
+  })
+})
+
+describe('isPromise', () => {
+  it('promise', () => {
+    expect(isPromise(new Promise((resolve) => { resolve(true) }))).toEqual(true)
+    expect(isPromise(Promise.resolve())).toEqual(true)
+    expect(isPromise({
+      then: () => {}
+    })).toEqual(true)
+  })
+  it('not promise', () => {
+    expect(isPromise('')).toEqual(false)
+    expect(isPromise(12)).toEqual(false)
+    expect(isPromise(undefined)).toEqual(false)
+    expect(isPromise(null)).toEqual(false)
+    expect(isPromise(() => {})).toEqual(false)
+    expect(isPromise({})).toEqual(false)
+  })
+})
+
+describe('isNormalObject', () => {
+  it('normal object', () => {
+    expect(isNormalObject({})).toEqual(true)
+  })
+  it('not normal object', () => {
+    expect(isNormalObject(() => {})).toEqual(false)
+    expect(isNormalObject([])).toEqual(false)
   })
 })

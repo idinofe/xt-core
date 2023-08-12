@@ -1,33 +1,25 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <LoginWithEncrypt></LoginWithEncrypt>
+    <UploadFile></UploadFile>
   </div>
 </template>
 
 <script>
-/* eslint-disable import/no-duplicates */
+/* eslint-disable import/no-duplicates, no-unused-vars */
 import { genOAuthUrl, WxScope } from '@dinofe/xt-core'
-import { createHttp } from '@dinofe/xt-core/http'
 import { isString } from '@dinofe/xt-core/common'
 import DStorage from '@dinofe/xt-core/storage/index'
-import Storage from '@dinofe/xt-core/storage'
-import HelloWorld from './components/HelloWorld.vue'
-
-const http = createHttp({
-  baseURL: '/api-hbccb'
-  // useEncrypt: false,
-  // commonParams: () => Promise.resolve({
-  //   appId: '3130042001040',
-  //   merNoNo: '130042001040',
-  //   deviceId: 'hbjh_h5',
-  // })
-})
+// FIXME: 这个引入写法会报错：找不到模块
+// import Storage from '@dinofe/xt-core/storage'
+import UploadFile from './components/UploadFile.vue'
+import LoginWithEncrypt from './components/LoginWithEncrypt.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    UploadFile,
+    LoginWithEncrypt
   },
   mounted () {
     const url = genOAuthUrl({
@@ -40,21 +32,7 @@ export default {
     // exports 导出的方法能正常引入使用，但是没有类型提示
     console.log(isString(url))
     console.log(DStorage)
-    console.log(Storage)
-
-    http.post('/user/bankQuickLogin', {
-      openid: '123',
-      headimgurl: '',
-      nickname: ''
-    }).then(res => {
-      if (res.success) {
-        console.log('登录成功')
-      } else {
-        console.log(res.msg)
-      }
-    }).catch(e => {
-      console.log(e)
-    })
+    // console.log(Storage)
   }
 }
 </script>

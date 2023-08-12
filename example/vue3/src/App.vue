@@ -5,18 +5,10 @@ import { createHttp } from '@dinofe/xt-core/http'
 import { isString } from '@dinofe/xt-core/common'
 import DStorage from '@dinofe/xt-core/storage/index'
 // import Storage from '@dinofe/xt-core/storage'
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-
-const http = createHttp({
-  baseURL: '/api-hbccb',
-  // useEncrypt: false,
-  // commonParams: () => Promise.resolve({
-  //   appId: '3130042001040',
-  //   merNoNo: '130042001040',
-  //   deviceId: 'hbjh_h5',
-  // })
-})
+// import HelloWorld from './components/HelloWorld.vue'
+// import TheWelcome from './components/TheWelcome.vue'
+import UploadFile from './components/UploadFile.vue'
+import LoginWithEncrypt from './components/LoginWithEncrypt.vue'
 
 onMounted(() => {
   const url = genOAuthUrl({
@@ -30,36 +22,13 @@ onMounted(() => {
   console.log(isString(url))
   console.log(DStorage)
   console.log(Storage)
-
-  http.post('/user/bankQuickLogin', {
-    openid: '123',
-    headimgurl: '',
-    nickname: '',
-  }).then(res => {
-    if (res.success) {
-      console.log('登录成功')
-    } else {
-      console.log(res.msg)
-    }
-  }).catch(e => {
-    console.log(e)
-  })
 })
 
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+  <LoginWithEncrypt></LoginWithEncrypt>
+  <UploadFile></UploadFile>
 </template>
 
 <style scoped>

@@ -1,20 +1,52 @@
-import _Big from 'big.js'
+/**
+ * 基础公共方法（纯JS方法不依赖于执行环境）
+ */
 
+import _Big from 'big.js'
 import type TBig from 'big.js'
 
 export const Big = _Big
 
 /**
- * 核心库通用公共方法
- */
-
-/**
- * 是否为有效的值
+ * 是否为有效的值（非undefined/'undefined'/null）
  * @param a {any}
  * @returns {boolean}
  */
 export const isDef = (a: any): boolean => {
   return typeof a !== 'undefined' && a !== undefined && a !== null
+}
+
+/**
+ * 是否为未定义（undefiend/null）
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isUndef = (a: any): boolean => {
+  return typeof a === 'undefined' || a === null
+}
+
+/**
+ * 字符串是否以/结尾
+ * @param a {string}
+ * @returns {boolean}
+ */
+export const isEndWithSlash = (a: string): boolean => {
+  if (!isString(a)) {
+    throw new Error('param is not string')
+  }
+  return /\/$/.test(a)
+}
+
+/**
+ * 字符串是否以/开头
+ * @param a {string}
+ * @returns {boolean}
+ */
+export const isStartWithSlash = (a: string): boolean => {
+  if (!isString(a)) {
+    throw new Error('param is not string')
+  }
+  return /^\//.test(a)
 }
 
 /**
@@ -24,6 +56,51 @@ export const isDef = (a: any): boolean => {
  */
 export const isString = (a: any): boolean => {
   return typeof a === 'string'
+}
+
+/**
+ * 是否为有效Number
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isNumber = (a: any): boolean => {
+  return typeof a === 'number' && !Number.isNaN(a)
+}
+
+/**
+ * 是否为 Promise 对象
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isPromise = (a: any): boolean => {
+  return typeof a === 'object' && a !== null && isFunction(a.then)
+}
+
+/**
+ * 是否为函数
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isFunction = (a: any): boolean => {
+  return ['[object Function]', '[object AsyncFunction]'].includes(Object.prototype.toString.call(a))
+}
+
+/**
+ * 是否为 FormData 对象
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isFormData = (a: any): boolean => {
+  return '[object FormData]' === Object.prototype.toString.call(a)
+}
+
+/**
+ * 是否为普通对象
+ * @param a {any}
+ * @returns {boolean}
+ */
+export const isNormalObject = (a: any): boolean => {
+  return Object.prototype.toString.call(a) === '[object Object]'
 }
 
 /**
@@ -58,9 +135,87 @@ export const isBlobUrlLike = (url: string): boolean => {
 }
 
 /**
+ * 转换为 resolved 的 Promise对象
+ * 1.传入Promise对象则直接返回
+ * 2.传入非Promise则包装之后再返回
+ * @param a {any}
+ * @returns Promise
+ */
+export const promisify = <T = any>(a: T): Promise<T> => {
+  if (isPromise(a)) {
+    return a as Promise<T>
+  }
+  return Promise.resolve(a)
+}
+
+/**
+ * 延迟
+ * @param time {number}
+ * @returns Promise
+ */
+export const delay = (time: number = 1000) => {
+  if (!isNumber(time)) {
+    throw new Error('time should be number')
+  }
+  if (time < 0) {
+    throw new Error('time should not small than 0')
+  }
+  return new Promise((resolve) => {
+    setTimeout(resolve, time)
+  })
+}
+
+/**
  * 空函数
  */
 export const noop = () => {}
+
+/**
+ * 生成随机数字符串
+ * @param len {number}
+ * @returns {string}
+ */
+export const randomNumber = (len: number = 20): string => {
+  if (!isNumber(len)) {
+    throw new Error("len must be an Number")
+  }
+  if (len < 0) {
+    throw new Error("len must great than -1")
+  }
+  const random = () => (Math.random() + '').replace('0.', '')
+  let rand = random().slice(0, len)
+  while (rand.length < len) {
+    rand += random()
+  }
+  return rand.slice(0, len)
+}
+
+/**
+ * 生成 21 位长度的消息 ID
+ * @returns {string}
+ */
+export const genMessageId = (): string => {
+  const date = new Date()
+  const Y = date.getFullYear()
+  const M = date.getMonth() + 1
+  const D = date.getDate()
+  const H = date.getHours()
+  const m = date.getMinutes()
+  const s = date.getSeconds()
+  const ms = date.getMilliseconds()
+  const month = M >= 10 ? '' + M : '0' + M
+  const day = D >= 10 ? '' + D : '0' + D
+  const hour = H >= 10 ? '' + H : '0' + H
+  const minute = m >= 10 ? '' + m : '0' + m
+  const second = s >= 10 ? '' + s : '0' + s
+  let minsec = '' + ms
+  if (ms < 10) {
+    minsec = '00' + ms
+  } else if (ms < 100 && ms >= 10) {
+    minsec = '0' + ms
+  }
+  return Y + month + day + hour + minute + second + minsec + randomNumber(4)
+}
 
 /**
  * 将科学计数法的数字转为字符串

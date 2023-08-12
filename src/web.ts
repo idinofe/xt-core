@@ -2,12 +2,19 @@
  * 适用于浏览器环境的相关库
  * 主要功能：
  * 1、复制文本到剪贴板
+ * 2、获取图片尺寸大小
+ * 3、base64 字符串转换为 Blob
  */
 
 import { isBlobUrlLike, isUrlLike } from "./common"
 import { IImageSize, SObject } from "./type"
 
 export const COPY_FAIL_MESSAGE = '当前环境不支持复制'
+export const enum MIME_TYPE {
+  JPG = 'image/jpeg',
+  PNG = 'image/png',
+  GIF = 'image/gif',
+}
 
 function createElement(tag: string, style: SObject<string>) {
   const el = document.createElement(tag)
@@ -139,3 +146,39 @@ function _getImageSize(data: string | HTMLImageElement | File, isBase64: boolean
 }
 
 export const getImageSize = _getImageSize
+
+/**
+ * base64 字符串转为 Blob
+ * referrence: https://developer.mozilla.org/zh-CN/docs/Glossary/Base64
+ * referrence: https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+ * @param data {string} base64 字符串（可以包含`data:image/jpegbas64,`会被忽略）
+ * @param mimeType {MIME_TYPE} MIME 类型
+ * @param sliceSize {number} 切片大小
+ * @returns {Blob}
+ */
+export const base64ToBlob = (data: string, mimeType = MIME_TYPE.JPG, sliceSize = 512): Blob => {
+  // 去除 base64 字符串中的数据类型标识部分（如：data:image/pngbase64,）
+  const base64Data = data.replace(/^data:[a-z]+\/[a-z]+base64,/, '')
+
+  // 将 base64 字符串转换为字节数组
+  const byteCharacters = window.atob(base64Data)
+
+  // 创建存储二进制数据的数组
+  const byteArrays = []
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize)
+
+    const byteNumbers = new Array(slice.length)
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i)
+    }
+
+    const byteArray = new Uint8Array(byteNumbers)
+    byteArrays.push(byteArray)
+  }
+
+  // 创建 Blob 对象
+  const blob = new Blob(byteArrays, { type: mimeType })
+  return blob
+}

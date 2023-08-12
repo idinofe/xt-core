@@ -6,6 +6,7 @@ export type AppConfig = {
   domain: string
   basic: string
   basicImgUrl: string
+  appKey: string
 }
 
 export type SObject<D = string> = {
