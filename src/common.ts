@@ -362,3 +362,21 @@ export const minus = (arg1: string | number | TBig, arg2: string | number | TBig
   return new Big(arg1).minus(arg2)
 }
 
+/**
+ * 校验token格式是否正确
+ * @param {Any} token token
+ * @returns {Boolean} 是否有效token
+ */
+export const isValidToken = (token: any): Boolean => {
+  // 0, '', Object, 'undefined', '  ', '[object Object]'
+  const tokenType = typeof token
+  if (!token) { return false }
+  if (token === 'undefined') { return false }
+  if (!['string', 'number'].includes(tokenType)) { return false }
+  if (tokenType === 'string') {
+    if (!token.trim() || token.includes('object ')) {
+     return false
+    }
+  }
+  return true
+}

@@ -1002,9 +1002,75 @@ describe('check config', () => {
     const http = createHttp({ baseURL, noFail: true, noStatusTransform: true })
     expect(http.responseTransforms.length).toEqual(1)
   })
+
+  it('config in instance should merge into factory config', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    const timeout = 300
+    const http = createHttp({ baseURL, noFail: true, noStatusTransform: true })
+    return http.post('/foo/bar', {}, {
+      timeout,
+      baseURL: baseURL + '/aaa',
+      noFail: false,
+      noStatusTransform: false,
+      useEncrypt: false,
+      useSign: false,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      onFail,
+      onInvalidToken,
+    }).then(res => {
+      expect(res).toHaveProperty('config')
+      expect(res.config?.timeout).toEqual(timeout)
+      expect(res.config?.baseURL).toEqual(baseURL + '/aaa')
+      expect(res.config?.noFail).toEqual(false)
+      expect(res.config?.noStatusTransform).toEqual(false)
+      expect(res.config?.useEncrypt).toEqual(false)
+      expect(res.config?.useSign).toEqual(false)
+      expect(res.config?.appKey).toEqual(appKey1)
+      expect(res.config?.encryptVersion).toEqual(EncryptVersion.v1)
+      expect(res.config?.onFail).toEqual(onFail)
+      expect(res.config?.onInvalidToken).toEqual(onInvalidToken)
+    })
+  }, {
+    timeout: 500
+  })
+
+  it('config in instance should not impact the origin config', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    const timeout = 300
+    const http = createHttp({ baseURL, noFail: false, noStatusTransform: false })
+    return http.post('/hello/world', undefined, {
+      timeout,
+      baseURL: baseURL + '/aaa',
+      noFail: true,
+      noStatusTransform: true,
+      useEncrypt: true,
+      useSign: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      onFail,
+      onInvalidToken,
+    }).then(() => {
+      expect(http.getBaseURL()).toEqual(baseURL)
+      return http.get('/foo/bar', {}, { timeout }).then(res => {
+        expect(res).toHaveProperty('config')
+        expect(http.getBaseURL()).toEqual(baseURL)
+        expect(res.config?.baseURL).toEqual(baseURL)
+        expect(res.config?.noFail).toEqual(false)
+        expect(res.config?.noStatusTransform).toEqual(false)
+        expect(res.config?.useEncrypt).toEqual(undefined)
+        expect(res.config?.useSign).toEqual(undefined)
+        expect(res.config?.appKey).toEqual(undefined)
+      })
+    })
+  }, {
+    timeout: 1500
+  })
 })
 
-//成功请求
+// 成功请求
 describe('response success', () => {
   it('empty data with status 200', () => {
     const http = createHttp({ baseURL })
@@ -1425,7 +1491,8 @@ describe('encrypt/decrypt success', () => {
       indexDoc: 'xxx_h5',
       domain: 'https://www.example.com/',
       basic: 'xxx-interface',
-      basicImgUrl: 'https://www.example.com/static/'
+      basicImgUrl: 'https://www.example.com/static/',
+      appKey: appKey1,
     }
     const getToken = vi.fn()
     const getCommonHeaders = vi.fn()
@@ -1561,7 +1628,7 @@ describe('createUploadHttp success', () => {
     }, {
       baseURL,
       appKey: appKey1,
-      getToken: function (): string {
+      authorization: function (): string {
         return 'tokentoken'
       }
     })

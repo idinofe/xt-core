@@ -1,6 +1,25 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise,
-   minus, multiply, plus, promisify, randomNumber, toNonExponential, isString, isUrlLike, isBlobUrlLike } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken } from "./common"
+
+describe.todo('isDef', () => {
+
+})
+
+describe.todo('isUndef', () => {
+
+})
+
+describe.todo('isEndWithSlash', () => {
+
+})
+
+describe.todo('isStartWithSlash', () => {
+
+})
+
+describe.todo('isString', () => {
+
+})
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -111,7 +130,7 @@ describe('delay', () => {
     expect(isPromise(delay(100))).toEqual(true)
     expect(isPromise(delay(undefined))).toEqual(true)
   })
-  it('error case', () => { 
+  it('error case', () => {
     expect(() => delay(-60)).toThrowError()
     expect(() => delay('foo bar' as any)).toThrowError()
     expect(() => delay(true as any)).toThrowError()
@@ -121,6 +140,10 @@ describe('delay', () => {
     expect(() => delay(Symbol() as any)).toThrowError()
     expect(() => delay((() => {}) as any)).toThrowError()
   })
+})
+
+describe.todo('noop', () => {
+  
 })
 
 describe('randomNumber', () => {
@@ -191,6 +214,14 @@ describe('isEncodeURILike', () => {
       expect(isEncodeURILike(i)).toStrictEqual(true)
     })
   })
+})
+
+describe.todo('isUrlLike', () => {
+
+})
+
+describe.todo('isBlobUrlLike', () => {
+
 })
 
 describe('toNonExponential', () => {
@@ -540,3 +571,17 @@ describe('isBlobUrlLike', () => {
     expect(isBlobUrlLike('wdwdwqa')).toEqual(false)
   })
 })
+
+describe('isValidToken', () => {
+   it('normal token', () => {
+    expect(isValidToken('4a2886d21ff453bdf423c326d41913d1')).toEqual(true)
+   })
+   it('not normal token', () => {
+     expect(isValidToken(0)).toEqual(false)
+     expect(isValidToken('')).toEqual(false)
+     expect(isValidToken(undefined)).toEqual(false)
+     expect(isValidToken({token: '3243'})).toEqual(false)
+     expect(isValidToken('  ')).toEqual(false)
+     expect(isValidToken('[object Object]')).toEqual(false)
+   })
+ })
