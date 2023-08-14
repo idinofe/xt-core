@@ -1,6 +1,26 @@
 import Big from "big.js"
 import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential } from "./common"
 
+describe.todo('isDef', () => {
+
+})
+
+describe.todo('isUndef', () => {
+
+})
+
+describe.todo('isEndWithSlash', () => {
+
+})
+
+describe.todo('isStartWithSlash', () => {
+
+})
+
+describe.todo('isString', () => {
+
+})
+
 describe('isNumber', () => {
   it('normal case', () => {
     [1, 100, Infinity].forEach(i => {
@@ -109,6 +129,10 @@ describe('delay', () => {
   })
 })
 
+describe.todo('noop', () => {
+  
+})
+
 describe('randomNumber', () => {
   it('normal case', () => {
     expect(randomNumber(0)).toHaveLength(0)
@@ -177,6 +201,14 @@ describe('isEncodeURILike', () => {
       expect(isEncodeURILike(i)).toStrictEqual(true)
     })
   })
+})
+
+describe.todo('isUrlLike', () => {
+
+})
+
+describe.todo('isBlobUrlLike', () => {
+
 })
 
 describe('toNonExponential', () => {
