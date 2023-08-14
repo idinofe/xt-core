@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -504,3 +504,17 @@ describe('isNormalObject', () => {
     expect(isNormalObject([])).toEqual(false)
   })
 })
+
+describe('isValidToken', () => {
+   it('normal token', () => {
+    expect(isValidToken('4a2886d21ff453bdf423c326d41913d1')).toEqual(true)
+   })
+   it('not normal token', () => {
+     expect(isValidToken(0)).toEqual(false)
+     expect(isValidToken('')).toEqual(false)
+     expect(isValidToken(undefined)).toEqual(false)
+     expect(isValidToken({token: '3243'})).toEqual(false)
+     expect(isValidToken('  ')).toEqual(false)
+     expect(isValidToken('[object Object]')).toEqual(false)
+   })
+  })
