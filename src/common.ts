@@ -120,7 +120,7 @@ export const isEncodeURILike = (url: string): boolean => {
  * @returns 是否是 URL 链接
  */
 export const isUrlLike = (url: string): boolean => {
-  const reg = /^http(s):\/\/?/
+  const reg = /^http(s*):\/\/?/
   return reg.test(url)
 }
 
@@ -361,3 +361,4 @@ export const plus = (arg1: string | number | TBig, arg2: string | number | TBig)
 export const minus = (arg1: string | number | TBig, arg2: string | number | TBig): TBig => {
   return new Big(arg1).minus(arg2)
 }
+
