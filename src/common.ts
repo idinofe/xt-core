@@ -8,7 +8,7 @@ import type TBig from 'big.js'
 export const Big = _Big
 
 /**
- * 是否为有效的值（非undefined/'undefined'/null）
+ * 是否为有效的值（非 `undefined` `null`）
  * @param a {any}
  * @returns {boolean}
  */
@@ -17,7 +17,7 @@ export const isDef = (a: any): boolean => {
 }
 
 /**
- * 是否为未定义（undefiend/null）
+ * 是否为未定义（`undefiend` `null`）
  * @param a {any}
  * @returns {boolean}
  */
