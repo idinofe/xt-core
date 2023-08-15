@@ -369,7 +369,6 @@ export const minus = (arg1: string | number | TBig, arg2: string | number | TBig
  * @returns {Boolean} 是否有效token
  */
 export const isValidToken = (token: any): boolean => {
-  // 0, '', Object, 'undefined', '  ', '[object Object]'
   const tokenType = typeof token
   if (!token) { return false }
   if (token === 'undefined') { return false }
