@@ -384,4 +384,21 @@ export const getQuery = (str:string, a:string) =>{
   // return obj[a as keyof typeof obj]
   return obj[a]
 }
-  
+
+/**
+ * 校验token格式是否正确
+ * @param {Any} token token
+ * @returns {Boolean} 是否有效token
+ */
+export const isValidToken = (token: any): boolean => {
+  const tokenType = typeof token
+  if (!token) { return false }
+  if (token === 'undefined' || token === 'null') { return false }
+  if (!['string', 'number'].includes(tokenType)) { return false }
+  if (tokenType === 'string') {
+    if (!token.trim() || token.includes('object ')) {
+     return false
+    }
+  }
+  return true
+}
