@@ -547,7 +547,7 @@ describe('isStartWithSlash', () => {
     expect(isStartWithSlash('/////')).toEqual(true)
     expect(isStartWithSlash('/%@@@')).toEqual(true)
   })
-  it('not StartWithSlash', () => {
+  it('not start with slash', () => {
     expect(isStartWithSlash('%!!!')).toEqual(false)
     expect(isStartWithSlash('{}/')).toEqual(false)
   })
