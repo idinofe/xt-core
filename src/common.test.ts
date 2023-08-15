@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isDef, isUndef, isStartWithSlash, isEndWithSlash } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -10,6 +10,19 @@ describe('isNumber', () => {
   it('error case', () => {
     ['aa', '11', true, false, null, undefined, Symbol(), {}].forEach(i => {
       expect(isNumber(i)).toEqual(false)
+    })
+  })
+})
+
+describe('isString', () => {
+  it('normal case', () => {
+    ['aaa',''].forEach(i=>{
+      expect(isString(i)).toEqual(true)
+    })
+  })
+  it('error case', () => {
+    [true].forEach(i=>{
+      expect(isString(i)).toEqual(false)
     })
   })
 })
@@ -109,6 +122,10 @@ describe('delay', () => {
   })
 })
 
+describe.todo('noop', () => {
+  
+})
+
 describe('randomNumber', () => {
   it('normal case', () => {
     expect(randomNumber(0)).toHaveLength(0)
@@ -130,13 +147,13 @@ describe('randomNumber', () => {
     expect(() => randomNumber(Symbol() as any)).toThrowError('len must be an Number')
   })
 })
-
+// toThrowError 断言当调用函数时是否抛出错误。(必须将代码包装在一个函数中，否则错误将不会被捕获，测试将失败。)
 describe('genMessageId', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
+    vi.useFakeTimers() // 启用模拟定时器（它将包装所有对计时器的进一步调用（例如Date）
   })
   afterEach(() => {
-    vi.useRealTimers()
+    vi.useRealTimers() // 返回使用前状态
   })
   it('normal case', () => {
     expect(() => genMessageId()).not.toThrowError()
@@ -144,7 +161,7 @@ describe('genMessageId', () => {
   })
   it('content matched to Date', () => {
     const date = new Date(2023, 6, 27)
-    vi.setSystemTime(date)
+    vi.setSystemTime(date) // 将当前日期设置为过去的日期
     expect(genMessageId().slice(0, 8)).toEqual('20230727')
     expect(genMessageId().slice(8, 16)).toEqual('00000000')
   })
@@ -615,5 +632,27 @@ describe('isEndWithSlash', () => {
     expect(() => isEndWithSlash({} as any)).toThrowError()
     expect(() => isEndWithSlash(true as any)).toThrowError()
     expect(() => isEndWithSlash(Symbol() as any)).toThrowError()
+  })
+})
+
+describe('isUrlLike', () => {
+  it('normal isUrlLike', () => {
+    expect(isUrlLike('http://?sdsfdg')).toEqual(true)
+    expect(isUrlLike('https://ssfsg.com')).toEqual(true)
+    expect(isUrlLike('https://')).toEqual(true)
+  })
+  it('not normal isUrlLike', () => {
+    expect(isUrlLike('1232')).toEqual(false)
+    expect(isUrlLike('')).toEqual(false)
+  })
+})
+
+describe('isBlobUrlLike', () => {
+  it('normal isBlobUrlLike', () => {
+    expect(isBlobUrlLike('blob:0100111')).toEqual(true)
+    expect(isBlobUrlLike('blob:787qwwwwwwwwwwwwww0100111')).toEqual(true)
+  })
+  it('not normal isBlobUrlLike', () => {
+    expect(isBlobUrlLike('wdwdwqa')).toEqual(false)
   })
 })
