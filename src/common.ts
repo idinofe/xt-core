@@ -362,3 +362,25 @@ export const minus = (arg1: string | number | TBig, arg2: string | number | TBig
   return new Big(arg1).minus(arg2)
 }
 
+interface NObject {
+  [key: string]: string | number | undefined | null | void
+  }
+  // 获取url中参数值
+export const getQuery = (str:string, a:string) =>{
+  str = str.split('?')[1]
+  if (!str) {
+    return {}
+  }
+  const obj = {} as NObject
+  const list = str.split('&')
+  if (!list.length) {
+    return {}
+  }
+  list.forEach(v => {
+    const datalist = v.split('=')
+    obj[datalist[0]] = datalist[1]
+  })
+  // return (obj as any)[a]
+  // return obj[a as keyof typeof obj]
+  return obj[a]
+}
