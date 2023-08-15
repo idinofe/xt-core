@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -122,8 +122,14 @@ describe('delay', () => {
   })
 })
 
-describe.todo('noop', () => {
-  
+describe('noop', () => {
+  it('noop should be a function', () => {
+    expect(isFunction(noop)).toEqual(true)
+  })
+
+  it('when called no value returned', () => {
+    expect(noop()).toEqual(undefined)
+  })
 })
 
 describe('randomNumber', () => {
