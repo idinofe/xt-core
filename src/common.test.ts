@@ -1,25 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike } from "./common"
-
-describe.todo('isDef', () => {
-
-})
-
-describe.todo('isUndef', () => {
-
-})
-
-describe.todo('isEndWithSlash', () => {
-
-})
-
-describe.todo('isStartWithSlash', () => {
-
-})
-
-describe.todo('isString', () => {
-
-})
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -214,14 +194,6 @@ describe('isEncodeURILike', () => {
       expect(isEncodeURILike(i)).toStrictEqual(true)
     })
   })
-})
-
-describe.todo('isUrlLike', () => {
-
-})
-
-describe.todo('isBlobUrlLike', () => {
-
 })
 
 describe('toNonExponential', () => {
@@ -550,6 +522,119 @@ describe('isNormalObject', () => {
   })
 })
 
+describe('isValidToken', () => {
+  it('normal token', () => {
+    expect(isValidToken('4a2886d21ff453bdf423c326d41913d1')).toEqual(true)
+   })
+  it('not normal token', () => {
+    expect(isValidToken(0)).toEqual(false)
+    expect(isValidToken('')).toEqual(false)
+    expect(isValidToken(undefined)).toEqual(false)
+    expect(isValidToken('null')).toEqual(false)
+    expect(isValidToken('undefined')).toEqual(false)
+    expect(isValidToken({token: '3243'})).toEqual(false)
+    expect(isValidToken('  ')).toEqual(false)
+    expect(isValidToken('[object Object]')).toEqual(false)
+   })
+})
+
+describe('isDef', () => {
+  it('def', () => {
+    const defDataMap = {
+      number: 15451,
+      string_0: 'foo bar',
+      string_1: 'undefined',
+      string_2: 'null',
+      boolean_0: true,
+      boolean_1: false,
+      symbol: Symbol(),
+      object_0: {},
+      object_1: Object.create(null),
+      object_2: { foo: 'bar' },
+      function_0: function () {},
+      function_1: () => {},
+      function_2: async function () {},
+      function_3: async () => {},
+    }
+    const defList = Object.values(defDataMap)
+    defList.forEach(item => {
+      expect(isDef(item)).toEqual(true)
+    })
+  })
+  it('undef', () => {
+    expect(isDef(undefined)).toEqual(false)
+    expect(isDef(null)).toEqual(false)
+  })
+})
+
+describe('isUndef', () => {
+  const defDataMap = {
+    number: 15451,
+    string_0: 'foo bar',
+    string_1: 'undefined',
+    string_2: 'null',
+    boolean_0: true,
+    boolean_1: false,
+    symbol: Symbol(),
+    object_0: {},
+    object_1: Object.create(null),
+    object_2: { foo: 'bar' },
+    function_0: function () {},
+    function_1: () => {},
+    function_2: async function () {},
+    function_3: async () => {},
+  }
+  it('undef', () => {
+    const defList = Object.values(defDataMap)
+    defList.forEach(item => {
+      expect(isUndef(item)).toEqual(false)
+    })
+  })
+  it('def', () => {
+    expect(isUndef(undefined)).toEqual(true)
+    expect(isUndef(null)).toEqual(true)
+  })
+})
+
+describe('isStartWithSlash', () => {
+  it('start with slash', () => {
+    expect(isStartWithSlash('/')).toEqual(true)
+    expect(isStartWithSlash('/////')).toEqual(true)
+    expect(isStartWithSlash('/%@@@')).toEqual(true)
+  })
+  it('not start with slash', () => {
+    expect(isStartWithSlash('%!!!')).toEqual(false)
+    expect(isStartWithSlash('{}/')).toEqual(false)
+  })
+  it ('error type', () => {
+    expect(() => isStartWithSlash(22 as any)).toThrowError()
+    expect(() => isStartWithSlash(undefined as any)).toThrowError()
+    expect(() => isStartWithSlash(null as any)).toThrowError()
+    expect(() => isStartWithSlash({} as any)).toThrowError()
+    expect(() => isStartWithSlash(true as any)).toThrowError()
+    expect(() => isStartWithSlash(Symbol() as any)).toThrowError()
+  })
+})
+
+describe('isEndWithSlash', () => {
+  it('end with slash', () => {
+    expect(isEndWithSlash('/')).toEqual(true)
+    expect(isEndWithSlash('%@@@/')).toEqual(true)
+  })
+  it('not end with slash', () => {
+    expect(isEndWithSlash('%!!!')).toEqual(false)
+    expect(isEndWithSlash('/{}')).toEqual(false)
+  })
+  it ('error type', () => {
+    expect(() => isEndWithSlash(22 as any)).toThrowError()
+    expect(() => isEndWithSlash(undefined as any)).toThrowError()
+    expect(() => isEndWithSlash(null as any)).toThrowError()
+    expect(() => isEndWithSlash({} as any)).toThrowError()
+    expect(() => isEndWithSlash(true as any)).toThrowError()
+    expect(() => isEndWithSlash(Symbol() as any)).toThrowError()
+  })
+})
+
 describe('isUrlLike', () => {
   it('normal isUrlLike', () => {
     expect(isUrlLike('http://?sdsfdg')).toEqual(true)
@@ -571,17 +656,3 @@ describe('isBlobUrlLike', () => {
     expect(isBlobUrlLike('wdwdwqa')).toEqual(false)
   })
 })
-
-describe('isValidToken', () => {
-   it('normal token', () => {
-    expect(isValidToken('4a2886d21ff453bdf423c326d41913d1')).toEqual(true)
-   })
-   it('not normal token', () => {
-     expect(isValidToken(0)).toEqual(false)
-     expect(isValidToken('')).toEqual(false)
-     expect(isValidToken(undefined)).toEqual(false)
-     expect(isValidToken({token: '3243'})).toEqual(false)
-     expect(isValidToken('  ')).toEqual(false)
-     expect(isValidToken('[object Object]')).toEqual(false)
-   })
- })
