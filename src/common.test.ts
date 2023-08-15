@@ -1,16 +1,106 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isEndWithSlash } from "./common"
+
+// 常用基础数据类型（与JS的基础数据类型不完全一致）
+const baseDataTypes = [15451, 'foo bar', true, false, undefined, null, Symbol(), {}, Object.create(null), { foo: 'bar' }, function () {}, () => {}, async function () {}, async () => {}]
+
+const baseDataTypeMap = {
+  number: 15451,
+  string: 'foo bar',
+  boolean_0: true,
+  boolean_1: false,
+  undefined: undefined,
+  null: null,
+  symbol: Symbol(),
+  object_0: {},
+  object_1: Object.create(null),
+  object_2: { foo: 'bar' },
+  function_0: function () {},
+  function_1: () => {},
+  function_2: async function () {},
+  function_3: async () => {},
+}
 
 describe.todo('isDef', () => {
+  it('normal case', () => {
+    expect(isDef(baseDataTypeMap.number)).toEqual(true)
+    expect(isDef(baseDataTypeMap.string)).toEqual(true)
+    expect(isDef(baseDataTypeMap.boolean_0)).toEqual(true)
+    expect(isDef(baseDataTypeMap.boolean_1)).toEqual(true)
+    expect(isDef(baseDataTypeMap.symbol)).toEqual(true)
+    expect(isDef(baseDataTypeMap.object_0)).toEqual(true)
+    expect(isDef(baseDataTypeMap.object_1)).toEqual(true)
+    expect(isDef(baseDataTypeMap.object_2)).toEqual(true)
+    expect(isDef(baseDataTypeMap.function_0)).toEqual(true)
+    expect(isDef(baseDataTypeMap.function_1)).toEqual(true)
+    expect(isDef(baseDataTypeMap.function_2)).toEqual(true)
+    expect(isDef(baseDataTypeMap.function_3)).toEqual(true)
+    expect(isDef('undefined')).toEqual(true)
+    expect(isDef('null')).toEqual(true)
+    expect(isDef('')).toEqual(true)
+    expect(isDef('   ')).toEqual(true)
+  })
 
+  it('error case', () => {
+    expect(isDef(baseDataTypeMap.undefined)).toEqual(false)
+    expect(isDef(baseDataTypeMap.null)).toEqual(false)
+  })
 })
 
 describe.todo('isUndef', () => {
+  it('normal case', () => {
+    expect(isUndef(baseDataTypeMap.undefined)).toEqual(true)
+    expect(isUndef(baseDataTypeMap.null)).toEqual(true)
+  })
 
+  it('error case', () => {
+    expect(isUndef(baseDataTypeMap.number)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.string)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.boolean_0)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.boolean_1)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.symbol)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.object_0)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.object_1)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.object_2)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.function_0)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.function_1)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.function_2)).toEqual(false)
+    expect(isUndef(baseDataTypeMap.function_3)).toEqual(false)
+    expect(isUndef('undefined')).toEqual(false)
+    expect(isUndef('null')).toEqual(false)
+    expect(isUndef('')).toEqual(false)
+    expect(isUndef('   ')).toEqual(false)
+  })
 })
 
 describe.todo('isEndWithSlash', () => {
+  it('normal case', () => {
+    expect(isEndWithSlash('/')).toEqual(true)
+    expect(isEndWithSlash('//')).toEqual(true)
+    expect(isEndWithSlash('\/\/')).toEqual(true)
+  })
 
+  it('not string throw error', () => {
+    expect(() => isEndWithSlash(baseDataTypeMap.number as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.boolean_0 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.boolean_1 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.symbol as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.object_0 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.object_1 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.object_2 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.function_0 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.function_1 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.function_2 as any)).toThrowError('param is not string')
+    expect(() => isEndWithSlash(baseDataTypeMap.function_3 as any)).toThrowError('param is not string')
+  })
+
+  it('false when not end with /', () => {
+    expect(isEndWithSlash('')).toEqual(false)
+    expect(isEndWithSlash(' ')).toEqual(false)
+    expect(isEndWithSlash('haghagaa')).toEqual(false)
+    expect(isEndWithSlash('/dadada')).toEqual(false)
+    expect(isEndWithSlash('//adaagaa/agda')).toEqual(false)
+  })
 })
 
 describe.todo('isStartWithSlash', () => {
@@ -214,14 +304,6 @@ describe('isEncodeURILike', () => {
       expect(isEncodeURILike(i)).toStrictEqual(true)
     })
   })
-})
-
-describe.todo('isUrlLike', () => {
-
-})
-
-describe.todo('isBlobUrlLike', () => {
-
 })
 
 describe('toNonExponential', () => {
