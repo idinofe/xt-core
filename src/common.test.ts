@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isDef, isUndef, isStartWithSlash, isEndWithSlash} from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -506,15 +506,60 @@ describe('isNormalObject', () => {
 })
 
 describe('isValidToken', () => {
-   it('normal token', () => {
+  it('normal token', () => {
     expect(isValidToken('4a2886d21ff453bdf423c326d41913d1')).toEqual(true)
    })
-   it('not normal token', () => {
-     expect(isValidToken(0)).toEqual(false)
-     expect(isValidToken('')).toEqual(false)
-     expect(isValidToken(undefined)).toEqual(false)
-     expect(isValidToken({token: '3243'})).toEqual(false)
-     expect(isValidToken('  ')).toEqual(false)
-     expect(isValidToken('[object Object]')).toEqual(false)
+  it('not normal token', () => {
+    expect(isValidToken(0)).toEqual(false)
+    expect(isValidToken('')).toEqual(false)
+    expect(isValidToken(undefined)).toEqual(false)
+    expect(isValidToken({token: '3243'})).toEqual(false)
+    expect(isValidToken('  ')).toEqual(false)
+    expect(isValidToken('[object Object]')).toEqual(false)
    })
+})
+
+describe('isDef', () => {
+  it('def', () => {
+    expect(isDef(false)).toEqual(true)
+    expect(isDef('undefined')).toEqual(true)
   })
+  it('undef', () => {
+    expect(isDef(undefined)).toEqual(false)
+    expect(isDef(null)).toEqual(false)
+  })
+})
+
+describe('isUndef', () => {
+  it('undef', () => {
+    expect(isUndef(false)).toEqual(false)
+    expect(isUndef('undefined')).toEqual(false)
+  })
+  it('def', () => {
+    expect(isUndef(undefined)).toEqual(true)
+    expect(isUndef(null)).toEqual(true)
+  })
+})
+
+describe('isStartWithSlash', () => {
+  it('StartWithSlash', () => {
+    expect(isStartWithSlash('/')).toEqual(true)
+    expect(isStartWithSlash('/////')).toEqual(true)
+    expect(isStartWithSlash('/%@@@')).toEqual(true)
+  })
+  it('not StartWithSlash', () => {
+    expect(isStartWithSlash('%!!!')).toEqual(false)
+    expect(isStartWithSlash('{}/')).toEqual(false)
+  })
+})
+
+describe('isEndWithSlash', () => {
+  it('EndWithSlash', () => {
+    expect(isEndWithSlash('/')).toEqual(true)
+    expect(isEndWithSlash('%@@@/')).toEqual(true)
+  })
+  it('not EndWithSlash', () => {
+    expect(isEndWithSlash('%!!!')).toEqual(false)
+    expect(isEndWithSlash('/{}')).toEqual(false)
+  })
+})
