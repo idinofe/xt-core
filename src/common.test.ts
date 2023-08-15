@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isString, isUrlLike, isBlobUrlLike } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isString, isUrlLike, isBlobUrlLike, getQuery } from "./common"
 
 describe.todo('isDef', () => {
 
@@ -571,3 +571,15 @@ describe('isBlobUrlLike', () => {
     expect(isBlobUrlLike('wdwdwqa')).toEqual(false)
   })
 })
+
+describe('getQuery', () => {
+  const url = 'http://wewe.com?a=11&b=22&c=33'
+  it('normal getQuery', () => {
+    expect(getQuery(url, 'a')).toEqual('11')
+  })
+  it('not normal getQuery', () => {
+    expect(getQuery(url,'b')).not.to.equal('1')
+  })
+  })
+
+  
