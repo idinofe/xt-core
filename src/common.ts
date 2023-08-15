@@ -371,7 +371,7 @@ export const minus = (arg1: string | number | TBig, arg2: string | number | TBig
 export const isValidToken = (token: any): boolean => {
   const tokenType = typeof token
   if (!token) { return false }
-  if (token === 'undefined') { return false }
+  if (token === 'undefined' || token === 'null') { return false }
   if (!['string', 'number'].includes(tokenType)) { return false }
   if (tokenType === 'string') {
     if (!token.trim() || token.includes('object ')) {

@@ -513,16 +513,36 @@ describe('isValidToken', () => {
     expect(isValidToken(0)).toEqual(false)
     expect(isValidToken('')).toEqual(false)
     expect(isValidToken(undefined)).toEqual(false)
+    expect(isValidToken('null')).toEqual(false)
+    expect(isValidToken('undefined')).toEqual(false)
     expect(isValidToken({token: '3243'})).toEqual(false)
-    expect(isValidToken('  ')).toEqual(false)
+    expect(isValidToken('  ')).toEqual(false)
     expect(isValidToken('[object Object]')).toEqual(false)
    })
 })
 
 describe('isDef', () => {
   it('def', () => {
-    expect(isDef(false)).toEqual(true)
-    expect(isDef('undefined')).toEqual(true)
+    const defDataMap = {
+      number: 15451,
+      string_0: 'foo bar',
+      string_1: 'undefined',
+      string_2: 'null',
+      boolean_0: true,
+      boolean_1: false,
+      symbol: Symbol(),
+      object_0: {},
+      object_1: Object.create(null),
+      object_2: { foo: 'bar' },
+      function_0: function () {},
+      function_1: () => {},
+      function_2: async function () {},
+      function_3: async () => {},
+    }
+    const defList = Object.values(defDataMap)
+    defList.forEach(item => {
+      expect(isDef(item)).toEqual(true)
+    })
   })
   it('undef', () => {
     expect(isDef(undefined)).toEqual(false)
@@ -531,9 +551,27 @@ describe('isDef', () => {
 })
 
 describe('isUndef', () => {
+  const defDataMap = {
+    number: 15451,
+    string_0: 'foo bar',
+    string_1: 'undefined',
+    string_2: 'null',
+    boolean_0: true,
+    boolean_1: false,
+    symbol: Symbol(),
+    object_0: {},
+    object_1: Object.create(null),
+    object_2: { foo: 'bar' },
+    function_0: function () {},
+    function_1: () => {},
+    function_2: async function () {},
+    function_3: async () => {},
+  }
   it('undef', () => {
-    expect(isUndef(false)).toEqual(false)
-    expect(isUndef('undefined')).toEqual(false)
+    const defList = Object.values(defDataMap)
+    defList.forEach(item => {
+      expect(isUndef(item)).toEqual(false)
+    })
   })
   it('def', () => {
     expect(isUndef(undefined)).toEqual(true)
@@ -551,15 +589,31 @@ describe('isStartWithSlash', () => {
     expect(isStartWithSlash('%!!!')).toEqual(false)
     expect(isStartWithSlash('{}/')).toEqual(false)
   })
+  it ('error type', () => {
+    expect(() => isStartWithSlash(22 as any)).toThrowError()
+    expect(() => isStartWithSlash(undefined as any)).toThrowError()
+    expect(() => isStartWithSlash(null as any)).toThrowError()
+    expect(() => isStartWithSlash({} as any)).toThrowError()
+    expect(() => isStartWithSlash(true as any)).toThrowError()
+    expect(() => isStartWithSlash(Symbol() as any)).toThrowError()
+  })
 })
 
 describe('isEndWithSlash', () => {
-  it('EndWithSlash', () => {
+  it('end with slash', () => {
     expect(isEndWithSlash('/')).toEqual(true)
     expect(isEndWithSlash('%@@@/')).toEqual(true)
   })
-  it('not EndWithSlash', () => {
+  it('not end with slash', () => {
     expect(isEndWithSlash('%!!!')).toEqual(false)
     expect(isEndWithSlash('/{}')).toEqual(false)
+  })
+  it ('error type', () => {
+    expect(() => isEndWithSlash(22 as any)).toThrowError()
+    expect(() => isEndWithSlash(undefined as any)).toThrowError()
+    expect(() => isEndWithSlash(null as any)).toThrowError()
+    expect(() => isEndWithSlash({} as any)).toThrowError()
+    expect(() => isEndWithSlash(true as any)).toThrowError()
+    expect(() => isEndWithSlash(Symbol() as any)).toThrowError()
   })
 })
