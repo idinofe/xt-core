@@ -3,6 +3,7 @@ module.exports = {
     commitMessage: 'release: v${version}'
   },
   github: {
-    release: false
+    release: true,
+    releaseName: 'Release ${version}',
   }
 }
