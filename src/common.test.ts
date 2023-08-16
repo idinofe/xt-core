@@ -110,7 +110,7 @@ describe('delay', () => {
     expect(isPromise(delay(100))).toEqual(true)
     expect(isPromise(delay(undefined))).toEqual(true)
   })
-  it('error case', () => { 
+  it('error case', () => {
     expect(() => delay(-60)).toThrowError()
     expect(() => delay('foo bar' as any)).toThrowError()
     expect(() => delay(true as any)).toThrowError()
