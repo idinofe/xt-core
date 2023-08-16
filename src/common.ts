@@ -380,7 +380,6 @@ export const getQuery = (str:string, a:string) =>{
   const datalist = v.split('=')
     obj[datalist[0]] = datalist[1]
   })
-  // return (obj as any)[a]
   // return obj[a as keyof typeof obj]
   return obj[a]
 }
