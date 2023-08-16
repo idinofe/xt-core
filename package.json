@@ -35,6 +35,7 @@
     "koa": "^2.14.2",
     "koa-body": "^6.0.1",
     "koa-router": "^12.0.0",
+    "release-it": "^16.1.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.5",
     "vitest": "^0.32.2"
@@ -51,7 +52,8 @@
     "vitest": "vitest",
     "vitest:run": "vitest run",
     "vitest:ui": "vitest --ui",
-    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest"
+    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest",
+    "releaseit": "release-it"
   },
   "sideEffects": false,
   "files": [
