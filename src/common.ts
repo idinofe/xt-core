@@ -369,7 +369,7 @@ export const getQuery = (str:string, a:string) =>{
   if (!str || !a) {
     throw new Error('param is not exist')
   }
-  if (!isString(a)) {
+  if (!isString(str) || !isString(a)) {
     throw new Error('param is not string')
   }
   str = str.split('?')[1]
