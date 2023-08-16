@@ -362,6 +362,32 @@ export const minus = (arg1: string | number | TBig, arg2: string | number | TBig
   return new Big(arg1).minus(arg2)
 }
 
+  /*** 获取url中参数值
+   * getQuery不做decodeURI解码
+   *  */
+export const getQuery = (str:string, a:string) =>{
+  if (!str || !a) {
+    throw new Error('param is not exist')
+  }
+  if (!isString(str) || !isString(a)) {
+    throw new Error('param is not string')
+  }
+  str = str.split('?')[1]
+  if (!str) {
+    return
+  }
+  const obj = {} as Record<string, string | undefined>
+  const list = str.split('&')
+  if (!list.length) {
+    return
+  }
+  list.forEach(v => {
+  const datalist = v.split('=')
+    obj[datalist[0]] = datalist[1]
+  })
+  return obj[a]
+}
+
 /**
  * 校验token格式是否正确
  * @param {Any} token token

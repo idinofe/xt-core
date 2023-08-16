@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -660,5 +660,23 @@ describe('isBlobUrlLike', () => {
   })
   it('not normal isBlobUrlLike', () => {
     expect(isBlobUrlLike('wdwdwqa')).toEqual(false)
+  })
+})
+
+describe('getQuery', () => {
+  it('normal getQuery', () => {
+    expect(getQuery('http://wewe.com?a=11&b=22&c=33', 'a')).toEqual('11')
+    expect(getQuery('http://wewe.com?a=11&b=22&c=33', 'y')).toEqual(undefined)
+    expect(getQuery('https://www.baidu.com/s?ie=UTF-8&wd=%E8%AE%A2%E5%8D%95', 'wd')).toEqual('%E8%AE%A2%E5%8D%95')   
+  })
+  it('not normal getQuery', () => {
+    expect(getQuery('http://wewe.com?a=11&b=22&c=33','b')).not.to.equal('1')
+    expect(() => getQuery('', 'a')).toThrowError()
+    expect(() => getQuery('http://wewe.com?a=11&b=22&c=33', '')).toThrowError()
+    expect(() => getQuery('', '')).toThrowError()
+  })
+  it ('error type', () => {
+    expect(() => getQuery('', 88 as any)).toThrowError()
+    expect(() => getQuery(null as any, '')).toThrowError()
   })
 })
