@@ -658,11 +658,19 @@ describe('isBlobUrlLike', () => {
 })
 
 describe('getQuery', () => {
-  const url = 'http://wewe.com?a=11&b=22&c=33'
   it('normal getQuery', () => {
-    expect(getQuery(url, 'a')).toEqual('11')
+    expect(getQuery('http://wewe.com?a=11&b=22&c=33', 'a')).toEqual('11')
+    expect(getQuery('http://wewe.com?a=11&b=22&c=33', 'y')).toEqual(undefined)
+    expect(getQuery('https://www.baidu.com/s?ie=UTF-8&wd=%E8%AE%A2%E5%8D%95', 'wd')).toEqual('%E8%AE%A2%E5%8D%95')   
   })
   it('not normal getQuery', () => {
-    expect(getQuery(url,'b')).not.to.equal('1')
+    expect(getQuery('http://wewe.com?a=11&b=22&c=33','b')).not.to.equal('1')
+    expect(() => getQuery('', 'a')).toThrowError()
+    expect(() => getQuery('http://wewe.com?a=11&b=22&c=33', '')).toThrowError()
+    expect(() => getQuery('', '')).toThrowError()
+  })
+  it ('error type', () => {
+    expect(() => getQuery('', 88 as any)).toThrowError()
+    expect(() => getQuery(null as any, '')).toThrowError()
   })
 })

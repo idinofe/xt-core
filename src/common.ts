@@ -362,19 +362,24 @@ export const minus = (arg1: string | number | TBig, arg2: string | number | TBig
   return new Big(arg1).minus(arg2)
 }
 
-interface NObject {
-  [key: string]: string | number | undefined | null | void
-  }
-  // 获取url中参数值
+  /*** 获取url中参数值
+   * getQuery不做decodeURI解码
+   *  */
 export const getQuery = (str:string, a:string) =>{
+  if (!str || !a) {
+    throw new Error('param is not exist')
+  }
+  if (!isString(a)) {
+    throw new Error('param is not string')
+  }
   str = str.split('?')[1]
   if (!str) {
-    return {}
+    return
   }
-  const obj = {} as NObject
+  const obj = {} as Record<string, string | undefined>
   const list = str.split('&')
   if (!list.length) {
-    return {}
+    return
   }
   list.forEach(v => {
   const datalist = v.split('=')
