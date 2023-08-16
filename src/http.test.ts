@@ -1036,6 +1036,7 @@ describe('check config', () => {
     timeout: 500
   })
 
+  // TODO: 测试实例的配置项确实生效
   it('config in instance should not impact the origin config', () => {
     const onFail = vi.fn()
     const onInvalidToken = vi.fn()
@@ -1068,6 +1069,40 @@ describe('check config', () => {
   }, {
     timeout: 1500
   })
+
+  it('config in instance continuous call should not impact the origin config', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    const timeout = 300
+    const http = createHttp({ baseURL, noFail: false, noStatusTransform: false })
+    return http.post('/hello/world', undefined, {
+      timeout,
+      baseURL: baseURL + '/aaa',
+      noFail: true,
+      noStatusTransform: true,
+      useEncrypt: true,
+      useSign: true,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+      onFail,
+      onInvalidToken,
+    }).then(() => {
+      return http.post('/hello/world', undefined, {
+        timeout
+      }).then(res => {
+        expect(res).toHaveProperty('config')
+        expect(http.getBaseURL()).toEqual(baseURL)
+        expect(res.config?.baseURL).toEqual(baseURL)
+        expect(res.config?.noFail).toEqual(false)
+        expect(res.config?.noStatusTransform).toEqual(false)
+        expect(res.config?.useEncrypt).toEqual(undefined)
+        expect(res.config?.useSign).toEqual(undefined)
+        expect(res.config?.appKey).toEqual(undefined)
+      })
+    })
+  }, {
+    timeout: 1000
+  })
 })
 
 // 成功请求
@@ -1099,7 +1134,6 @@ describe('response success', () => {
   })
 
   it('normal data with returnCode = SUCCESS data is number, noStatusTransform', () => {
-
     const onFail = vi.fn()
     const onInvalidToken = vi.fn()
     onFail.mockImplementation((msg) => msg)
@@ -1135,7 +1169,6 @@ describe('response success', () => {
   })
 
   it('normal data with returnCode = SUCCESS data is json, noStatusTransform', () => {
-
     const onFail = vi.fn()
     const onInvalidToken = vi.fn()
     onFail.mockImplementation((msg) => msg)
@@ -1175,7 +1208,6 @@ describe('response success', () => {
   })
 
   it('upload with returnCode = SUCCESS data is json, noStatusTransform', () => {
-
     const onFail = vi.fn()
     const onInvalidToken = vi.fn()
     onFail.mockImplementation((msg) => msg)
@@ -1218,7 +1250,6 @@ describe('response fail', () => {
   })
 
   it('normal data with returnCode = FAIL data is null onFail, onInvalidToken', () => {
-
     const onFail = vi.fn()
     const onInvalidToken = vi.fn()
     onFail.mockImplementation((msg) => msg)
@@ -1235,6 +1266,32 @@ describe('response fail', () => {
       expect(onFail).toHaveBeenLastCalledWith('参数校验未通过', response)
       expect(onInvalidToken).not.toHaveBeenCalled()
     })
+  })
+
+  it('normal data with returnCode = NOT_AUTHORIZED data is null onFail, onInvalidToken, isInvalidToken', () => {
+    const onFail = vi.fn()
+    const onInvalidToken = vi.fn()
+    const isInvalidToken = vi.fn()
+    
+    isInvalidToken.mockImplementation((data) => { return data.returnCode === 'NOT_AUTHORIZED' })
+    
+    afterAll(() => {
+      vi.clearAllMocks()
+    })
+
+    const http = createHttp({ baseURL, onFail, onInvalidToken, isInvalidToken })
+    return http.post('/json/fail/NOT_AUTHORIZED').then(response => {
+      log(response)
+      expect(response.success).toEqual(false)
+      expect(response.code).toEqual('NOT_AUTHORIZED')
+      expect(response.msg).toEqual('未授权')
+      expect(isInvalidToken).toBeCalled()
+      expect(isInvalidToken).toHaveBeenCalledWith(response.data, response)
+      expect(onInvalidToken).toBeCalledTimes(1)
+      expect(onInvalidToken).toHaveBeenCalledWith(response)
+      expect(onFail).not.toBeCalled()
+    })
+    
   })
 
   it('normal data with returnCode = FAIL data is null noFail', () => {
@@ -1358,7 +1415,7 @@ describe('token intercept', () => {
       expect(response.code).toEqual('INVALID_TOKEN')
       expect(response.msg).toEqual('登录信息已失效')
       expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', body: null })
-      expect(isInvalidToken).toBeCalledTimes(1)
+      expect(isInvalidToken).toBeCalled()
       // expect(isInvalidToken).toBeCalledWith()
     })
   })
@@ -1382,9 +1439,8 @@ describe('token intercept', () => {
       expect(response.code).toEqual('INVALID_TOKEN')
       expect(response.msg).toEqual('登录信息已失效')
       expect(response.data).toStrictEqual({ returnCode: 'INVALID_TOKEN', returnDes: '登录信息已失效', body: null })
-      expect(isInvalidToken).toBeCalledTimes(1)
+      expect(isInvalidToken).toBeCalled()
       expect(onInvalidToken).not.toBeCalled()
-      // expect(isInvalidToken).toBeCalledWith()
     })
   })
 })

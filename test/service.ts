@@ -79,6 +79,15 @@ export function createApp () {
     };
   });
 
+  router.post('/json/fail/NOT_AUTHORIZED', (ctx) => {
+    ctx.status = 200;
+    ctx.body = {
+      body: null,
+      returnCode: 'NOT_AUTHORIZED',
+      returnDes: '未授权',
+    }
+  })
+
   router.post('/json/fail/INVALID_TOKEN', (ctx) => {
     ctx.status = 200;
     ctx.body = {
