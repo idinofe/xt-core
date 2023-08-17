@@ -79,6 +79,40 @@ import { decodeOAuthUrl } from '@dinofe/xt-core'
 const wechatOptions = decodeOAuthUrl(url) // wechatOptions是个对象
 ```
 
+## 参与贡献
+
+### 脚本命令
+
+<detail>
+  <summary>相关脚本命令</summary>
+1. 启动项目
+
+  ```bash
+  npm run vitest
+  ```
+
+  或者
+
+  ```bash
+  npm run vitest:ui
+  ```
+
+2. 构建打包
+
+  ```bash
+  npm run build
+  ```
+
+3. 发布测试包（预发布）
+
+  ```bash
+  npm run releaseit
+  ```
+
+  需要先切换到npm官方源、并登录账号
+</detail>
+
+
 ## 开源协议
 
 [MIT License](./LICENSE)
