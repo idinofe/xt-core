@@ -1,7 +1,7 @@
 import http from 'http'
 import fs from 'fs'
 import path from 'path'
-import { createHttp, createUploadHttp, CustomConfig, defaultCommonHeadersTrasform, defaultCommonParamsTransform, defaultDecryptTransform, defaultEncryptTransform, defaultIsInvalidToken, defaultTokenCheckTransform, EncryptVersion, getCustomConfig, withCustomConfig, XApiResponse } from './http'
+import { createBaseHttp, createHttp, createUploadHttp, CustomConfig, defaultCommonHeadersTrasform, defaultCommonParamsTransform, defaultDecryptTransform, defaultEncryptTransform, defaultIsInvalidToken, defaultTokenCheckTransform, EncryptVersion, getCustomConfig, withCustomConfig, XApiResponse } from './http'
 import { getFreePort } from '../test/port'
 import { createApp, startServer } from '../test/service'
 import { AppConfig } from './type'
@@ -849,7 +849,7 @@ describe('internal methods', () => {
 })
 
 // 配置
-describe('check config', () => {
+describe('createHttp check config', () => {
   afterEach(() => {
     vi.clearAllMocks()
   })
@@ -1067,6 +1067,110 @@ describe('check config', () => {
     })
   }, {
     timeout: 1500
+  })
+})
+
+describe('createBaseHttp check config', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('baseURL is correct', () => {
+    const baseURL = 'https://example.com'
+    const http = createBaseHttp({
+      encrypt: false,
+      commonParams: {},
+      authorization: () => "tokentoken"
+    }, {
+      baseURL
+    })
+    expect(http.getBaseURL()).toEqual(baseURL)
+  })
+
+  it('commonParams worked commonParams should merge', () => {
+    const commonParams = {
+      msgId: "202306071636235632966",
+      deviceId: "app_123",
+      appId: "123",
+      merNoNo: "125"
+    }
+
+    const commonParams2 = {
+      foo: "bar"
+    }
+    const getToken = vi.fn()
+    const getCommonParams2 = vi.fn()
+    getToken.mockImplementation(() => "tokentoken")
+    getCommonParams2.mockImplementation(() => commonParams2)
+
+    const http = createBaseHttp({
+      encrypt: false,
+      commonParams,
+      authorization: getToken,
+    }, {
+      timeout: 200,
+      baseURL,
+      commonParams: getCommonParams2
+    })
+
+    return http.post('/number/200').then(response => {
+      expect(getCommonParams2).toBeCalled()
+      expect(getToken).toBeCalled()
+      expect(isFunction(response.config?.commonParams)).toEqual(true)
+      expect(response.config?.data).toStrictEqual(JSON.stringify({
+        ...commonParams,
+        ...commonParams2,
+        authorization: "tokentoken",
+      }))
+    }).catch(e => {
+      log(e)
+    })
+  }, {
+    timeout: 1000
+  })
+
+  it('commonParams worked with data commonParams should merge', () => {
+    const commonParams = {
+      msgId: "202306071636235632966",
+      deviceId: "app_123",
+      appId: "123",
+      merNoNo: "125"
+    }
+    const commonParams2 = {
+      aaa: "146757378462",
+      bbb: "842576143",
+    }
+    const data = {
+      id: "13131311",
+      foo: "bar",
+    }
+    const getCommonParams2 = vi.fn()
+    getCommonParams2.mockImplementation(() => commonParams2)
+
+    const http = createBaseHttp({
+      encrypt: false,
+      commonParams,
+      authorization: null
+    }, {
+      timeout: 300,
+      baseURL,
+      commonParams: getCommonParams2,
+      nestBizData: false,
+    })
+
+    return http.post('/number/200', data).then(response => {
+      log('xuuu', response)
+      expect(getCommonParams2).toBeCalled()
+      expect(isFunction(response.config?.commonParams)).toEqual(true)
+      expect(response.config?.data).toEqual(JSON.stringify({
+        ...commonParams,
+        ...commonParams2,
+        authorization: null,
+        ...data,
+      }))
+    })
+  }, {
+    timeout: 1000
   })
 })
 

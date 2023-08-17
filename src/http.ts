@@ -534,16 +534,19 @@ export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApi
     throw new Error('baseConfig is required')
   }
   const { encrypt, commonParams = {}, authorization } = baseConfig
-  const getAuthorization = () => promisify(authorization)
+  const commonParamsConfig = config?.commonParams
+  const getAuthorization = () => promisify(isFunction(authorization) ? (authorization as any)() : authorization)
   const instance = createHttp({
     ...config,
     useEncrypt: encrypt,
     useSign: encrypt,
     encryptVersion: EncryptVersion.v2,
-    commonParams: async () => {
+    commonParams: async (request) => {
       const token = await getAuthorization()
+      const commonParamsConf = commonParamsConfig ? await promisify(commonParamsConfig(request)) : {}
       return {
         ...commonParams,
+        ...commonParamsConf,
         authorization: token
       }
     }
