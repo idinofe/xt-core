@@ -53,7 +53,7 @@
     "vitest:run": "vitest run",
     "vitest:ui": "vitest --ui",
     "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest",
-    "releaseit": "release-it"
+    "releaseit": "release-it --preRelease"
   },
   "sideEffects": false,
   "files": [
