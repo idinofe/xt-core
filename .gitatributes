@@ -1,0 +1,3 @@
+# https://github.com/microsoft/rushstack/issues/1088
+
+*.json  linguist-language=JSON-with-Comments

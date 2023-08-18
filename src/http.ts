@@ -508,8 +508,35 @@ export const getCustomConfig = (response: XApiResponse<any, any>) => {
 
 /**
  * 根据配置创建 HTTP 实例
- * @param config {HttpConfig}
- * @returns {ApisauceInstance}
+ * 
+ * @param config {HttpConfig} - 配置项
+ * @returns  {ApisauceInstance} 返回 HTTP 实例
+ * 
+ * @example
+ * 简单示例一：
+ * ```ts
+ * const http = createHttp({
+ *  baseURL: '/api-abc',
+ *  useEncrypt: true,
+ *  useSign: true,
+ *  appKey: '3a2e424c56754e90a8948b74f163f0cb',
+ *  encryptVersion: '2',
+ *  commonParams: () => ({
+ *    appId: '3130042001040',
+ *    deviceId: 'xxx_h5',
+ *    merNoNo: '130042001040'
+ *  }),
+ *  onFail: (msg) => {
+ *    log(msg)
+ *  },
+ *  onInvalidToken: (res) => {
+ *    log('Token已失效', res.code, res.msg)
+ *  }
+ * })
+ * http.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+ * ```
+ * 
+ * @public
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
@@ -527,7 +554,33 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
  * 创建基础 HTTP 实例
  * @param baseConfig {BaseConfig} 基础配置
  * @param config {HttpConfig} 通用配置
- * @returns {XApisauceInstance}
+ * @returns {XApisauceInstance} 返回 HTTP 实例
+ * 
+ * @example
+ * 简单示例一：
+ * ```ts
+ * const baseHttp = createBaseHttp({
+ *   encrypt: true,
+ *   commonParams: {
+ *     appId: '3130042001040',
+ *     merNo: '130042001040',
+ *     deviceId: 'hbjh_h5'
+ *   }
+ * }, {
+ *   baseURL: '/api-hbccb',
+ *   appKey: '3a2e424c56754e90a8948b74f163f0cb',
+ *   onFail: (msg) => {
+ *     log(msg)
+ *   },
+ *   onInvalidToken: (res) => {
+ *     log('Token已失效', res.code, res.msg)
+ *   }
+ * })
+ * 
+ * http.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+ * ```
+ * 
+ * @public
  */
 export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApisauceInstance {
   if (isUndef(baseConfig)) {
