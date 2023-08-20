@@ -49,11 +49,14 @@
     "mock:service": "npm run build:service && node service/test/start_service.js",
     "build:types": "npx tsc --declaration --outDir types --emitDeclarationOnly -p tsconfig.build.json",
     "build": "npm run build:types && father build",
+    "docs:build": "npm run build && npm run api:extractor && npm run api:documenter",
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
     "vitest:ui": "vitest --ui",
-    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest"
+    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest",
+    "api:extractor": "api-extractor run --local --verbose",
+    "api:documenter": "api-documenter markdown -i tsdoc/temp -o tsdoc/markdown"
   },
   "sideEffects": false,
   "files": [
