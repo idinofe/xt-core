@@ -29,11 +29,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      # TODO: 完善文档构建步骤
-      - name: Run build
-      - name: Api extractor
-      - name: Api documenter
       - name: Run docs:build
+        run: npm run docs:build
   # Single deploy job since we're just deploying
   deploy:
     environment:
@@ -49,7 +46,7 @@ jobs:
         uses: actions/upload-pages-artifact@v2
         with:
           # Upload entire repository
-          path: './tsdoc/dist'
+          path: './tsdoc/.vuepress/dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
