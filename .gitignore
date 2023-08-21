@@ -13,7 +13,7 @@ types
 service
 dist
 tsdoc/temp
-tsdoc/markdown
+tsdoc/.vuepress/dist
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
