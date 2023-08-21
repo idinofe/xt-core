@@ -35,8 +35,12 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
       - run: npm install
-      - name: Run docs:build
+      - name: Generate markdown files
         run: npm run docs:build
+      # tsdoc 是单独的文档项目，因为vuepress@1.X 与webpack@5.X 一起使用报错，所以单独抽离出来
+      - name: Generate static html files
+        run: cd ./tsdoc && npm install && npm run docs:build
+
   # Single deploy job since we're just deploying
   deploy:
     needs: build
