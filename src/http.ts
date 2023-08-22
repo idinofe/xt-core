@@ -878,7 +878,7 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
  *   }
  * })
  * 
- * http.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+ * baseHttp.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
  * ```
  * 
  * @public
