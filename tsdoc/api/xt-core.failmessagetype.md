@@ -4,6 +4,8 @@
 
 ## FailMessageType type
 
+业务失败类型
+
 **Signature:**
 
 ```typescript

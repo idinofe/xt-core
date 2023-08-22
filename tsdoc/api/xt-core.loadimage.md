@@ -2,12 +2,50 @@
 
 [Home](./index.md) &gt; [@dinofe/xt-core](./xt-core.md) &gt; [loadImage](./xt-core.loadimage.md)
 
-## loadImage variable
+## loadImage() function
 
-加载图片为 Image 对象
+加载图片为 [Image](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement) 对象
 
 **Signature:**
 
 ```typescript
-loadImage: (url: string, isBase64?: boolean, baseUrl?: string) => Promise<HTMLImageElement>
+export declare function loadImage(url: string, isBase64?: boolean, baseUrl?: string): Promise<HTMLImageElement>;
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  url | string | 图片地址，完整地址、相对地址、 Blob 地址或 base64 字符串 |
+|  isBase64 | boolean | _(Optional)_ url 是否 base64 字符串 |
+|  baseUrl | string | _(Optional)_ 图片基础路径 |
+
+**Returns:**
+
+Promise&lt;HTMLImageElement&gt;
+
+{<!-- -->Promise<HTMLImageElement>} 图片 Image 对象
+
+## Example 1
+
+url
+
+```ts
+import { loadImage } from '@dinofe/xt-core/web'
+loadImage('http://www.example.com/xxx.jpg')
+ .then(image => { console.log(image) })
+ .cath(e => { console.log(e.message) })
+```
+
+## Example 2
+
+base64
+
+```ts
+import { loadImage } from '@dinofe/xt-core/web'
+const base64Str = '....'
+loadImage(base64Str, true)
+ .then(image => { console.log(image) })
+ .catch(e => { console.log(e.message) })
+```
+

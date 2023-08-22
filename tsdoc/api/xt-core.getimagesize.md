@@ -4,8 +4,34 @@
 
 ## getImageSize variable
 
+获取图片尺寸
+
 **Signature:**
 
 ```typescript
 getImageSize: typeof _getImageSize
 ```
+
+## Example 1
+
+url
+
+```ts
+import { getImageSize } from '@dinofe/xt-core/web'
+getImageSize('http://www.example.com/xxx.jpg')
+ .then((size) => { console.log(`width = ${size.width} height = ${size.height}`) })
+ .catch(e => { console.log(e.message) })
+```
+
+## Example 2
+
+base64
+
+```ts
+import { getImageSize } from '@dinofe/xt-core/web'
+const base64Str = '....'
+getImageSize(base64Str, true)
+ .then((size) => { console.log(`width = ${size.width} height = ${size.height}`) })
+ .catch(e => { console.log(e.message) })
+```
+

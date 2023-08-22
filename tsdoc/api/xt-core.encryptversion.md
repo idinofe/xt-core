@@ -4,6 +4,8 @@
 
 ## EncryptVersion enum
 
+数据加密版本
+
 **Signature:**
 
 ```typescript

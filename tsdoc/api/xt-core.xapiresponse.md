@@ -4,6 +4,8 @@
 
 ## XApiResponse type
 
+XApiResponse
+
 **Signature:**
 
 ```typescript

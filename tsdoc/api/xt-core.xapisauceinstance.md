@@ -4,9 +4,7 @@
 
 ## XApisauceInstance interface
 
-修改Apisauce导出实例的类型声明
-
-1. 业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse 'any' \| 'get' \| 'delete' \| 'head' \| 'post' \| 'put' \| 'patch' \| 'link' \| 'unlink'这些方法类型定义需要重写 2. 示例对象post等方法的axiosConfig对象可覆盖创建示例对象时的config（除 'url' \| 'method' \| 'data' 之外）
+HTTP 实例
 
 **Signature:**
 
@@ -14,6 +12,12 @@
 export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'> 
 ```
 **Extends:** Omit&lt;ApisauceInstance, 'any' \| 'get' \| 'delete' \| 'head' \| 'post' \| 'put' \| 'patch' \| 'link' \| 'unlink'&gt;
+
+## Remarks
+
+1. 业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse 'any' \| 'get' \| 'delete' \| 'head' \| 'post' \| 'put' \| 'patch' \| 'link' \| 'unlink'这些方法类型定义需要重写
+
+2. 示例对象post等方法的axiosConfig对象可覆盖创建示例对象时的config（除 'url' \| 'method' \| 'data' 之外）
 
 ## Properties
 

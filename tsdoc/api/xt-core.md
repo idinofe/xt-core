@@ -4,54 +4,49 @@
 
 ## xt-core package
 
+一个基础库，包含：提取的一些常用工具方法，Axios二次封装、基础方法等
+
+## Remarks
+
+主要包括四大模块： - common: 常用基础方法 - http: 基于 Axios 的网络请求封装 - url: Url 相关的方法 - web: 仅 Web 环境支持的方法
+
 ## Enumerations
 
 |  Enumeration | Description |
 |  --- | --- |
-|  [EncryptVersion](./xt-core.encryptversion.md) |  |
-|  [MIME\_TYPE](./xt-core.mime_type.md) |  |
+|  [EncryptVersion](./xt-core.encryptversion.md) | 数据加密版本 |
+|  [MIME\_TYPE](./xt-core.mime_type.md) | MIME 类型 |
 |  [WxScope](./xt-core.wxscope.md) |  |
 
 ## Functions
 
 |  Function | Description |
 |  --- | --- |
+|  [base64ToBlob(data, mimeType, sliceSize)](./xt-core.base64toblob.md) | [Base64](https://developer.mozilla.org/zh-CN/docs/Glossary/Base64) 字符串转为 [Blob](https://developer.mozilla.org/zh-CN/docs/Web/API/Blob) |
+|  [convertBlobToUrl(blob)](./xt-core.convertblobtourl.md) | 文件对象转为 URL 链接 |
+|  [copyToClipboard(text)](./xt-core.copytoclipboard.md) | 复制文本到剪贴板 |
 |  [createBaseHttp(baseConfig, config)](./xt-core.createbasehttp.md) | 创建基础 HTTP 实例 |
 |  [createHttp(config)](./xt-core.createhttp.md) | 根据配置创建 HTTP 实例 |
-|  [createUploadHttp(appConfig, config)](./xt-core.createuploadhttp.md) | <p>创建上传文件 HTTP 实例（Web 环境）</p><p>注意： 1. 使用了 FormData，故只能在 web 环境使用 2. 返回值是 UploadInstance 实例，建议只使用其 upload 方法， ApisauceInstance 实例提供的其他发请求方法不要使用，可能导 致错误逻辑  web</p> |
+|  [createUploadHttp(appConfig, config)](./xt-core.createuploadhttp.md) | 创建上传文件 HTTP 实例（Web 环境） |
+|  [loadImage(url, isBase64, baseUrl)](./xt-core.loadimage.md) | 加载图片为 [Image](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement) 对象 |
 
 ## Interfaces
 
 |  Interface | Description |
 |  --- | --- |
 |  [CustomConfig](./xt-core.customconfig.md) |  |
-|  [XApisauceInstance](./xt-core.xapisauceinstance.md) | <p>修改Apisauce导出实例的类型声明</p><p>1. 业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse 'any' \| 'get' \| 'delete' \| 'head' \| 'post' \| 'put' \| 'patch' \| 'link' \| 'unlink'这些方法类型定义需要重写 2. 示例对象post等方法的axiosConfig对象可覆盖创建示例对象时的config（除 'url' \| 'method' \| 'data' 之外）</p> |
+|  [XApisauceInstance](./xt-core.xapisauceinstance.md) | HTTP 实例 |
 
 ## Variables
 
 |  Variable | Description |
 |  --- | --- |
-|  [base64ToBlob](./xt-core.base64toblob.md) | base64 字符串转为 Blob referrence: https://developer.mozilla.org/zh-CN/docs/Glossary/Base64 referrence: https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript |
-|  [convertBlobToUrl](./xt-core.convertblobtourl.md) | 文件对象转为 URL 链接（使用 URL.createObjectURL） |
-|  [COPY\_FAIL\_MESSAGE](./xt-core.copy_fail_message.md) |  |
-|  [copyToClipboard](./xt-core.copytoclipboard.md) | 复制文本到剪贴板 |
 |  [decodeOAuthUrl](./xt-core.decodeoauthurl.md) | 解析微信 oAuth 链接中的配置参数 |
-|  [defaultCommonHeadersTrasform](./xt-core.defaultcommonheaderstrasform.md) |  |
-|  [defaultCommonParamsTransform](./xt-core.defaultcommonparamstransform.md) |  |
-|  [defaultDecryptTransform](./xt-core.defaultdecrypttransform.md) | <p>解密</p><p>1. 对接口返回的数据进行解密 2. 根据config配置项决定解密行为，config是createHttp时传入的配置 3. 不抛出错误阻塞后续逻辑</p> |
-|  [defaultEncryptTransform](./xt-core.defaultencrypttransform.md) | 加密 |
-|  [defaultFailTransform](./xt-core.defaultfailtransform.md) |  |
-|  [defaultIsInvalidToken](./xt-core.defaultisinvalidtoken.md) | 判断业务状态码是否是token失效 |
-|  [defaultResponseTransform](./xt-core.defaultresponsetransform.md) | <p>校验业务状态成功与否</p><p>校验业务状态是否为成功，成功则会给response.data添加success=true,code和msg</p><p>1. returnCode 的取值顺序：Headers -<!-- -->&gt; response.data</p><p>2. returnDes 的取值顺序：Headers -<!-- -->&gt; response.data</p> |
-|  [defaultTokenCheckTransform](./xt-core.defaulttokenchecktransform.md) | token失效校验 |
 |  [genOAuthUrl](./xt-core.genoauthurl.md) | 根据配置生成带有微信oAuth的链接 |
 |  [genRedirectUrl](./xt-core.genredirecturl.md) | 根据配置生成encode编码好的url地址 |
-|  [getCustomConfig](./xt-core.getcustomconfig.md) |  |
-|  [getImageSize](./xt-core.getimagesize.md) |  |
-|  [loadImage](./xt-core.loadimage.md) | 加载图片为 Image 对象 |
+|  [getImageSize](./xt-core.getimagesize.md) | 获取图片尺寸 |
 |  [RETURN\_CODE\_FAIL](./xt-core.return_code_fail.md) |  |
 |  [RETURN\_CODE\_SUCCESS](./xt-core.return_code_success.md) |  |
-|  [withCustomConfig](./xt-core.withcustomconfig.md) | 给 XAsyncRequestTransform 包装一个自定义配置项 customConfig |
 
 ## Type Aliases
 
@@ -61,15 +56,15 @@
 |  [BooelanString](./xt-core.booelanstring.md) |  |
 |  [CustomAxiosRequestConfig](./xt-core.customaxiosrequestconfig.md) |  |
 |  [DecodeOAuthUrlResponse](./xt-core.decodeoauthurlresponse.md) |  |
-|  [FailMessageType](./xt-core.failmessagetype.md) |  |
+|  [FailMessageType](./xt-core.failmessagetype.md) | 业务失败类型 |
 |  [HttpConfig](./xt-core.httpconfig.md) |  |
 |  [RedirectUrlConfig](./xt-core.redirecturlconfig.md) |  |
 |  [UploadAppConfig](./xt-core.uploadappconfig.md) |  |
 |  [UploadHttpConfig](./xt-core.uploadhttpconfig.md) |  |
 |  [WechatBaseConfig](./xt-core.wechatbaseconfig.md) |  |
 |  [WechatOption](./xt-core.wechatoption.md) |  |
-|  [XApiResponse](./xt-core.xapiresponse.md) |  |
+|  [XApiResponse](./xt-core.xapiresponse.md) | XApiResponse |
 |  [XAsyncRequestTransform](./xt-core.xasyncrequesttransform.md) |  |
-|  [XRequestTransform](./xt-core.xrequesttransform.md) |  |
+|  [XRequestTransform](./xt-core.xrequesttransform.md) | XRequestTransform |
 |  [XResponseTransform](./xt-core.xresponsetransform.md) |  |
 

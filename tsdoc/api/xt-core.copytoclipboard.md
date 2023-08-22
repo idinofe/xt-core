@@ -2,12 +2,37 @@
 
 [Home](./index.md) &gt; [@dinofe/xt-core](./xt-core.md) &gt; [copyToClipboard](./xt-core.copytoclipboard.md)
 
-## copyToClipboard variable
+## copyToClipboard() function
 
 复制文本到剪贴板
 
 **Signature:**
 
 ```typescript
-copyToClipboard: (text: string) => Promise<void>
+export declare function copyToClipboard(text: string): Promise<void>;
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  text | string | 要复制的字符串 |
+
+**Returns:**
+
+Promise&lt;void&gt;
+
+返回一个Promise对象，成功会resolve，失败会reject
+
+## Example
+
+
+```ts
+import { copyToClipboard } from '@dinofe/xt-core/web'
+copyToClipboard('hello').then(() => {
+ console.log('支付成功')
+}).catch(e => {
+ console.log(e.message)
+})
+```
+

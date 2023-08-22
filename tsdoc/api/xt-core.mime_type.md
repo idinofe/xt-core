@@ -4,6 +4,8 @@
 
 ## MIME\_TYPE enum
 
+MIME 类型
+
 **Signature:**
 
 ```typescript
@@ -17,4 +19,8 @@ export declare const enum MIME_TYPE
 |  GIF | <code>&quot;image/gif&quot;</code> |  |
 |  JPG | <code>&quot;image/jpeg&quot;</code> |  |
 |  PNG | <code>&quot;image/png&quot;</code> |  |
+
+## Remarks
+
+常用[MIME 类型](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types) 枚举的部分，完整 MIME 类型请参考[常见 MIME 类型列表](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
 

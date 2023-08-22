@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [@dinofe/xt-core](./xt-core.md) |  |
+|  [@dinofe/xt-core](./xt-core.md) | 一个基础库，包含：提取的一些常用工具方法，Axios二次封装、基础方法等 |
 

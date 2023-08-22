@@ -4,6 +4,8 @@
 
 ## XRequestTransform type
 
+XRequestTransform
+
 **Signature:**
 
 ```typescript
