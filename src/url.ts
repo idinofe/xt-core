@@ -1,17 +1,26 @@
 /**
  * url地址相关工具方法
- * 1.拼接接口业务域名
- * 2.拼接图片基础域名
  */
 
 import { isEndWithSlash, isStartWithSlash, isUndef } from './common'
 import { AppConfig } from './type'
 
+/**
+ * BasicUrlConfig
+ * 
+ * @public
+ */
 export type BasicUrlConfig = Partial<AppConfig>
 
 /**
- * 判断是否是URL（//开头地址判断为是）
+ * 判断是否是URL
+ * 
+ * @remarks //开头地址判断为是
+ * 
  * @param url URL
+ * @returns {boolean} 是否是URL链接
+ * 
+ * @internal
  */
 function isUrl(url: string) {
   const regs = [/^\/\//, /^http(s)?:/]
@@ -21,7 +30,11 @@ function isUrl(url: string) {
 
 /**
  * 去尾部/
- * @param {String} url URL
+ * 
+ * @param {string} url URL链接
+ * @returns {string} URL链接
+ * 
+ * @internal
  */
 function trim(url: string) {
   if (!url) { return url }
@@ -34,8 +47,12 @@ function trim(url: string) {
 
 /**
  * 拼接接口业务域名
+ * 
  * @param {String} basicUrl 基础路径
  * @param {String} url 相对路径（不以/开头）
+ * @returns {string} URL链接
+ * 
+ * @public
  */
 export const appendBaiscUrl = (basicUrl: string, url: string) => {
   if (isUndef(basicUrl)) {
@@ -61,8 +78,12 @@ export const appendBaiscUrl = (basicUrl: string, url: string) => {
 
 /**
  * 拼接图片基础域名
+ * 
  * @param imgBasicUrl 基础路径
  * @param url 相对路径（不以/开头）
+ * @returns {string} URL链接
+ * 
+ * @public
  */
 export const appendImageUrl = (imgBasicUrl: string, url: string) => {
   if (!isUrl(url) || !imgBasicUrl) {

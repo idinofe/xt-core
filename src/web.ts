@@ -1,10 +1,5 @@
 /**
  * 适用于浏览器环境的相关库
- * 
- * 主要功能：
- * 1、复制文本到剪贴板
- * 2、获取图片尺寸大小
- * 3、base64 字符串转换为 Blob
  */
 
 import { isBlobUrlLike, isUrlLike } from "./common"

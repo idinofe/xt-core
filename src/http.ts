@@ -5,6 +5,11 @@ import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify,
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
+/**
+ * HTTP 自定义配置
+ * 
+ * @public
+ */
 export interface CustomConfig {
   // 不开启业务状态码转换
   noStatusTransform?: boolean
@@ -38,14 +43,38 @@ export interface CustomConfig {
   commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>>
 }
 
+/**
+ * HTTP 上传配置
+ * 
+ * @internal
+ */
 interface UploadConfig<D = any> {
+  /**
+   * 文件名称
+   */
   fileName?: string
+  /**
+   * 文件在FormData中的key
+   */
   fileKey?: string
+  /**
+   * 上传进度回调钩子
+   */
   onUploadProgress?: AxiosRequestConfig<D>['onUploadProgress']
 }
 
+/**
+ * UploadRequestConfig
+ * 
+ * @internal
+ */
 type UploadRequestConfig = UploadConfig & CustomAxiosRequestConfig
 
+/**
+ * UploadData
+ * 
+ * @internal
+ */
 type UploadData = {
   data: string
   mimeType: MIME_TYPE
@@ -53,18 +82,52 @@ type UploadData = {
   file: Blob | File
 }
 
+/**
+ * UploadInstance
+ * 
+ * @internal
+ */
 interface UploadInstance extends ApisauceInstance {
   upload: <T, U = T>(url: string, data: UploadData, config?: UploadRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
+/**
+ * Authorization
+ * 
+ * @internal
+ */
 type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
 
+/**
+ * 业务处理成功状态码
+ * 
+ * @public
+ */
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
+/**
+ * 业务处理失败状态码
+ * 
+ * @public
+ */
 export const RETURN_CODE_FAIL = 'FAIL'
 
+/**
+ * ApiCheckResponse
+ * 
+ * @internal
+ */
 interface ApiCheckResponse {
+  /**
+   * 业务是否处理成功
+   */
   success?: boolean
+  /**
+   * 业务状态码
+   */
   code?: string
+  /**
+   * 业务成功/失败原因
+   */
   msg?: string
 }
 
@@ -106,26 +169,95 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
  */
 export type XRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => void
 
+/**
+ * BaseTransform
+ * 
+ * @internal
+ */
 interface BaseTransform {
   (...args: any[]): any | Promise<any>
 }
 
+/**
+ * 异步请求request转换钩子
+ * 
+ * @see ApiSauce
+ * 
+ * @public
+ */
 export type XAsyncRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => Promise<void> | ((request: AxiosRequestConfig) => Promise<void>)
 
+/**
+ * 同步详情response转换钩子
+ * 
+ * @see ApiSauce
+ * 
+ * @public
+ */
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
+/**
+ * HTTP 配置
+ * 
+ * @see {@link @dinofe/xt-core#ApisauceConfig | ApisauceConfig}
+ * 
+ * @see {@link @dinofe/xt-core#CustomConfig | CustomConfig}
+ * 
+ * @public
+ */
 export type HttpConfig = ApisauceConfig & CustomConfig
 
+/**
+ * 基础 HTTP 配置
+ * 
+ * @public
+ */
 export type BaseConfig = {
+  /**
+   * 是否加密
+   * 
+   * @defaultValue `false`
+   * 
+   * @public
+   */
   encrypt: boolean,
+  /**
+   * 通用参数
+   * 
+   * @public
+   */
   commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>,
+  /**
+   * token
+   * 
+   * @public
+   */
   authorization: string | null | (() => (string | null)) | (() => Promise<string | null>)
 }
 
+/**
+ * UploadAppConfig
+ * 
+ * @public
+ */
 export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'> & { appKey: string }>
 
+/**
+ * 上传 HTTP 配置
+ * 
+ * @public
+ */
 export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'commonHeaders'> & { authorization?: Authorization, signKey?: string }
 
+/**
+ * 带有自定义配置项的AxiosConfig
+ * 
+ * @see AxiosRequestConfig
+ * 
+ * @see {@link @dinofe/xt-core#CustomConfig | CustomConfig}
+ * 
+ * @public
+ */
 export type CustomAxiosRequestConfig<D = any> = Omit<AxiosRequestConfig<D> & CustomConfig, 'url' | 'method' | 'data'>
 
 /**
@@ -143,20 +275,86 @@ export type CustomAxiosRequestConfig<D = any> = Omit<AxiosRequestConfig<D> & Cus
  * @public
  */
 export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'> {
+  /**
+   * TODO: 未知
+   * 
+   * @see ApiSauce
+   * 
+   * @param config 
+   * @returns 
+   */
   any: <T, U = T>(config: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送GET请求
+   * @param url 
+   * @param params 
+   * @param axiosConfig 
+   * @returns 
+   */
   get: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送DELETE请求
+   * @param url 
+   * @param params 
+   * @param axiosConfig 
+   * @returns 
+   */
   delete: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送HEAD请求
+   * @param url 
+   * @param params 
+   * @param axiosConfig 
+   * @returns 
+   */
   head: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送POST请求
+   * @param url 
+   * @param data 
+   * @param axiosConfig 
+   * @returns 
+   */
   post: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送PUT请求
+   * @param url 
+   * @param data 
+   * @param axiosConfig 
+   * @returns 
+   */
   put: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送PATCH请求
+   * @param url 
+   * @param data 
+   * @param axiosConfig 
+   * @returns 
+   */
   patch: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送LINK请求
+   * @param url 
+   * @param params 
+   * @param axiosConfig 
+   * @returns 
+   */
   link: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送UNLINK请求
+   * @param url 
+   * @param params 
+   * @param axiosConfig 
+   * @returns 
+   */
   unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
 
 /**
  * 给 XAsyncRequestTransform 包装一个自定义配置项 customConfig
+ * 
+ * @privateRemarks 此处导出只是为了进行单元测试
  * 
  * @param config CustomConfig
  * @param transform XAsyncRequestTransform
@@ -186,6 +384,8 @@ export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransfor
 
 /**
  * 加密
+ * 
+ * @privateRemarks 此处导出只是为了进行单元测试
  * 
  * @param request 
  * @param customConfig 
@@ -265,6 +465,8 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
 /**
  * 公共参数转换
  * 
+ * @privateRemarks 此处导出只是为了进行单元测试
+ * 
  * @param request 
  * @param customConfig 
  * 
@@ -332,6 +534,8 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
 /**
  * 公共头部转换
  * 
+ * @privateRemarks 此处导出只是为了进行单元测试
+ * 
  * @param request 
  * @param customConfig 
  * @returns 
@@ -360,6 +564,8 @@ export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (reque
  * 解密
  * 
  * @privateRemarks
+ * 此处导出只是为了进行单元测试
+ * 
  * 1. 对接口返回的数据进行解密
  * 
  * 2. 根据config配置项决定解密行为，config是createHttp时传入的配置
@@ -445,6 +651,8 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
  * 
  * @privateRemarks
  * 
+ * 此处导出只是为了单元测试
+ * 
  * 校验业务状态是否为成功，成功则会给response.data添加success=true,code和msg
  * 
  * 1. returnCode 的取值顺序：Headers -> response.data
@@ -496,6 +704,8 @@ export const defaultResponseTransform: XResponseTransform = (response) => {
 /**
  * 判断业务状态码是否是token失效
  * 
+ * @privateRemarks 此处导出只是为了单元测试
+ * 
  * @param data 
  * @param response 
  * @returns {boolean}
@@ -508,6 +718,8 @@ export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, an
 
 /**
  * token失效校验
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
  * 
  * @param response 
  * @returns 
@@ -539,6 +751,8 @@ export const defaultTokenCheckTransform: XResponseTransform = (response) => {
 
 /**
  * 业务状态码失败时 Toast 提示
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
  * 
  * @param response 
  * @returns 
@@ -578,6 +792,8 @@ export const defaultFailTransform: ResponseTransform = (response) => {
 
 /**
  * 获取传递的自定义配置
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
  * 
  * @param response 
  * @returns 
