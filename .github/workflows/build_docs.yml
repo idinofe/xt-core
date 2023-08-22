@@ -22,14 +22,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # build docs
-  build:
+  # Single deploy job since we're just deploying
+  deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: '16.x'
@@ -40,17 +41,6 @@ jobs:
       # tsdoc 是单独的文档项目，因为vuepress@1.X 与webpack@5.X 一起使用报错，所以单独抽离出来
       - name: Generate static html files
         run: cd ./tsdoc && npm install && npm run docs:build
-
-  # Single deploy job since we're just deploying
-  deploy:
-    needs: build
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
