@@ -68,13 +68,28 @@ interface ApiCheckResponse {
   msg?: string
 }
 
+/**
+ * 数据加密版本
+ * 
+ * @public
+ */
 export const enum EncryptVersion {
   v1 = '1',
   v2 = '2'
 }
 
+/**
+ * 业务失败类型
+ * 
+ * @public
+ */
 export type FailMessageType = PROBLEM_CODE | string | undefined
 
+/**
+ * XApiResponse
+ * 
+ * @public
+ */
 export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T, T>> & {
   config?: CustomAxiosRequestConfig
   success?: boolean
@@ -84,6 +99,11 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
 
 // export type XApiRequest = 
 
+/**
+ * XRequestTransform
+ * 
+ * @public
+ */
 export type XRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => void
 
 interface BaseTransform {
@@ -109,11 +129,18 @@ export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'commonHeaders'> 
 export type CustomAxiosRequestConfig<D = any> = Omit<AxiosRequestConfig<D> & CustomConfig, 'url' | 'method' | 'data'>
 
 /**
- * 修改Apisauce导出实例的类型声明
+ * HTTP 实例
+ * 
+ * @privateRemarks 修改Apisauce导出实例的类型声明
+ * 
+ * @remarks
  * 
  * 1. 业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse
  *  'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'这些方法类型定义需要重写
+ * 
  * 2. 示例对象post等方法的axiosConfig对象可覆盖创建示例对象时的config（除 'url' | 'method' | 'data' 之外）
+ * 
+ * @public
  */
 export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'> {
   any: <T, U = T>(config: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
@@ -130,9 +157,12 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
 
 /**
  * 给 XAsyncRequestTransform 包装一个自定义配置项 customConfig
+ * 
  * @param config CustomConfig
  * @param transform XAsyncRequestTransform
  * @returns XAsyncRequestTransform
+ * 
+ * @internal
  */
 export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(httpConfig: HttpConfig, transform: T): RequestTransform & AsyncRequestTransform => {
   const config: CustomConfig = {
@@ -156,9 +186,12 @@ export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransfor
 
 /**
  * 加密
+ * 
  * @param request 
  * @param customConfig 
  * @returns 
+ * 
+ * @internal
  */
 export const defaultEncryptTransform: XAsyncRequestTransform = async (request, customConfig) => {
   // console.log(request, customConfig)
@@ -229,6 +262,14 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
   }
 }
 
+/**
+ * 公共参数转换
+ * 
+ * @param request 
+ * @param customConfig 
+ * 
+ * @internal
+ */
 export const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonParams = customConfig.commonParams || function () { return {} }
   const useEncrypt = customConfig.useEncrypt
@@ -288,6 +329,15 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
   }
 }
 
+/**
+ * 公共头部转换
+ * 
+ * @param request 
+ * @param customConfig 
+ * @returns 
+ * 
+ * @internal
+ */
 export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonHeaders = customConfig.commonHeaders
 
@@ -309,11 +359,17 @@ export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (reque
 /**
  * 解密
  * 
+ * @privateRemarks
  * 1. 对接口返回的数据进行解密
+ * 
  * 2. 根据config配置项决定解密行为，config是createHttp时传入的配置
+ * 
  * 3. 不抛出错误阻塞后续逻辑
+ * 
  * @param response 
  * @returns 
+ * 
+ * @internal
  */
 export const defaultDecryptTransform: XResponseTransform = (response) => {
   // console.log('defaultDecryptTransform', response)
@@ -387,12 +443,17 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
 /**
  * 校验业务状态成功与否
  * 
+ * @privateRemarks
+ * 
  * 校验业务状态是否为成功，成功则会给response.data添加success=true,code和msg
  * 
  * 1. returnCode 的取值顺序：Headers -> response.data
  * 
  * 2. returnDes 的取值顺序：Headers -> response.data
+ * 
  * @param response {ApiResponse<any, any>}
+ * 
+ * @internal
  */
 export const defaultResponseTransform: XResponseTransform = (response) => {
   const data = response.data
@@ -434,9 +495,12 @@ export const defaultResponseTransform: XResponseTransform = (response) => {
 
 /**
  * 判断业务状态码是否是token失效
+ * 
  * @param data 
  * @param response 
  * @returns {boolean}
+ * 
+ * @internal
  */
 export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
   return !!(data && data.returnCode === 'INVALID_TOKEN')
@@ -444,8 +508,11 @@ export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, an
 
 /**
  * token失效校验
+ * 
  * @param response 
  * @returns 
+ * 
+ * @internal
  */
 export const defaultTokenCheckTransform: XResponseTransform = (response) => {
   if (!response.ok || !response.data) { return }
@@ -470,7 +537,14 @@ export const defaultTokenCheckTransform: XResponseTransform = (response) => {
   }
 }
 
-// 业务状态码失败时 Toast 提示
+/**
+ * 业务状态码失败时 Toast 提示
+ * 
+ * @param response 
+ * @returns 
+ * 
+ * @internal
+ */
 export const defaultFailTransform: ResponseTransform = (response) => {
   const config = getCustomConfig(response)
   const data = response.data
@@ -502,6 +576,14 @@ export const defaultFailTransform: ResponseTransform = (response) => {
   }
 }
 
+/**
+ * 获取传递的自定义配置
+ * 
+ * @param response 
+ * @returns 
+ * 
+ * @internal
+ */
 export const getCustomConfig = (response: XApiResponse<any, any>) => {
   return response.ok ? response.config as CustomAxiosRequestConfig : null
 }
@@ -552,6 +634,7 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
 
 /**
  * 创建基础 HTTP 实例
+ * 
  * @param baseConfig {BaseConfig} 基础配置
  * @param config {HttpConfig} 通用配置
  * @returns {XApisauceInstance} 返回 HTTP 实例
@@ -607,15 +690,21 @@ export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApi
 /**
  * 创建上传文件 HTTP 实例（Web 环境）
  * 
+ * @remarks
  * 注意：
+ * 
  * 1. 使用了 FormData，故只能在 web 环境使用
+ * 
  * 2. 返回值是 UploadInstance 实例，建议只使用其 upload 方法，
  *  ApisauceInstance 实例提供的其他发请求方法不要使用，可能导
  *  致错误逻辑
+ * 
  * @platform web
  * @param appConfig {AppConfig}
  * @param config {ApiSauceConfig}
  * @returns {UploadInstance}
+ * 
+ * @public
  */
 export function createUploadHttp(
     appConfig: UploadAppConfig,
