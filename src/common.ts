@@ -5,6 +5,9 @@
 import _Big from 'big.js'
 import type TBig from 'big.js'
 
+/**
+ * @see {@link big.js#Big | Big}
+ */
 export const Big = _Big
 
 /**
@@ -419,6 +422,13 @@ export function times (arg1: number | string | TBig, arg2: number | string | TBi
   return new Big(arg1).times(arg2)
 }
 
+/**
+ * 两浮点数相乘
+ * 
+ * @see {@link @dinofe/xt-core#times | times}
+ * 
+ * @public
+ */
 export const multiply = times
 
 /**

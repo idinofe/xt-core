@@ -813,6 +813,7 @@ export const getCustomConfig = (response: XApiResponse<any, any>) => {
  * @example
  * 简单示例一：
  * ```ts
+ * import { createHttp } from '@dinofe/xt-core/http'
  * const http = createHttp({
  *  baseURL: '/api-abc',
  *  useEncrypt: true,
@@ -858,6 +859,7 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
  * @example
  * 简单示例一：
  * ```ts
+ * import { createBaseHttp } from '@dinofe/xt-core/http'
  * const baseHttp = createBaseHttp({
  *   encrypt: true,
  *   commonParams: {

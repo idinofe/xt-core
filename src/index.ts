@@ -4,15 +4,15 @@
  * @remarks
  * 主要包括五大模块：
  * 
- * - **common**: 常用基础方法
+ * - common: 常用基础方法
  * 
- * - **http**: 基于 Axios 的网络请求封装
+ * - http: 基于 Axios 的网络请求封装
  * 
- * - **url**: Url 相关的方法
+ * - url: Url 相关的方法
  * 
- * - **web**: 仅 Web 环境支持的方法
+ * - web: 仅 Web 环境支持的方法
  * 
- * - **wechat**: 微信业务相关方法
+ * - wechat: 微信业务相关方法
  * 
  * @packageDocumentation
  */
