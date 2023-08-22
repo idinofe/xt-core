@@ -4,6 +4,8 @@
 
 ## WxScope enum
 
+微信授权scope
+
 **Signature:**
 
 ```typescript

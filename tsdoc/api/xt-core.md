@@ -8,7 +8,17 @@
 
 ## Remarks
 
-主要包括四大模块： - common: 常用基础方法 - http: 基于 Axios 的网络请求封装 - url: Url 相关的方法 - web: 仅 Web 环境支持的方法
+主要包括五大模块：
+
+- common: 常用基础方法
+
+- http: 基于 Axios 的网络请求封装
+
+- url: Url 相关的方法
+
+- web: 仅 Web 环境支持的方法
+
+- wechat: 微信业务相关方法
 
 ## Enumerations
 
@@ -16,7 +26,7 @@
 |  --- | --- |
 |  [EncryptVersion](./xt-core.encryptversion.md) | 数据加密版本 |
 |  [MIME\_TYPE](./xt-core.mime_type.md) | MIME 类型 |
-|  [WxScope](./xt-core.wxscope.md) |  |
+|  [WxScope](./xt-core.wxscope.md) | 微信授权scope |
 
 ## Functions
 
@@ -28,43 +38,76 @@
 |  [createBaseHttp(baseConfig, config)](./xt-core.createbasehttp.md) | 创建基础 HTTP 实例 |
 |  [createHttp(config)](./xt-core.createhttp.md) | 根据配置创建 HTTP 实例 |
 |  [createUploadHttp(appConfig, config)](./xt-core.createuploadhttp.md) | 创建上传文件 HTTP 实例（Web 环境） |
+|  [delay(time)](./xt-core.delay.md) | 延迟 |
+|  [div(arg1, arg2)](./xt-core.div.md) | 两浮点数相除 |
+|  [floatDivide(arg1, arg2)](./xt-core.floatdivide.md) | 两浮点数相除 |
+|  [floatMultiply(arg1, arg2)](./xt-core.floatmultiply.md) | 两浮点数相乘 |
+|  [getQuery(str, a)](./xt-core.getquery.md) | 获取url中参数值 |
+|  [isBlobUrlLike(url)](./xt-core.isbloburllike.md) | 校验字符串是否是 [URL.createObjectURL](https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static) 返回的链接 |
+|  [isDef(a)](./xt-core.isdef.md) | 是否为有效的值 |
+|  [isEncodeURILike(url)](./xt-core.isencodeurilike.md) | 判断给定的 URI 是否是 [URIEncode](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURI) 过的 |
+|  [isEndWithSlash(a)](./xt-core.isendwithslash.md) | 字符串是否以'/'结尾 |
+|  [isFormData(a)](./xt-core.isformdata.md) | 是否为 [FormData](https://developer.mozilla.org/zh-CN/docs/Web/API/FormData) 对象 |
+|  [isFunction(a)](./xt-core.isfunction.md) | 是否为函数 |
+|  [isNormalObject(a)](./xt-core.isnormalobject.md) | 是否为普通对象 |
+|  [isNumber(a)](./xt-core.isnumber.md) | 是否为有效 [Number](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number) |
+|  [isPromise(a)](./xt-core.ispromise.md) | 是否为 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 对象 |
+|  [isStartWithSlash(a)](./xt-core.isstartwithslash.md) | 字符串是否以'/'开头 |
+|  [isString(a)](./xt-core.isstring.md) | 是否为字符串 |
+|  [isUndef(a)](./xt-core.isundef.md) | 是否为未定义 |
+|  [isUrlLike(url)](./xt-core.isurllike.md) | 校验字符串是否是 URL 链接 |
+|  [isValidToken(token)](./xt-core.isvalidtoken.md) | 校验token格式是否正确 |
 |  [loadImage(url, isBase64, baseUrl)](./xt-core.loadimage.md) | 加载图片为 [Image](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement) 对象 |
+|  [minus(arg1, arg2)](./xt-core.minus.md) | 两数相减 |
+|  [noop()](./xt-core.noop.md) | 空函数 |
+|  [plus(arg1, arg2)](./xt-core.plus.md) | 两数相加 |
+|  [promisify(a)](./xt-core.promisify.md) | 转换为已 resolved 的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 对象 |
+|  [randomNumber(len)](./xt-core.randomnumber.md) | 生成随机数字符串 |
+|  [times(arg1, arg2)](./xt-core.times.md) | 两浮点数相乘 |
+|  [toNonExponential(num)](./xt-core.tononexponential.md) | 将科学计数法的数字转为字符串 |
 
 ## Interfaces
 
 |  Interface | Description |
 |  --- | --- |
-|  [CustomConfig](./xt-core.customconfig.md) |  |
+|  [CustomConfig](./xt-core.customconfig.md) | HTTP 自定义配置 |
 |  [XApisauceInstance](./xt-core.xapisauceinstance.md) | HTTP 实例 |
 
 ## Variables
 
 |  Variable | Description |
 |  --- | --- |
+|  [appendBaiscUrl](./xt-core.appendbaiscurl.md) | 拼接接口业务域名 |
+|  [appendImageUrl](./xt-core.appendimageurl.md) | 拼接图片基础域名 |
+|  [Big\_2](./xt-core.big_2.md) |  |
 |  [decodeOAuthUrl](./xt-core.decodeoauthurl.md) | 解析微信 oAuth 链接中的配置参数 |
+|  [divide](./xt-core.divide.md) | 两浮点数相除 |
+|  [genMessageId](./xt-core.genmessageid.md) | 生成 21 位长度的消息 ID |
 |  [genOAuthUrl](./xt-core.genoauthurl.md) | 根据配置生成带有微信oAuth的链接 |
 |  [genRedirectUrl](./xt-core.genredirecturl.md) | 根据配置生成encode编码好的url地址 |
 |  [getImageSize](./xt-core.getimagesize.md) | 获取图片尺寸 |
-|  [RETURN\_CODE\_FAIL](./xt-core.return_code_fail.md) |  |
-|  [RETURN\_CODE\_SUCCESS](./xt-core.return_code_success.md) |  |
+|  [multiply](./xt-core.multiply.md) | 两浮点数相乘 |
+|  [RETURN\_CODE\_FAIL](./xt-core.return_code_fail.md) | 业务处理失败状态码 |
+|  [RETURN\_CODE\_SUCCESS](./xt-core.return_code_success.md) | 业务处理成功状态码 |
 
 ## Type Aliases
 
 |  Type Alias | Description |
 |  --- | --- |
-|  [BaseConfig](./xt-core.baseconfig.md) |  |
-|  [BooelanString](./xt-core.booelanstring.md) |  |
-|  [CustomAxiosRequestConfig](./xt-core.customaxiosrequestconfig.md) |  |
-|  [DecodeOAuthUrlResponse](./xt-core.decodeoauthurlresponse.md) |  |
+|  [BaseConfig](./xt-core.baseconfig.md) | 基础 HTTP 配置 |
+|  [BasicUrlConfig](./xt-core.basicurlconfig.md) | BasicUrlConfig |
+|  [BooelanString](./xt-core.booelanstring.md) | BooelanString |
+|  [CustomAxiosRequestConfig](./xt-core.customaxiosrequestconfig.md) | 带有自定义配置项的AxiosConfig |
+|  [DecodeOAuthUrlResponse](./xt-core.decodeoauthurlresponse.md) | DecodeOAuthUrlResponse |
 |  [FailMessageType](./xt-core.failmessagetype.md) | 业务失败类型 |
-|  [HttpConfig](./xt-core.httpconfig.md) |  |
-|  [RedirectUrlConfig](./xt-core.redirecturlconfig.md) |  |
-|  [UploadAppConfig](./xt-core.uploadappconfig.md) |  |
-|  [UploadHttpConfig](./xt-core.uploadhttpconfig.md) |  |
-|  [WechatBaseConfig](./xt-core.wechatbaseconfig.md) |  |
-|  [WechatOption](./xt-core.wechatoption.md) |  |
+|  [HttpConfig](./xt-core.httpconfig.md) | HTTP 配置 |
+|  [RedirectUrlConfig](./xt-core.redirecturlconfig.md) | RedirectUrlConfig |
+|  [UploadAppConfig](./xt-core.uploadappconfig.md) | UploadAppConfig |
+|  [UploadHttpConfig](./xt-core.uploadhttpconfig.md) | 上传 HTTP 配置 |
+|  [WechatBaseConfig](./xt-core.wechatbaseconfig.md) | WechatBaseConfig |
+|  [WechatOption](./xt-core.wechatoption.md) | WechatOption |
 |  [XApiResponse](./xt-core.xapiresponse.md) | XApiResponse |
-|  [XAsyncRequestTransform](./xt-core.xasyncrequesttransform.md) |  |
+|  [XAsyncRequestTransform](./xt-core.xasyncrequesttransform.md) | 异步请求request转换钩子 |
 |  [XRequestTransform](./xt-core.xrequesttransform.md) | XRequestTransform |
-|  [XResponseTransform](./xt-core.xresponsetransform.md) |  |
+|  [XResponseTransform](./xt-core.xresponsetransform.md) | 同步详情response转换钩子 |
 

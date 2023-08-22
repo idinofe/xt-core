@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.any property
 
+TODO: 未知
+
 **Signature:**
 
 ```typescript

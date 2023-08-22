@@ -4,6 +4,8 @@
 
 ## DecodeOAuthUrlResponse type
 
+DecodeOAuthUrlResponse
+
 **Signature:**
 
 ```typescript

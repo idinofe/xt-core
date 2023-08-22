@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.head property
 
+发送HEAD请求
+
 **Signature:**
 
 ```typescript

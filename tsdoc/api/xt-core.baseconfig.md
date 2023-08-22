@@ -4,6 +4,8 @@
 
 ## BaseConfig type
 
+基础 HTTP 配置
+
 **Signature:**
 
 ```typescript

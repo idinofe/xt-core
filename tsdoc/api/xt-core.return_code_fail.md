@@ -4,6 +4,8 @@
 
 ## RETURN\_CODE\_FAIL variable
 
+业务处理失败状态码
+
 **Signature:**
 
 ```typescript

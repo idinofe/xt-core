@@ -4,6 +4,8 @@
 
 ## BooelanString type
 
+BooelanString
+
 **Signature:**
 
 ```typescript

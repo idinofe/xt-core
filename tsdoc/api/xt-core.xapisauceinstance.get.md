@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.get property
 
+发送GET请求
+
 **Signature:**
 
 ```typescript

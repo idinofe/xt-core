@@ -4,6 +4,8 @@
 
 ## WechatOption type
 
+WechatOption
+
 **Signature:**
 
 ```typescript

@@ -30,6 +30,7 @@ export declare function createBaseHttp(baseConfig: BaseConfig, config: HttpConfi
 简单示例一：
 
 ```ts
+import { createBaseHttp } from '@dinofe/xt-core/http'
 const baseHttp = createBaseHttp({
   encrypt: true,
   commonParams: {
@@ -48,6 +49,6 @@ const baseHttp = createBaseHttp({
   }
 })
 
-http.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+baseHttp.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
 ```
 

@@ -4,6 +4,8 @@
 
 ## UploadAppConfig type
 
+UploadAppConfig
+
 **Signature:**
 
 ```typescript

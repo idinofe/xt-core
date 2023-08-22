@@ -4,6 +4,8 @@
 
 ## RETURN\_CODE\_SUCCESS variable
 
+业务处理成功状态码
+
 **Signature:**
 
 ```typescript

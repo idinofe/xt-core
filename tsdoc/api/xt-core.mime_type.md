@@ -16,9 +16,9 @@ export declare const enum MIME_TYPE
 
 |  Member | Value | Description |
 |  --- | --- | --- |
-|  GIF | <code>&quot;image/gif&quot;</code> |  |
 |  JPG | <code>&quot;image/jpeg&quot;</code> |  |
 |  PNG | <code>&quot;image/png&quot;</code> |  |
+|  GIF | <code>&quot;image/gif&quot;</code> |  |
 
 ## Remarks
 

@@ -4,6 +4,8 @@
 
 ## CustomConfig interface
 
+HTTP 自定义配置
+
 **Signature:**
 
 ```typescript

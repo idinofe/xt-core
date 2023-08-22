@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.unlink property
 
+发送UNLINK请求
+
 **Signature:**
 
 ```typescript

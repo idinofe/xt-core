@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.delete property
 
+发送DELETE请求
+
 **Signature:**
 
 ```typescript

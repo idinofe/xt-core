@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.link property
 
+发送LINK请求
+
 **Signature:**
 
 ```typescript

@@ -4,6 +4,8 @@
 
 ## XAsyncRequestTransform type
 
+异步请求request转换钩子
+
 **Signature:**
 
 ```typescript

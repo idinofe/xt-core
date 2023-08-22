@@ -4,6 +4,8 @@
 
 ## RedirectUrlConfig type
 
+RedirectUrlConfig
+
 **Signature:**
 
 ```typescript

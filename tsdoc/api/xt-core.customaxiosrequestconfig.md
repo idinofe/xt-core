@@ -4,6 +4,8 @@
 
 ## CustomAxiosRequestConfig type
 
+带有自定义配置项的AxiosConfig
+
 **Signature:**
 
 ```typescript

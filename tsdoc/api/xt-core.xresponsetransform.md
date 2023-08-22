@@ -4,6 +4,8 @@
 
 ## XResponseTransform type
 
+同步详情response转换钩子
+
 **Signature:**
 
 ```typescript

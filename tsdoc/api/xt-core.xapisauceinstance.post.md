@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.post property
 
+发送POST请求
+
 **Signature:**
 
 ```typescript

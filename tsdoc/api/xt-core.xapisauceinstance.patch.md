@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.patch property
 
+发送PATCH请求
+
 **Signature:**
 
 ```typescript

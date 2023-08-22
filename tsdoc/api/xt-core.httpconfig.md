@@ -4,6 +4,8 @@
 
 ## HttpConfig type
 
+HTTP 配置
+
 **Signature:**
 
 ```typescript

@@ -4,6 +4,8 @@
 
 ## UploadHttpConfig type
 
+上传 HTTP 配置
+
 **Signature:**
 
 ```typescript

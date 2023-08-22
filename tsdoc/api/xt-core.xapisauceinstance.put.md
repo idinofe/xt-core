@@ -4,6 +4,8 @@
 
 ## XApisauceInstance.put property
 
+发送PUT请求
+
 **Signature:**
 
 ```typescript
