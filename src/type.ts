@@ -1,3 +1,7 @@
+/**
+ * 这是公共的类型定义，不包含方法实现
+ */
+
 export type AppConfig = {
   appId: string
   merNo: string
