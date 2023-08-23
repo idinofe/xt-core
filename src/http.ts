@@ -199,7 +199,7 @@ export type XResponseTransform = (response: XApiResponse<any>) => void
 /**
  * HTTP 配置
  * 
- * @see {@link @dinofe/xt-core#ApisauceConfig | ApisauceConfig}
+ * @see {@link apisauce#ApisauceConfig | ApisauceConfig}
  * 
  * @see {@link @dinofe/xt-core#CustomConfig | CustomConfig}
  * 
@@ -280,72 +280,72 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
    * 
    * @see ApiSauce
    * 
-   * @param config 
-   * @returns 
+   * @param config - config 
+   * @returns HTTP实例
    */
   any: <T, U = T>(config: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送GET请求
-   * @param url 
-   * @param params 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
    */
   get: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送DELETE请求
-   * @param url 
-   * @param params 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
    */
   delete: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送HEAD请求
-   * @param url 
-   * @param params 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
    */
   head: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送POST请求
-   * @param url 
-   * @param data 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param data - data
+   * @param axiosConfig - axiosConfig 
+   * @returns HTTP实例
    */
   post: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送PUT请求
-   * @param url 
-   * @param data 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param data - data
+   * @param axiosConfig - axiosConfig 
+   * @returns HTTP实例
    */
   put: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送PATCH请求
-   * @param url 
-   * @param data 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param data - data
+   * @param axiosConfig - axiosConfig 
+   * @returns HTTP实例
    */
   patch: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送LINK请求
-   * @param url 
-   * @param params 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
    */
   link: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
   /**
    * 发送UNLINK请求
-   * @param url 
-   * @param params 
-   * @param axiosConfig 
-   * @returns 
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
    */
   unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
 }
@@ -356,8 +356,8 @@ export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' 
  * 
  * @privateRemarks 此处导出只是为了进行单元测试
  * 
- * @param config CustomConfig
- * @param transform XAsyncRequestTransform
+ * @param config - 自定义配置项
+ * @param transform - transform 函数
  * @returns XAsyncRequestTransform
  * 
  * @internal
@@ -387,8 +387,8 @@ export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransfor
  * 
  * @privateRemarks 此处导出只是为了进行单元测试
  * 
- * @param request 
- * @param customConfig 
+ * @param request - request
+ * @param customConfig - customConfig
  * @returns 
  * 
  * @internal
@@ -467,8 +467,8 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
  * 
  * @privateRemarks 此处导出只是为了进行单元测试
  * 
- * @param request 
- * @param customConfig 
+ * @param request - request
+ * @param customConfig - customConfig
  * 
  * @internal
  */
@@ -536,8 +536,8 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
  * 
  * @privateRemarks 此处导出只是为了进行单元测试
  * 
- * @param request 
- * @param customConfig 
+ * @param request - request
+ * @param customConfig - customConfig
  * @returns 
  * 
  * @internal
@@ -572,7 +572,7 @@ export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (reque
  * 
  * 3. 不抛出错误阻塞后续逻辑
  * 
- * @param response 
+ * @param response - response
  * @returns 
  * 
  * @internal
@@ -655,11 +655,11 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
  * 
  * 校验业务状态是否为成功，成功则会给response.data添加success=true,code和msg
  * 
- * 1. returnCode 的取值顺序：Headers -> response.data
+ * 1. returnCode 的取值顺序：`Headers -> response.data`
  * 
- * 2. returnDes 的取值顺序：Headers -> response.data
+ * 2. returnDes 的取值顺序：`Headers -> response.data`
  * 
- * @param response {ApiResponse<any, any>}
+ * @param response - response
  * 
  * @internal
  */
@@ -706,9 +706,9 @@ export const defaultResponseTransform: XResponseTransform = (response) => {
  * 
  * @privateRemarks 此处导出只是为了单元测试
  * 
- * @param data 
- * @param response 
- * @returns {boolean}
+ * @param data - data
+ * @param response - response
+ * @returns 是否token失效
  * 
  * @internal
  */
@@ -721,7 +721,7 @@ export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, an
  * 
  * @privateRemarks 此处导出只是为了单元测试
  * 
- * @param response 
+ * @param response - reponse
  * @returns 
  * 
  * @internal
@@ -754,7 +754,7 @@ export const defaultTokenCheckTransform: XResponseTransform = (response) => {
  * 
  * @privateRemarks 此处导出只是为了单元测试
  * 
- * @param response 
+ * @param response - response
  * @returns 
  * 
  * @internal
@@ -807,8 +807,8 @@ export const getCustomConfig = (response: XApiResponse<any, any>) => {
 /**
  * 根据配置创建 HTTP 实例
  * 
- * @param config {HttpConfig} - 配置项
- * @returns  {ApisauceInstance} 返回 HTTP 实例
+ * @param config - 配置项
+ * @returns 返回 HTTP 实例
  * 
  * @example
  * 简单示例一：
@@ -852,9 +852,9 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
 /**
  * 创建基础 HTTP 实例
  * 
- * @param baseConfig {BaseConfig} 基础配置
- * @param config {HttpConfig} 通用配置
- * @returns {XApisauceInstance} 返回 HTTP 实例
+ * @param baseConfig - 基础配置
+ * @param config - 通用配置
+ * @returns 返回 HTTP 实例
  * 
  * @example
  * 简单示例一：
@@ -918,9 +918,9 @@ export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApi
  *  致错误逻辑
  * 
  * @platform web
- * @param appConfig {AppConfig}
- * @param config {ApiSauceConfig}
- * @returns {UploadInstance}
+ * @param appConfig - appConfig
+ * @param config - config
+ * @returns 返回 HTTP 实例
  * 
  * @public
  */

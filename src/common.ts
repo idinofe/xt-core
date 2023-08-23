@@ -7,6 +7,8 @@ import type TBig from 'big.js'
 
 /**
  * @see {@link big.js#Big | Big}
+ * 
+ * @public
  */
 export const Big = _Big
 
@@ -15,8 +17,8 @@ export const Big = _Big
  * 
  * @remarks 非 undefined | 'undefined' | null
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -29,8 +31,8 @@ export function isDef (a: any): boolean {
  * 
  * @remarks 是否是 undefiend | null
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -41,8 +43,8 @@ export function isUndef (a: any): boolean {
 /**
  * 字符串是否以'/'结尾
  * 
- * @param a {string} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -56,8 +58,8 @@ export function isEndWithSlash (a: string): boolean {
 /**
  * 字符串是否以'/'开头
  * 
- * @param a {string} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -71,8 +73,8 @@ export function isStartWithSlash (a: string): boolean {
 /**
  * 是否为字符串
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -82,8 +84,8 @@ export function isString (a: any): boolean {
 
 /**
  * 是否为有效 {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Number | Number}
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -94,8 +96,8 @@ export function isNumber (a: any): boolean {
 /**
  * 是否为 {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} 对象
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -106,8 +108,8 @@ export function isPromise (a: any): boolean {
 /**
  * 是否为函数
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -118,8 +120,8 @@ export function isFunction (a: any): boolean {
 /**
  * 是否为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/FormData | FormData} 对象
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -132,8 +134,8 @@ export function isFormData (a: any): boolean {
  * 
  * @remarks 看 toString 是否是 '[object Object]'
  * 
- * @param a {any} 待校验的数据
- * @returns {boolean} 判断结果
+ * @param a - 待校验的数据
+ * @returns 判断结果
  * 
  * @public
  */
@@ -143,8 +145,8 @@ export function isNormalObject (a: any): boolean {
 
 /**
  * 判断给定的 URI 是否是 {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURI | URIEncode} 过的
- * @param url {string} 输入 URL
- * @returns {boolean} 是否 encoded 过的 URI
+ * @param url - 输入 URL
+ * @returns 是否 encoded 过的 URI
  * 
  * @public
  */
@@ -159,8 +161,8 @@ export function isEncodeURILike (url: string): boolean {
  * 
  * @remarks 是以 http 或 https 开头
  * 
- * @param url {string} 任意字符串
- * @returns {boolean} 是否是 URL 链接
+ * @param url - 任意字符串
+ * @returns 是否是 URL 链接
  * 
  * @public
  */
@@ -172,8 +174,8 @@ export function isUrlLike (url: string): boolean {
 /**
  * 校验字符串是否是 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static | URL.createObjectURL} 返回的链接
  * 
- * @param url {string} 任意字符串
- * @returns {boolean} 是否是类似 blob 的链接
+ * @param url - 任意字符串
+ * @returns 是否是类似 blob 的链接
  * 
  * @public
  */
@@ -192,8 +194,8 @@ export function isBlobUrlLike (url: string): boolean {
  * 
  * 2.传入非Promise则包装之后再返回
  * 
- * @param a {any} 待转换的数据
- * @returns Promise 转换后的 Promise
+ * @param a - 待转换的数据
+ * @returns 转换后的 Promise
  * 
  * @public
  */
@@ -207,8 +209,8 @@ export function promisify <T = any>(a: T): Promise<T> {
 /**
  * 延迟
  * 
- * @param time {number} 延迟时间（毫秒）
- * @returns Promise 返回 Promise 对象
+ * @param time - 延迟时间（毫秒）
+ * @returns 返回 Promise 对象
  * 
  * @public
  */
@@ -234,8 +236,8 @@ export function noop () {}
 /**
  * 生成随机数字符串
  * 
- * @param len {number} 长度 TODO: 怎么定义默认值
- * @returns {string} 生成的字符串
+ * @param len - 长度 TODO: 怎么定义默认值
+ * @returns 生成的字符串
  * 
  * @public
  */
@@ -257,7 +259,7 @@ export function randomNumber (len: number = 20): string {
 /**
  * 生成 21 位长度的消息 ID
  * 
- * @returns {string} 21 位长度的字符串
+ * @returns 21 位长度的字符串
  * 
  * @public
  */
@@ -288,17 +290,17 @@ export const genMessageId = (): string => {
  * 将科学计数法的数字转为字符串
  * 
  * @remarks
- * 4.496794759834739e-9  ==> 0.000000004496794759834739
+ * `4.496794759834739e-9  ==> 0.000000004496794759834739`
  * 
- * 4.496794759834739e+9  ==> 4496794759.834739
+ * `4.496794759834739e+9  ==> 4496794759.834739`
  * 
  * 若转换失败，则返回 `null`
  * 
  * @privateRemarks
  * 运算精度丢失方法中处理数字的时候，如果出现科学计数法，就会导致结果出错
  * 
- * @param {number} num 待转换值
- * @returns {null | string} 转换结果
+ * @param num - 待转换值
+ * @returns 转换结果
  * 
  * @public
  */
@@ -321,10 +323,10 @@ export function toNonExponential (num: number): null | string {
  * 
  * @remarks 修复了 js 乘法精度丢失问题，若相乘失败返回 `null` 
  * 
- * @param {number | string} arg1 浮点数 1
- * @param {number | string} arg2 浮点数 2
+ * @param arg1 - 浮点数 1
+ * @param arg2 - 浮点数 2
  * 
- * @returns {null | number} 相乘结果
+ * @returns 相乘结果
  * 
  * @public
  */
@@ -364,9 +366,9 @@ export function floatMultiply (arg1: number | string, arg2: number | string): nu
  * 
  * @remarks 修复了 js 除法精度丢失问题
  * 
- * @param {string | number} arg1 被除数
- * @param {string | number} arg2 除数
- * @returns {null | number} 相除结果
+ * @param arg1 - 被除数
+ * @param arg2 - 除数
+ * @returns 相除结果
  * 
  * TODO: 为 0 结果会怎样？
  * 
@@ -412,9 +414,9 @@ export function floatDivide (arg1: string | number, arg2: string | number): null
  * 
  * @remarks 修复了 js 乘法精度丢失问题，基于 {@link https://www.npmjs.com/package/big.js | big.js} 实现
  * 
- * @param arg1 数字 1
- * @param arg2 数字 2
- * @returns {TBig} Big
+ * @param arg1 - 数字 1
+ * @param arg2 - 数字 2
+ * @returns Big
  * 
  * @public
  */
@@ -436,9 +438,9 @@ export const multiply = times
  * 
  * @remarks 修复了 js 除法精度丢失问题，基于 {@link https://www.npmjs.com/package/big.js | big.js} 实现
  * 
- * @param arg1 被除数
- * @param arg2 除数
- * @returns {TBig} Big
+ * @param arg1 - 被除数
+ * @param arg2 - 除数
+ * @returns Big
  * 
  * @public
  */
@@ -460,9 +462,9 @@ export const divide = div
  * 
  * @remarks 修复了 js 加法精度丢失问题，基于 {@link https://www.npmjs.com/package/big.js | big.js} 实现
  * 
- * @param arg1 {string | number} arg1 加数 1
- * @param arg2 {string | number} arg2 加数 2
- * @returns {TBig} Big
+ * @param arg1 - arg1 加数 1
+ * @param arg2 - arg2 加数 2
+ * @returns Big
  * 
  * @public
  */
@@ -475,9 +477,9 @@ export function plus (arg1: string | number | TBig, arg2: string | number | TBig
  * 
  * @remarks 修复了 js 减法精度丢失问题，基于 {@link https://www.npmjs.com/package/big.js | big.js} 实现
  * 
- * @param arg1 {string | number} arg1 减数 1
- * @param arg2 {string | number} arg2 减数 2
- * @returns {TBig} Big
+ * @param arg1 - 减数 1
+ * @param arg2 - 减数 2
+ * @returns Big
  * 
  * @public
  */
@@ -488,9 +490,9 @@ export function minus (arg1: string | number | TBig, arg2: string | number | TBi
 /**
  * 获取url中参数值
  * 
- * @param {string} str url链接
- * @param {string} a 要获取参数的key
- * @returns {undefined | string}
+ * @param str - url链接
+ * @param a - 要获取参数的key
+ * @returns url链接中key对应的值
  * 
  * @public
  */
@@ -520,8 +522,8 @@ export function getQuery (str:string, a:string) {
 /**
  * 校验token格式是否正确
  *
- * @param {Any} token token
- * @returns {Boolean} 是否有效token
+ * @param token - token
+ * @returns 是否有效token
  *
  * @public
  */
