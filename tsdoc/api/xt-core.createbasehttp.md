@@ -23,7 +23,7 @@ export declare function createBaseHttp(baseConfig: BaseConfig, config: HttpConfi
 
 [XApisauceInstance](./xt-core.xapisauceinstance.md)
 
-{<!-- -->XApisauceInstance<!-- -->} 返回 HTTP 实例
+返回 HTTP 实例
 
 ## Example
 

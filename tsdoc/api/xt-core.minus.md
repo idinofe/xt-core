@@ -16,14 +16,14 @@ export declare function minus(arg1: string | number | TBig, arg2: string | numbe
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  arg1 | string \| number \| TBig | arg1 减数 1 |
-|  arg2 | string \| number \| TBig | arg2 减数 2 |
+|  arg1 | string \| number \| TBig | 减数 1 |
+|  arg2 | string \| number \| TBig | 减数 2 |
 
 **Returns:**
 
 TBig
 
-{<!-- -->TBig<!-- -->} Big
+Big
 
 ## Remarks
 

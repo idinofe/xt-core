@@ -23,7 +23,7 @@ export declare function div(arg1: number | string | TBig, arg2: number | string 
 
 TBig
 
-{<!-- -->TBig<!-- -->} Big
+Big
 
 ## Remarks
 

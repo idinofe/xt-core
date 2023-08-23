@@ -19,13 +19,13 @@ export declare function convertBlobToUrl(blob: Blob | File): {
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  blob | Blob \| File |  |
+|  blob | Blob \| File | [Blob](https://developer.mozilla.org/zh-CN/docs/Web/API/Blob) 或 [File](https://developer.mozilla.org/zh-CN/docs/Web/API/File) 文件对象 |
 
 **Returns:**
 
 { url: string; revoke: () =&gt; void; }
 
-结果对象 {<!-- -->{ url: string, revoke: Function }<!-- -->}
+结果对象 `{{ url: string, revoke: Function }}`
 
 ## Remarks
 

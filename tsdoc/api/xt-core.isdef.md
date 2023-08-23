@@ -22,7 +22,7 @@ export declare function isDef(a: any): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->} 判断结果
+判断结果
 
 ## Remarks
 

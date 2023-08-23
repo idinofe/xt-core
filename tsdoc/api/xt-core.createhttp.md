@@ -22,7 +22,7 @@ export declare function createHttp(config: HttpConfig): XApisauceInstance;
 
 [XApisauceInstance](./xt-core.xapisauceinstance.md)
 
-{<!-- -->ApisauceInstance<!-- -->} 返回 HTTP 实例
+返回 HTTP 实例
 
 ## Example
 

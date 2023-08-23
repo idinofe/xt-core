@@ -22,5 +22,5 @@ export declare function isValidToken(token: any): boolean;
 
 boolean
 
-{<!-- -->Boolean<!-- -->} 是否有效token
+是否有效token
 

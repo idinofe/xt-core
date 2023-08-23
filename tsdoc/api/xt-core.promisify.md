@@ -22,7 +22,7 @@ export declare function promisify<T = any>(a: T): Promise<T>;
 
 Promise&lt;T&gt;
 
-Promise 转换后的 Promise
+转换后的 Promise
 
 ## Remarks
 

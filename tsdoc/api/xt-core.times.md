@@ -23,7 +23,7 @@ export declare function times(arg1: number | string | TBig, arg2: number | strin
 
 TBig
 
-{<!-- -->TBig<!-- -->} Big
+Big
 
 ## Remarks
 

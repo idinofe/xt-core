@@ -23,7 +23,7 @@ export declare function floatDivide(arg1: string | number, arg2: string | number
 
 null \| number
 
-{<!-- -->null \| number<!-- -->} 相除结果
+相除结果
 
 TODO: 为 0 结果会怎样？
 

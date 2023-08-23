@@ -23,5 +23,5 @@ export declare function getQuery(str: string, a: string): string | undefined;
 
 string \| undefined
 
-{<!-- -->undefined \| string<!-- -->}
+url链接中key对应的值
 

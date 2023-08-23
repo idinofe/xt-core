@@ -22,5 +22,5 @@ export declare function isEncodeURILike(url: string): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->} 是否 encoded 过的 URI
+是否 encoded 过的 URI
 

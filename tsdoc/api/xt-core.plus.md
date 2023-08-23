@@ -23,7 +23,7 @@ export declare function plus(arg1: string | number | TBig, arg2: string | number
 
 TBig
 
-{<!-- -->TBig<!-- -->} Big
+Big
 
 ## Remarks
 

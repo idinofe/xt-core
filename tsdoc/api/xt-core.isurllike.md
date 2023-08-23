@@ -22,7 +22,7 @@ export declare function isUrlLike(url: string): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->} 是否是 URL 链接
+是否是 URL 链接
 
 ## Remarks
 

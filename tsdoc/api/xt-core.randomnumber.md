@@ -22,5 +22,5 @@ export declare function randomNumber(len?: number): string;
 
 string
 
-{<!-- -->string<!-- -->} 生成的字符串
+生成的字符串
 

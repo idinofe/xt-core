@@ -22,5 +22,5 @@ export declare function isNumber(a: any): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->} 判断结果
+判断结果
 

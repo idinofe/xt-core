@@ -23,7 +23,7 @@ export declare function floatMultiply(arg1: number | string, arg2: number | stri
 
 null \| number
 
-{<!-- -->null \| number<!-- -->} 相乘结果
+相乘结果
 
 ## Remarks
 

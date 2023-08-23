@@ -79,7 +79,7 @@
 |  --- | --- |
 |  [appendBaiscUrl](./xt-core.appendbaiscurl.md) | 拼接接口业务域名 |
 |  [appendImageUrl](./xt-core.appendimageurl.md) | 拼接图片基础域名 |
-|  [Big\_2](./xt-core.big_2.md) |  |
+|  [Big](./xt-core.big.md) |  |
 |  [decodeOAuthUrl](./xt-core.decodeoauthurl.md) | 解析微信 oAuth 链接中的配置参数 |
 |  [divide](./xt-core.divide.md) | 两浮点数相除 |
 |  [genMessageId](./xt-core.genmessageid.md) | 生成 21 位长度的消息 ID |

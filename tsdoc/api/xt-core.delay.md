@@ -22,5 +22,5 @@ export declare function delay(time?: number): Promise<unknown>;
 
 Promise&lt;unknown&gt;
 
-Promise 返回 Promise 对象
+返回 Promise 对象
 

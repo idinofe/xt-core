@@ -16,14 +16,14 @@ export declare function createUploadHttp(appConfig: UploadAppConfig, config?: Up
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  appConfig | [UploadAppConfig](./xt-core.uploadappconfig.md) |  |
-|  config | [UploadHttpConfig](./xt-core.uploadhttpconfig.md) | _(Optional)_ |
+|  appConfig | [UploadAppConfig](./xt-core.uploadappconfig.md) | appConfig |
+|  config | [UploadHttpConfig](./xt-core.uploadhttpconfig.md) | _(Optional)_ config |
 
 **Returns:**
 
 UploadInstance
 
-{<!-- -->UploadInstance<!-- -->}
+返回 HTTP 实例
 
 ## Remarks
 

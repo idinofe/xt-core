@@ -22,5 +22,5 @@ export declare function isFunction(a: any): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->} 判断结果
+判断结果
 

@@ -22,5 +22,5 @@ export declare function isBlobUrlLike(url: string): boolean;
 
 boolean
 
-{<!-- -->boolean<!-- -->} 是否是类似 blob 的链接
+是否是类似 blob 的链接
 

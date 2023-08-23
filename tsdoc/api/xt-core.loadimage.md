@@ -9,7 +9,9 @@
 **Signature:**
 
 ```typescript
-export declare function loadImage(url: string, isBase64?: boolean, baseUrl?: string): Promise<HTMLImageElement>;
+export declare function loadImage(url: string, 
+isBase64?: boolean, 
+baseUrl?: string): Promise<HTMLImageElement>;
 ```
 
 ## Parameters
@@ -24,7 +26,7 @@ export declare function loadImage(url: string, isBase64?: boolean, baseUrl?: str
 
 Promise&lt;HTMLImageElement&gt;
 
-{<!-- -->Promise<HTMLImageElement>} 图片 Image 对象
+Promise 包装的图片 Image 对象
 
 ## Example 1
 
