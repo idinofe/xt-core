@@ -136,8 +136,8 @@ export function convertBlobToUrl (blob: Blob | File) {
  * 加载图片为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement | Image} 对象
  * 
  * @param url - 图片地址，完整地址、相对地址、 Blob 地址或 base64 字符串
- * @param isBase64 [isBase64 = false] - url 是否 base64 字符串
- * @param baseUrl [baseUrl = ''] - 图片基础路径
+ * @param isBase64 - url 是否 base64 字符串
+ * @param baseUrl - 图片基础路径
  * @returns Promise 包装的图片 Image 对象
  * 
  * @example url
@@ -159,7 +159,17 @@ export function convertBlobToUrl (blob: Blob | File) {
  * 
  * @public
  */
-export function loadImage (url: string, isBase64: boolean = false, baseUrl: string = ''): Promise<HTMLImageElement> {
+export function loadImage (
+  url: string,
+  /**
+   * @defaultValue `false`
+   */
+  isBase64: boolean = false,
+  /**
+   * @defaultValue `''`
+   */
+  baseUrl: string = ''
+): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     let tempUrl = isBase64 ? url : (isUrlLike(url) || isBlobUrlLike(url)) ? url : baseUrl + url
     const image = new Image()
@@ -174,8 +184,8 @@ export function loadImage (url: string, isBase64: boolean = false, baseUrl: stri
  * 获取图片尺寸
  * 
  * @param data - 图片地址或 Image 对象
- * @param isBase64 [isBase64 = false] - 是否 base64 字符串
- * @param baseUrl [baseUrl = ''] - 图片基础路径
+ * @param isBase64 - 是否 base64 字符串
+ * @param baseUrl - 图片基础路径
  * @returns Promise 包装的图片尺寸对象
  * 
  * @internal
@@ -183,7 +193,17 @@ export function loadImage (url: string, isBase64: boolean = false, baseUrl: stri
 function _getImageSize(data: string, isBase64: boolean, baseUrl: string): Promise<IImageSize>
 function _getImageSize(data: HTMLImageElement): Promise<IImageSize>
 function _getImageSize(data: File): Promise<IImageSize>
-function _getImageSize(data: string | HTMLImageElement | File, isBase64: boolean = false, baseUrl: string = ''): Promise<IImageSize> {
+function _getImageSize(
+  data: string | HTMLImageElement | File,
+  /**
+   * @defaultValue `false`
+   */
+  isBase64: boolean = false,
+  /**
+   * @defaultValue `''`
+   */
+  baseUrl: string = ''
+): Promise<IImageSize> {
   if (typeof data === 'string') {
     return new Promise((resolve, reject) => {
       if (data.indexOf('data:image') !== 0) {
