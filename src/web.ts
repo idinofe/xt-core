@@ -8,7 +8,7 @@ import { IImageSize, SObject } from "./type"
 /**
  * 复制失败提示信息
  * 
- * @internal
+ * @public
  */
 export const COPY_FAIL_MESSAGE = '当前环境不支持复制'
 

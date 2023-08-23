@@ -22,3 +22,7 @@ export * from './web'
 export * from './http'
 export * from './common'
 export * from './url'
+
+// 为了将type.ts中定义的类型导出
+// https://api-extractor.com/pages/messages/ae-forgotten-export/
+export * from './type'

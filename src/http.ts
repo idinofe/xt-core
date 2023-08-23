@@ -5,6 +5,18 @@ import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify,
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
+export type {
+  PROBLEM_CODE,
+  ApiResponse,
+  ApisauceConfig,
+  ApisauceInstance,
+  RequestTransform,
+  AsyncRequestTransform,
+  AsyncResponseTransform,
+  ResponseTransform,
+  Monitor
+} from 'apisauce'
+
 /**
  * HTTP 自定义配置
  * 
@@ -66,16 +78,16 @@ interface UploadConfig<D = any> {
 /**
  * UploadRequestConfig
  * 
- * @internal
+ * @public
  */
-type UploadRequestConfig = UploadConfig & CustomAxiosRequestConfig
+export type UploadRequestConfig = UploadConfig & CustomAxiosRequestConfig
 
 /**
  * UploadData
  * 
- * @internal
+ * @public
  */
-type UploadData = {
+export type UploadData = {
   data: string
   mimeType: MIME_TYPE
 } | {
@@ -85,18 +97,18 @@ type UploadData = {
 /**
  * UploadInstance
  * 
- * @internal
+ * @public
  */
-interface UploadInstance extends ApisauceInstance {
+export interface UploadInstance extends ApisauceInstance {
   upload: <T, U = T>(url: string, data: UploadData, config?: UploadRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
 /**
  * Authorization
  * 
- * @internal
+ * @public
  */
-type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
+export type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
 
 /**
  * 业务处理成功状态码
@@ -172,9 +184,9 @@ export type XRequestTransform = (request: AxiosRequestConfig, customConfig: Cust
 /**
  * BaseTransform
  * 
- * @internal
+ * @public
  */
-interface BaseTransform {
+export interface BaseTransform {
   (...args: any[]): any | Promise<any>
 }
 
@@ -795,8 +807,8 @@ export const defaultFailTransform: ResponseTransform = (response) => {
  * 
  * @privateRemarks 此处导出只是为了单元测试
  * 
- * @param response 
- * @returns 
+ * @param response - response
+ * @returns 自定义配置对象
  * 
  * @internal
  */
