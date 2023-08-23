@@ -15,10 +15,10 @@ export type BasicUrlConfig = Partial<AppConfig>
 /**
  * 判断是否是URL
  * 
- * @remarks //开头地址判断为是
+ * @remarks 以'//'开头地址判断为是
  * 
- * @param url URL
- * @returns {boolean} 是否是URL链接
+ * @param url - URL
+ * @returns 是否是URL链接
  * 
  * @internal
  */
@@ -31,8 +31,8 @@ function isUrl(url: string) {
 /**
  * 去尾部/
  * 
- * @param {string} url URL链接
- * @returns {string} URL链接
+ * @param - url URL链接
+ * @returns URL链接
  * 
  * @internal
  */
@@ -48,9 +48,9 @@ function trim(url: string) {
 /**
  * 拼接接口业务域名
  * 
- * @param {String} basicUrl 基础路径
- * @param {String} url 相对路径（不以/开头）
- * @returns {string} URL链接
+ * @param basicUrl - 基础路径
+ * @param url - 相对路径（不以/开头）
+ * @returns URL链接
  * 
  * @public
  */
@@ -79,9 +79,9 @@ export const appendBaiscUrl = (basicUrl: string, url: string) => {
 /**
  * 拼接图片基础域名
  * 
- * @param imgBasicUrl 基础路径
- * @param url 相对路径（不以/开头）
- * @returns {string} URL链接
+ * @param imgBasicUrl - 基础路径
+ * @param url - 相对路径（不以/开头）
+ * @returns URL链接
  * 
  * @public
  */

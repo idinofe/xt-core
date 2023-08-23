@@ -34,6 +34,7 @@ export const enum MIME_TYPE {
  * 
  * @eaxmple
  * ```ts
+ * import { createElement } from '@dinofe/xt-core/web'
  * const div = createElement('div', { background: 'red' })
  * ```
  * 
@@ -105,8 +106,8 @@ function createElement(tag: string, style: SObject<string>) {
  * 
  * @remarks 使用 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static | URL.createObjectURL}
  * 
- * @param {Blob | File} {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob} 或 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/File | File} 文件对象
- * @returns 结果对象 {{ url: string, revoke: Function }}
+ * @param blob - {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob} 或 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/File | File} 文件对象
+ * @returns 结果对象 `{{ url: string, revoke: Function }}`
  * 
  * @example
  * ```ts
@@ -134,10 +135,10 @@ export function convertBlobToUrl (blob: Blob | File) {
 /**
  * 加载图片为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement | Image} 对象
  * 
- * @param {string} url 图片地址，完整地址、相对地址、 Blob 地址或 base64 字符串
- * @param {boolean} [isBase64 = false]  url 是否 base64 字符串
- * @param {string} [baseUrl = ''] 图片基础路径
- * @returns {Promise<HTMLImageElement>} 图片 Image 对象
+ * @param url - 图片地址，完整地址、相对地址、 Blob 地址或 base64 字符串
+ * @param isBase64 [isBase64 = false] - url 是否 base64 字符串
+ * @param baseUrl [baseUrl = ''] - 图片基础路径
+ * @returns Promise 包装的图片 Image 对象
  * 
  * @example url
  * ```ts
@@ -171,10 +172,11 @@ export function loadImage (url: string, isBase64: boolean = false, baseUrl: stri
 
 /**
  * 获取图片尺寸
- * @param {string | HTMLImageElement} data 图片地址或 Image 对象
- * @param {boolean} [isBase64 = false] 是否 base64 字符串
- * @param {string} [baseUrl = ''] 图片基础路径
- * @returns {Promise<IImageSize>}
+ * 
+ * @param data - 图片地址或 Image 对象
+ * @param isBase64 [isBase64 = false] - 是否 base64 字符串
+ * @param baseUrl [baseUrl = ''] - 图片基础路径
+ * @returns Promise 包装的图片尺寸对象
  * 
  * @internal
  */
@@ -245,10 +247,10 @@ export const getImageSize = _getImageSize
 /**
  * {@link https://developer.mozilla.org/zh-CN/docs/Glossary/Base64 | Base64} 字符串转为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob}
  * 
- * @param data {string} base64 字符串（可以包含`data:image/jpegbas64,`会被忽略）
- * @param mimeType {MIME_TYPE} MIME 类型
- * @param sliceSize {number} 切片大小
- * @returns {Blob}
+ * @param data - base64 字符串（可以包含`'data:image/jpegbas64,'`会被忽略）
+ * @param mimeType - MIME 类型
+ * @param sliceSize - 切片大小
+ * @returns Blob 对象
  * 
  * @example 默认用法
  * ```ts

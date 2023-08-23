@@ -133,8 +133,8 @@ export type DecodeOAuthUrlResponse = {
  * 
  * @see {@link https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html#%E5%BC%80%E5%8F%91%E5%89%8D%E5%BF%85%E8%AF%BB | 网页授权}
  * 
- * @param {AppConfig} options 配置
- * @returns {string} url url链接
+ * @param options - 配置
+ * @returns url链接
  * 
  * @public
  */
@@ -159,8 +159,8 @@ export const genRedirectUrl = (options: AppConfig & RedirectUrlConfig) => {
 /**
  * 根据配置生成带有微信oAuth的链接
  * 
- * @param {WechatOption} options 配置
- * @returns {string} url链接
+ * @param options - 配置
+ * @returns url链接
  * 
  * @see {@link https://developers.weixin.qq.com/doc/offiaccount/OA_Web_Apps/Wechat_webpage_authorization.html#%E5%BC%80%E5%8F%91%E5%89%8D%E5%BF%85%E8%AF%BB | 网页授权}
  * 
@@ -186,8 +186,8 @@ export const genOAuthUrl = (options: WechatOption) => {
 /**
  * 解析微信 oAuth 链接中的配置参数
  * 
- * @param url oAuth 链接
- * @returns {DecodeOAuthUrlResponse} 微信相关配置参数
+ * @param url - oAuth 链接
+ * @returns 微信相关配置参数
  * 
  * @public
  */
