@@ -107,7 +107,7 @@ function createElement(tag: string, style: SObject<string>) {
  * @remarks 使用 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static | URL.createObjectURL}
  * 
  * @param blob - {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob} 或 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/File | File} 文件对象
- * @returns 结果对象 `{{ url: string, revoke: Function }}`
+ * @returns 结果对象 `{ url: string, revoke: Function }`
  * 
  * @example
  * ```ts
@@ -127,7 +127,19 @@ export function convertBlobToUrl (blob: Blob | File) {
     url && URL.revokeObjectURL(url)
   }
   return {
+    /**
+     * 文件url地址
+     * 
+     * @public
+     */
     url,
+    /**
+     * 释放缓存的方法
+     * 
+     * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/revokeObjectURL_static | URL.revokeObjectURL()}
+     * 
+     * @public
+     */
     revoke
   }
 }
