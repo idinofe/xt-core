@@ -11,7 +11,7 @@ HTTP 实例
 ```typescript
 export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'> 
 ```
-**Extends:** Omit&lt;ApisauceInstance, 'any' \| 'get' \| 'delete' \| 'head' \| 'post' \| 'put' \| 'patch' \| 'link' \| 'unlink'&gt;
+**Extends:** Omit&lt;[ApisauceInstance](./xt-core.apisauceinstance.md)<!-- -->, 'any' \| 'get' \| 'delete' \| 'head' \| 'post' \| 'put' \| 'patch' \| 'link' \| 'unlink'&gt;
 
 ## Remarks
 

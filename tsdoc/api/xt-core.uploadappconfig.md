@@ -13,3 +13,5 @@ export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'devic
     appKey: string;
 }>;
 ```
+**References:** [AppConfig](./xt-core.appconfig.md)
+

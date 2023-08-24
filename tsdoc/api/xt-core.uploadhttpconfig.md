@@ -14,5 +14,5 @@ export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'commonHeaders'> 
     signKey?: string;
 };
 ```
-**References:** [HttpConfig](./xt-core.httpconfig.md)
+**References:** [HttpConfig](./xt-core.httpconfig.md)<!-- -->, [Authorization](./xt-core.authorization.md)
 

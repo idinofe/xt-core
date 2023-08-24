@@ -16,5 +16,5 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
     msg?: string;
 };
 ```
-**References:** [CustomAxiosRequestConfig](./xt-core.customaxiosrequestconfig.md)
+**References:** [ApiResponse](./xt-core.apiresponse.md)<!-- -->, [CustomAxiosRequestConfig](./xt-core.customaxiosrequestconfig.md)
 

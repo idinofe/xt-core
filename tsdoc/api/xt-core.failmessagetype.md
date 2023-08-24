@@ -11,3 +11,5 @@
 ```typescript
 export type FailMessageType = PROBLEM_CODE | string | undefined;
 ```
+**References:** [PROBLEM\_CODE](./xt-core.problem_code.md)
+

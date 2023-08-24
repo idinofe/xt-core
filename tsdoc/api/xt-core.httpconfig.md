@@ -11,5 +11,5 @@ HTTP 配置
 ```typescript
 export type HttpConfig = ApisauceConfig & CustomConfig;
 ```
-**References:** [CustomConfig](./xt-core.customconfig.md)
+**References:** [ApisauceConfig](./xt-core.apisauceconfig.md)<!-- -->, [CustomConfig](./xt-core.customconfig.md)
 

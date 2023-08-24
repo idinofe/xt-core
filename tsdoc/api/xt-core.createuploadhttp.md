@@ -21,7 +21,7 @@ export declare function createUploadHttp(appConfig: UploadAppConfig, config?: Up
 
 **Returns:**
 
-UploadInstance
+[UploadInstance](./xt-core.uploadinstance.md)
 
 返回 HTTP 实例
 
@@ -32,6 +32,4 @@ UploadInstance
 1. 使用了 FormData，故只能在 web 环境使用
 
 2. 返回值是 UploadInstance 实例，建议只使用其 upload 方法， ApisauceInstance 实例提供的其他发请求方法不要使用，可能导 致错误逻辑
-
- web
 

@@ -11,3 +11,5 @@ BasicUrlConfig
 ```typescript
 export type BasicUrlConfig = Partial<AppConfig>;
 ```
+**References:** [AppConfig](./xt-core.appconfig.md)
+

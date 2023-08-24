@@ -70,7 +70,12 @@
 
 |  Interface | Description |
 |  --- | --- |
+|  [ApisauceConfig](./xt-core.apisauceconfig.md) |  |
+|  [ApisauceInstance](./xt-core.apisauceinstance.md) |  |
+|  [BaseTransform](./xt-core.basetransform.md) | BaseTransform |
 |  [CustomConfig](./xt-core.customconfig.md) | HTTP 自定义配置 |
+|  [IImageSize](./xt-core.iimagesize.md) | IImageSize |
+|  [UploadInstance](./xt-core.uploadinstance.md) | UploadInstance |
 |  [XApisauceInstance](./xt-core.xapisauceinstance.md) | HTTP 实例 |
 
 ## Variables
@@ -80,6 +85,7 @@
 |  [appendBaiscUrl](./xt-core.appendbaiscurl.md) | 拼接接口业务域名 |
 |  [appendImageUrl](./xt-core.appendimageurl.md) | 拼接图片基础域名 |
 |  [Big](./xt-core.big.md) |  |
+|  [COPY\_FAIL\_MESSAGE](./xt-core.copy_fail_message.md) | 复制失败提示信息 |
 |  [decodeOAuthUrl](./xt-core.decodeoauthurl.md) | 解析微信 oAuth 链接中的配置参数 |
 |  [divide](./xt-core.divide.md) | 两浮点数相除 |
 |  [genMessageId](./xt-core.genmessageid.md) | 生成 21 位长度的消息 ID |
@@ -94,6 +100,11 @@
 
 |  Type Alias | Description |
 |  --- | --- |
+|  [ApiResponse](./xt-core.apiresponse.md) |  |
+|  [AppConfig](./xt-core.appconfig.md) | AppConfig |
+|  [AsyncRequestTransform](./xt-core.asyncrequesttransform.md) |  |
+|  [AsyncResponseTransform](./xt-core.asyncresponsetransform.md) |  |
+|  [Authorization](./xt-core.authorization.md) | Authorization |
 |  [BaseConfig](./xt-core.baseconfig.md) | 基础 HTTP 配置 |
 |  [BasicUrlConfig](./xt-core.basicurlconfig.md) | BasicUrlConfig |
 |  [BooelanString](./xt-core.booelanstring.md) | BooelanString |
@@ -101,9 +112,16 @@
 |  [DecodeOAuthUrlResponse](./xt-core.decodeoauthurlresponse.md) | DecodeOAuthUrlResponse |
 |  [FailMessageType](./xt-core.failmessagetype.md) | 业务失败类型 |
 |  [HttpConfig](./xt-core.httpconfig.md) | HTTP 配置 |
+|  [Monitor](./xt-core.monitor.md) |  |
+|  [PROBLEM\_CODE](./xt-core.problem_code.md) |  |
 |  [RedirectUrlConfig](./xt-core.redirecturlconfig.md) | RedirectUrlConfig |
+|  [RequestTransform](./xt-core.requesttransform.md) |  |
+|  [ResponseTransform](./xt-core.responsetransform.md) |  |
+|  [SObject](./xt-core.sobject.md) | SObject |
 |  [UploadAppConfig](./xt-core.uploadappconfig.md) | UploadAppConfig |
+|  [UploadData](./xt-core.uploaddata.md) | UploadData |
 |  [UploadHttpConfig](./xt-core.uploadhttpconfig.md) | 上传 HTTP 配置 |
+|  [UploadRequestConfig](./xt-core.uploadrequestconfig.md) | UploadRequestConfig |
 |  [WechatBaseConfig](./xt-core.wechatbaseconfig.md) | WechatBaseConfig |
 |  [WechatOption](./xt-core.wechatoption.md) | WechatOption |
 |  [XApiResponse](./xt-core.xapiresponse.md) | XApiResponse |

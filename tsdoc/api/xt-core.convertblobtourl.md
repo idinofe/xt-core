@@ -25,7 +25,7 @@ export declare function convertBlobToUrl(blob: Blob | File): {
 
 { url: string; revoke: () =&gt; void; }
 
-结果对象 `{{ url: string, revoke: Function }}`
+结果对象 `{ url: string, revoke: Function }`
 
 ## Remarks
 

@@ -15,3 +15,5 @@ export type BaseConfig = {
     authorization: string | null | (() => (string | null)) | (() => Promise<string | null>);
 };
 ```
+**References:** [AppConfig](./xt-core.appconfig.md)
+
