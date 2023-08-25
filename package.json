@@ -26,6 +26,8 @@
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",
     "@commitlint/config-angular": "^12.1.4",
+    "@microsoft/api-documenter": "^7.22.33",
+    "@microsoft/api-extractor": "^7.36.4",
     "@types/koa": "^2.13.6",
     "@types/koa-router": "^7.4.4",
     "@types/qs": "^6.9.7",
@@ -47,11 +49,15 @@
     "mock:service": "npm run build:service && node service/test/start_service.js",
     "build:types": "npx tsc --declaration --outDir types --emitDeclarationOnly -p tsconfig.build.json",
     "build": "npm run build:types && father build",
+    "docs:dev": "echo please run cd ./tsdoc then run npm run docs:dev",
+    "docs:build": "npm run build && npm run api:extractor && npm run api:documenter && echo please run cd ./tsdoc then run npm run docs:build",
     "test": "node test/index.test.js",
     "vitest": "vitest",
     "vitest:run": "vitest run",
     "vitest:ui": "vitest --ui",
-    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest"
+    "release:local": "npm publish --registry http://127.0.0.1:4873 --tag latest",
+    "api:extractor": "api-extractor run --local --verbose",
+    "api:documenter": "api-documenter markdown -i tsdoc/temp -o tsdoc/api"
   },
   "sideEffects": false,
   "files": [
