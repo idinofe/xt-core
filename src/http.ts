@@ -1,7 +1,7 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig, AxiosProgressEvent } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef, isPromise } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef, isPromise, isValidToken } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
@@ -497,7 +497,12 @@ export const defaultFailTransform: ResponseTransform = (response) => {
   // 请求成功但业务未成功
   if (data.returnCode !== 'SUCCESS') {
     warn()
-    onFail && onFail(data.returnDes || '处理失败，请重试', response)
+    const isInvalidToken = config && config.isInvalidToken
+    let invalidToken = isFunction(isInvalidToken) ? (isInvalidToken!)(response.data, response) : defaultIsInvalidToken(response.data)
+    // token无效忽略onFail钩子，走token失效钩子
+    if (!invalidToken) {
+      onFail && onFail(data.returnDes || '处理失败，请重试', response)
+    }
     return
   }
 }
