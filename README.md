@@ -1,5 +1,5 @@
-<div align="center">
-业务中常用工具方法的核心库，包括：微信网页授权链接构建、dexie 数据库操作等。
+<div align="center" style="margin: 16px auto;">
+<p>提取的一些常用工具方法，包括：Axios二次封装、基础方法等。</p>
 
 ![npm (scoped)](https://img.shields.io/npm/v/%40dinofe/xt-core)
 ![npm](https://img.shields.io/npm/dm/%40dinofe/xt-core)
@@ -18,6 +18,14 @@
 ```bash
 npm i @dinofe/xt-core
 ```
+
+### 示例
+
+- [Node.js](./example/node/)
+- [CDN](./example/index.html)
+- [React](./example/react/)
+- [Vue2](./example/vue2/)
+- [Vue3](./example/vue3/)
 
 ### CDN
 
@@ -47,10 +55,8 @@ console.log(url)
 
 ## 🧱 参与贡献
 
-### 脚本命令
-
 <details>
-  <summary>相关脚本命令</summary>
+  <summary>脚本命令</summary>
 
 1. 启动项目
 
