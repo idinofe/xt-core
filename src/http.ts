@@ -1,10 +1,27 @@
 import { create, ApisauceConfig, ApisauceInstance, ResponseTransform, AsyncRequestTransform, ApiResponse, PROBLEM_CODE, RequestTransform, HEADERS } from 'apisauce'
 import { AxiosRequestConfig, AxiosProgressEvent } from 'axios'
 import { encrypt, decrypt, isEncryptedData, DataType, createSign, BaseObject } from 'decrypt-core'
-import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef, isPromise } from './common'
+import { isNormalObject, isDef, isString, randomNumber, genMessageId, promisify, isFunction, isFormData, isUndef, isPromise, isValidToken } from './common'
 import { AppConfig } from './type'
 import { base64ToBlob, MIME_TYPE } from './web'
 
+export type {
+  PROBLEM_CODE,
+  ApiResponse,
+  ApisauceConfig,
+  ApisauceInstance,
+  RequestTransform,
+  AsyncRequestTransform,
+  AsyncResponseTransform,
+  ResponseTransform,
+  Monitor
+} from 'apisauce'
+
+/**
+ * HTTP 自定义配置
+ * 
+ * @public
+ */
 export interface CustomConfig {
   // 不开启业务状态码转换
   noStatusTransform?: boolean
@@ -38,43 +55,116 @@ export interface CustomConfig {
   commonHeaders?: (request: CustomAxiosRequestConfig) => Record<string, any> | Promise<Record<string, any>>
 }
 
+/**
+ * HTTP 上传配置
+ * 
+ * @internal
+ */
 interface UploadConfig<D = any> {
+  /**
+   * 文件名称
+   */
   fileName?: string
+  /**
+   * 文件在FormData中的key
+   */
   fileKey?: string
+  /**
+   * 上传进度回调钩子
+   */
   onUploadProgress?: AxiosRequestConfig<D>['onUploadProgress']
 }
 
-type UploadRequestConfig = UploadConfig & CustomAxiosRequestConfig
+/**
+ * UploadRequestConfig
+ * 
+ * @public
+ */
+export type UploadRequestConfig = UploadConfig & CustomAxiosRequestConfig
 
-type UploadData = {
+/**
+ * UploadData
+ * 
+ * @public
+ */
+export type UploadData = {
   data: string
   mimeType: MIME_TYPE
 } | {
   file: Blob | File
 }
 
-interface UploadInstance extends ApisauceInstance {
+/**
+ * UploadInstance
+ * 
+ * @public
+ */
+export interface UploadInstance extends ApisauceInstance {
   upload: <T, U = T>(url: string, data: UploadData, config?: UploadRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
-type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
+/**
+ * Authorization
+ * 
+ * @public
+ */
+export type Authorization = string | undefined | null | (() => (string | undefined | null)) | (() => Promise<string | undefined | null>)
 
+/**
+ * 业务处理成功状态码
+ * 
+ * @public
+ */
 export const RETURN_CODE_SUCCESS = 'SUCCESS'
+/**
+ * 业务处理失败状态码
+ * 
+ * @public
+ */
 export const RETURN_CODE_FAIL = 'FAIL'
 
+/**
+ * ApiCheckResponse
+ * 
+ * @internal
+ */
 interface ApiCheckResponse {
+  /**
+   * 业务是否处理成功
+   */
   success?: boolean
+  /**
+   * 业务状态码
+   */
   code?: string
+  /**
+   * 业务成功/失败原因
+   */
   msg?: string
 }
 
+/**
+ * 数据加密版本
+ * 
+ * @public
+ */
 export const enum EncryptVersion {
   v1 = '1',
   v2 = '2'
 }
 
+/**
+ * 业务失败类型
+ * 
+ * @public
+ */
 export type FailMessageType = PROBLEM_CODE | string | undefined
 
+/**
+ * XApiResponse
+ * 
+ * @public
+ */
 export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T, T>> & {
   config?: CustomAxiosRequestConfig
   success?: boolean
@@ -84,55 +174,205 @@ export type XApiResponse<T, U = T> = Pick<ApiResponse<T, U>, keyof ApiResponse<T
 
 // export type XApiRequest = 
 
+/**
+ * XRequestTransform
+ * 
+ * @public
+ */
 export type XRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => void
 
-interface BaseTransform {
+/**
+ * BaseTransform
+ * 
+ * @public
+ */
+export interface BaseTransform {
   (...args: any[]): any | Promise<any>
 }
 
+/**
+ * 异步请求request转换钩子
+ * 
+ * @see ApiSauce
+ * 
+ * @public
+ */
 export type XAsyncRequestTransform = (request: AxiosRequestConfig, customConfig: CustomConfig) => Promise<void> | ((request: AxiosRequestConfig) => Promise<void>)
 
+/**
+ * 同步详情response转换钩子
+ * 
+ * @see ApiSauce
+ * 
+ * @public
+ */
 export type XResponseTransform = (response: XApiResponse<any>) => void
 
+/**
+ * HTTP 配置
+ * 
+ * @see {@link apisauce#ApisauceConfig | ApisauceConfig}
+ * 
+ * @see {@link @dinofe/xt-core#CustomConfig | CustomConfig}
+ * 
+ * @public
+ */
 export type HttpConfig = ApisauceConfig & CustomConfig
 
+/**
+ * 基础 HTTP 配置
+ * 
+ * @public
+ */
 export type BaseConfig = {
+  /**
+   * 是否加密
+   * 
+   * @defaultValue `false`
+   * 
+   * @public
+   */
   encrypt: boolean,
+  /**
+   * 通用参数
+   * 
+   * @public
+   */
   commonParams: Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId' | 'appKey'>>,
+  /**
+   * token
+   * 
+   * @public
+   */
   authorization: string | null | (() => (string | null)) | (() => Promise<string | null>)
 }
 
+/**
+ * UploadAppConfig
+ * 
+ * @public
+ */
 export type UploadAppConfig = Partial<Pick<AppConfig, 'appId' | 'merNo' | 'deviceId'> & { appKey: string }>
 
+/**
+ * 上传 HTTP 配置
+ * 
+ * @public
+ */
 export type UploadHttpConfig = Omit<HttpConfig, 'useEncrypt' | 'commonHeaders'> & { authorization?: Authorization, signKey?: string }
 
+/**
+ * 带有自定义配置项的AxiosConfig
+ * 
+ * @see AxiosRequestConfig
+ * 
+ * @see {@link @dinofe/xt-core#CustomConfig | CustomConfig}
+ * 
+ * @public
+ */
 export type CustomAxiosRequestConfig<D = any> = Omit<AxiosRequestConfig<D> & CustomConfig, 'url' | 'method' | 'data'>
 
 /**
- * 修改Apisauce导出实例的类型声明
+ * HTTP 实例
+ * 
+ * @privateRemarks 修改Apisauce导出实例的类型声明
+ * 
+ * @remarks
  * 
  * 1. 业务参数校验的transform修改了ApiResponse的属性，类型变成了XApiResponse
  *  'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'这些方法类型定义需要重写
+ * 
  * 2. 示例对象post等方法的axiosConfig对象可覆盖创建示例对象时的config（除 'url' | 'method' | 'data' 之外）
+ * 
+ * @public
  */
 export interface XApisauceInstance extends Omit<ApisauceInstance, 'any' | 'get' | 'delete' | 'head' | 'post' | 'put' | 'patch' | 'link' | 'unlink'> {
+  /**
+   * TODO: 未知
+   * 
+   * @see ApiSauce
+   * 
+   * @param config - config 
+   * @returns HTTP实例
+   */
   any: <T, U = T>(config: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送GET请求
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
+   */
   get: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送DELETE请求
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
+   */
   delete: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送HEAD请求
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
+   */
   head: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送POST请求
+   * @param url - url
+   * @param data - data
+   * @param axiosConfig - axiosConfig 
+   * @returns HTTP实例
+   */
   post: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送PUT请求
+   * @param url - url
+   * @param data - data
+   * @param axiosConfig - axiosConfig 
+   * @returns HTTP实例
+   */
   put: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送PATCH请求
+   * @param url - url
+   * @param data - data
+   * @param axiosConfig - axiosConfig 
+   * @returns HTTP实例
+   */
   patch: <T, U = T>(url: string, data?: any, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送LINK请求
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
+   */
   link: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
+  /**
+   * 发送UNLINK请求
+   * @param url - url
+   * @param params - params
+   * @param axiosConfig - axiosConfig
+   * @returns HTTP实例
+   */
   unlink: <T, U = T>(url: string, params?: {}, axiosConfig?: CustomAxiosRequestConfig) => Promise<XApiResponse<T, U>>
 }
 
 
 /**
  * 给 XAsyncRequestTransform 包装一个自定义配置项 customConfig
- * @param config CustomConfig
- * @param transform XAsyncRequestTransform
+ * 
+ * @privateRemarks 此处导出只是为了进行单元测试
+ * 
+ * @param config - 自定义配置项
+ * @param transform - transform 函数
  * @returns XAsyncRequestTransform
+ * 
+ * @internal
  */
 export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransform>(httpConfig: HttpConfig, transform: T): RequestTransform & AsyncRequestTransform => {
   const config: CustomConfig = {
@@ -156,9 +396,14 @@ export const withCustomConfig = <T extends BaseTransform = XAsyncRequestTransfor
 
 /**
  * 加密
- * @param request 
- * @param customConfig 
+ * 
+ * @privateRemarks 此处导出只是为了进行单元测试
+ * 
+ * @param request - request
+ * @param customConfig - customConfig
  * @returns 
+ * 
+ * @internal
  */
 export const defaultEncryptTransform: XAsyncRequestTransform = async (request, customConfig) => {
   // console.log(request, customConfig)
@@ -229,6 +474,16 @@ export const defaultEncryptTransform: XAsyncRequestTransform = async (request, c
   }
 }
 
+/**
+ * 公共参数转换
+ * 
+ * @privateRemarks 此处导出只是为了进行单元测试
+ * 
+ * @param request - request
+ * @param customConfig - customConfig
+ * 
+ * @internal
+ */
 export const defaultCommonParamsTransform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonParams = customConfig.commonParams || function () { return {} }
   const useEncrypt = customConfig.useEncrypt
@@ -288,6 +543,17 @@ export const defaultCommonParamsTransform: XAsyncRequestTransform = async (reque
   }
 }
 
+/**
+ * 公共头部转换
+ * 
+ * @privateRemarks 此处导出只是为了进行单元测试
+ * 
+ * @param request - request
+ * @param customConfig - customConfig
+ * @returns 
+ * 
+ * @internal
+ */
 export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (request, customConfig) => {
   const commonHeaders = customConfig.commonHeaders
 
@@ -309,11 +575,19 @@ export const defaultCommonHeadersTrasform: XAsyncRequestTransform = async (reque
 /**
  * 解密
  * 
+ * @privateRemarks
+ * 此处导出只是为了进行单元测试
+ * 
  * 1. 对接口返回的数据进行解密
+ * 
  * 2. 根据config配置项决定解密行为，config是createHttp时传入的配置
+ * 
  * 3. 不抛出错误阻塞后续逻辑
- * @param response 
+ * 
+ * @param response - response
  * @returns 
+ * 
+ * @internal
  */
 export const defaultDecryptTransform: XResponseTransform = (response) => {
   // console.log('defaultDecryptTransform', response)
@@ -387,12 +661,19 @@ export const defaultDecryptTransform: XResponseTransform = (response) => {
 /**
  * 校验业务状态成功与否
  * 
+ * @privateRemarks
+ * 
+ * 此处导出只是为了单元测试
+ * 
  * 校验业务状态是否为成功，成功则会给response.data添加success=true,code和msg
  * 
- * 1. returnCode 的取值顺序：Headers -> response.data
+ * 1. returnCode 的取值顺序：`Headers -> response.data`
  * 
- * 2. returnDes 的取值顺序：Headers -> response.data
- * @param response {ApiResponse<any, any>}
+ * 2. returnDes 的取值顺序：`Headers -> response.data`
+ * 
+ * @param response - response
+ * 
+ * @internal
  */
 export const defaultResponseTransform: XResponseTransform = (response) => {
   const data = response.data
@@ -434,9 +715,14 @@ export const defaultResponseTransform: XResponseTransform = (response) => {
 
 /**
  * 判断业务状态码是否是token失效
- * @param data 
- * @param response 
- * @returns {boolean}
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
+ * 
+ * @param data - data
+ * @param response - response
+ * @returns 是否token失效
+ * 
+ * @internal
  */
 export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, any>): boolean => {
   return !!(data && data.returnCode === 'INVALID_TOKEN')
@@ -444,8 +730,13 @@ export const defaultIsInvalidToken = (data: any, response?: XApiResponse<any, an
 
 /**
  * token失效校验
- * @param response 
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
+ * 
+ * @param response - reponse
  * @returns 
+ * 
+ * @internal
  */
 export const defaultTokenCheckTransform: XResponseTransform = (response) => {
   if (!response.ok || !response.data) { return }
@@ -470,7 +761,16 @@ export const defaultTokenCheckTransform: XResponseTransform = (response) => {
   }
 }
 
-// 业务状态码失败时 Toast 提示
+/**
+ * 业务状态码失败时 Toast 提示
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
+ * 
+ * @param response - response
+ * @returns 
+ * 
+ * @internal
+ */
 export const defaultFailTransform: ResponseTransform = (response) => {
   const config = getCustomConfig(response)
   const data = response.data
@@ -497,19 +797,62 @@ export const defaultFailTransform: ResponseTransform = (response) => {
   // 请求成功但业务未成功
   if (data.returnCode !== 'SUCCESS') {
     warn()
-    onFail && onFail(data.returnDes || '处理失败，请重试', response)
+    const isInvalidToken = config && config.isInvalidToken
+    let invalidToken = isFunction(isInvalidToken) ? (isInvalidToken!)(response.data, response) : defaultIsInvalidToken(response.data)
+    // token无效忽略onFail钩子，走token失效钩子
+    if (!invalidToken) {
+      onFail && onFail(data.returnDes || '处理失败，请重试', response)
+    }
     return
   }
 }
 
+/**
+ * 获取传递的自定义配置
+ * 
+ * @privateRemarks 此处导出只是为了单元测试
+ * 
+ * @param response - response
+ * @returns 自定义配置对象
+ * 
+ * @internal
+ */
 export const getCustomConfig = (response: XApiResponse<any, any>) => {
   return response.ok ? response.config as CustomAxiosRequestConfig : null
 }
 
 /**
  * 根据配置创建 HTTP 实例
- * @param config {HttpConfig}
- * @returns {ApisauceInstance}
+ * 
+ * @param config - 配置项
+ * @returns 返回 HTTP 实例
+ * 
+ * @example
+ * 简单示例一：
+ * ```ts
+ * import { createHttp } from '@dinofe/xt-core/http'
+ * const http = createHttp({
+ *  baseURL: '/api-abc',
+ *  useEncrypt: true,
+ *  useSign: true,
+ *  appKey: '3a2e424c56754e90a8948b74f163f0cb',
+ *  encryptVersion: '2',
+ *  commonParams: () => ({
+ *    appId: '3130042001040',
+ *    deviceId: 'xxx_h5',
+ *    merNoNo: '130042001040'
+ *  }),
+ *  onFail: (msg) => {
+ *    log(msg)
+ *  },
+ *  onInvalidToken: (res) => {
+ *    log('Token已失效', res.code, res.msg)
+ *  }
+ * })
+ * http.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+ * ```
+ * 
+ * @public
  */
 export function createHttp(config: HttpConfig): XApisauceInstance {
   const instance = create(config)
@@ -525,25 +868,56 @@ export function createHttp(config: HttpConfig): XApisauceInstance {
 
 /**
  * 创建基础 HTTP 实例
- * @param baseConfig {BaseConfig} 基础配置
- * @param config {HttpConfig} 通用配置
- * @returns {XApisauceInstance}
+ * 
+ * @param baseConfig - 基础配置
+ * @param config - 通用配置
+ * @returns 返回 HTTP 实例
+ * 
+ * @example
+ * 简单示例一：
+ * ```ts
+ * import { createBaseHttp } from '@dinofe/xt-core/http'
+ * const baseHttp = createBaseHttp({
+ *   encrypt: true,
+ *   commonParams: {
+ *     appId: '3130042001040',
+ *     merNo: '130042001040',
+ *     deviceId: 'hbjh_h5'
+ *   }
+ * }, {
+ *   baseURL: '/api-hbccb',
+ *   appKey: '3a2e424c56754e90a8948b74f163f0cb',
+ *   onFail: (msg) => {
+ *     log(msg)
+ *   },
+ *   onInvalidToken: (res) => {
+ *     log('Token已失效', res.code, res.msg)
+ *   }
+ * })
+ * 
+ * baseHttp.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+ * ```
+ * 
+ * @public
  */
 export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApisauceInstance {
   if (isUndef(baseConfig)) {
     throw new Error('baseConfig is required')
   }
   const { encrypt, commonParams = {}, authorization } = baseConfig
-  const getAuthorization = () => promisify(authorization)
+  const commonParamsConfig = config?.commonParams
+  const getAuthorization = () => promisify(isFunction(authorization) ? (authorization as any)() : authorization)
   const instance = createHttp({
     ...config,
     useEncrypt: encrypt,
     useSign: encrypt,
     encryptVersion: EncryptVersion.v2,
-    commonParams: async () => {
+    commonParams: async (request) => {
       const token = await getAuthorization()
+      const commonParamsConf = commonParamsConfig ? await promisify(commonParamsConfig(request)) : {}
       return {
         ...commonParams,
+        ...commonParamsConf,
         authorization: token
       }
     }
@@ -554,15 +928,21 @@ export function createBaseHttp(baseConfig: BaseConfig, config: HttpConfig): XApi
 /**
  * 创建上传文件 HTTP 实例（Web 环境）
  * 
+ * @remarks
  * 注意：
+ * 
  * 1. 使用了 FormData，故只能在 web 环境使用
+ * 
  * 2. 返回值是 UploadInstance 实例，建议只使用其 upload 方法，
  *  ApisauceInstance 实例提供的其他发请求方法不要使用，可能导
  *  致错误逻辑
+ * 
  * @platform web
- * @param appConfig {AppConfig}
- * @param config {ApiSauceConfig}
- * @returns {UploadInstance}
+ * @param appConfig - appConfig
+ * @param config - config
+ * @returns 返回 HTTP 实例
+ * 
+ * @public
  */
 export function createUploadHttp(
     appConfig: UploadAppConfig,

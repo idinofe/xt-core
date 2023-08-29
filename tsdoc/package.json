@@ -1,0 +1,14 @@
+{
+  "name": "tsdoc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^1.9.10",
+    "vuepress-theme-antdocs": "^1.4.6"
+  },
+  "scripts": {
+    "docs:dev": "vuepress dev ./",
+    "docs:build": "vuepress build ./"
+  }
+}

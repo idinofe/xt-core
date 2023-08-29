@@ -1,21 +1,45 @@
 /**
  * 适用于浏览器环境的相关库
- * 主要功能：
- * 1、复制文本到剪贴板
- * 2、获取图片尺寸大小
- * 3、base64 字符串转换为 Blob
  */
 
 import { isBlobUrlLike, isUrlLike } from "./common"
 import { IImageSize, SObject } from "./type"
 
+/**
+ * 复制失败提示信息
+ * 
+ * @public
+ */
 export const COPY_FAIL_MESSAGE = '当前环境不支持复制'
+
+/**
+ * MIME 类型
+ * 
+ * @remarks 常用{@link https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types | MIME 类型} 枚举的部分，完整 MIME 类型请参考{@link https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types | 常见 MIME 类型列表}
+ * 
+ * @public
+ */
 export const enum MIME_TYPE {
   JPG = 'image/jpeg',
   PNG = 'image/png',
   GIF = 'image/gif',
 }
 
+/**
+ * 创建 DOM 元素
+ * 
+ * @param tag - 要创建元素类型的字符串
+ * @param style - 样式对象
+ * @returns 生成一个{@link https://developer.mozilla.org/zh-CN/docs/Web/API/Element | 元素 Element}
+ * 
+ * @eaxmple
+ * ```ts
+ * import { createElement } from '@dinofe/xt-core/web'
+ * const div = createElement('div', { background: 'red' })
+ * ```
+ * 
+ * @internal
+ */
 function createElement(tag: string, style: SObject<string>) {
   const el = document.createElement(tag)
   const keys = Object.keys(style)
@@ -30,10 +54,23 @@ function createElement(tag: string, style: SObject<string>) {
 
 /**
  * 复制文本到剪贴板
- * @param text string
- * @returns Promise<void>
+ * 
+ * @param text - 要复制的字符串
+ * @returns 返回一个Promise对象，成功会resolve，失败会reject
+ * 
+ * @example
+ * ```ts
+ * import { copyToClipboard } from '@dinofe/xt-core/web'
+ * copyToClipboard('hello').then(() => {
+ *  console.log('支付成功')
+ * }).catch(e => {
+ *  console.log(e.message)
+ * })
+ * ```
+ * 
+ * @public
  */
- export const copyToClipboard = (text: string): Promise<void> => {
+ export function copyToClipboard (text: string): Promise<void> {
    return new Promise((resolve, reject) => {
      const textArea = createElement('textarea', {
        position: 'fixed',
@@ -65,29 +102,86 @@ function createElement(tag: string, style: SObject<string>) {
 }
 
 /**
- * 文件对象转为 URL 链接（使用 URL.createObjectURL）
- * @param {Blob | File} blob 文件对象
- * @returns {{ url: string, revoke: Function }}
+ * 文件对象转为 URL 链接
+ * 
+ * @remarks 使用 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static | URL.createObjectURL}
+ * 
+ * @param blob - {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob} 或 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/File | File} 文件对象
+ * @returns 结果对象 `{ url: string, revoke: Function }`
+ * 
+ * @example
+ * ```ts
+ * import { convertBlobToUrl } from '@dinofe/xt-core/web'
+ * const file = e.target.files[0] // input元素的change事件的
+ * const { url } = convertBlobToUrl(file)
+ * console.log(url)
+ * ```
+ * 
+ * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static | createObjectURL}
+ * 
+ * @public
  */
-export const convertBlobToUrl = (blob: Blob | File) => {
+export function convertBlobToUrl (blob: Blob | File) {
   const url = URL.createObjectURL(blob)
   function revoke() {
     url && URL.revokeObjectURL(url)
   }
   return {
+    /**
+     * 文件url地址
+     * 
+     * @public
+     */
     url,
+    /**
+     * 释放缓存的方法
+     * 
+     * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/revokeObjectURL_static | URL.revokeObjectURL()}
+     * 
+     * @public
+     */
     revoke
   }
 }
 
 /**
- * 加载图片为 Image 对象
- * @param {string} url 图片地址，完整地址、相对地址、 blob 地址或 base64 字符串
- * @param {boolean} [isBase64 = false]  url 是否 base64 字符串
- * @param {string} [baseUrl = ''] 图片基础路径
- * @returns {HTMLImageElement} 图片 Image 对象
+ * 加载图片为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement | Image} 对象
+ * 
+ * @param url - 图片地址，完整地址、相对地址、 Blob 地址或 base64 字符串
+ * @param isBase64 - url 是否 base64 字符串
+ * @param baseUrl - 图片基础路径
+ * @returns Promise 包装的图片 Image 对象
+ * 
+ * @example url
+ * ```ts
+ * import { loadImage } from '@dinofe/xt-core/web'
+ * loadImage('http://www.example.com/xxx.jpg')
+ *  .then(image => { console.log(image) })
+ *  .cath(e => { console.log(e.message) })
+ * ```
+ * 
+ * @example base64
+ * ```ts
+ * import { loadImage } from '@dinofe/xt-core/web'
+ * const base64Str = '....'
+ * loadImage(base64Str, true)
+ *  .then(image => { console.log(image) })
+ *  .catch(e => { console.log(e.message) })
+ * ```
+ * 
+ * @public
  */
-export const loadImage = (url: string, isBase64: boolean = false, baseUrl: string = ''): Promise<HTMLImageElement> => {
+export function loadImage (
+  url: string,
+  /**
+   * @defaultValue `false`
+   */
+  isBase64: boolean = false,
+  /**
+   * @defaultValue `''`
+   */
+  baseUrl: string = ''
+): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     let tempUrl = isBase64 ? url : (isUrlLike(url) || isBlobUrlLike(url)) ? url : baseUrl + url
     const image = new Image()
@@ -100,15 +194,28 @@ export const loadImage = (url: string, isBase64: boolean = false, baseUrl: strin
 
 /**
  * 获取图片尺寸
- * @param {string | HTMLImageElement} data 图片地址或 Image 对象
- * @param {boolean} [isBase64 = false] 是否 base64 字符串
- * @param {string} [baseUrl = ''] 图片基础路径
- * @returns {Promise<IImageSize>}
+ * 
+ * @param data - 图片地址或 Image 对象
+ * @param isBase64 - 是否 base64 字符串
+ * @param baseUrl - 图片基础路径
+ * @returns Promise 包装的图片尺寸对象
+ * 
+ * @internal
  */
 function _getImageSize(data: string, isBase64: boolean, baseUrl: string): Promise<IImageSize>
 function _getImageSize(data: HTMLImageElement): Promise<IImageSize>
 function _getImageSize(data: File): Promise<IImageSize>
-function _getImageSize(data: string | HTMLImageElement | File, isBase64: boolean = false, baseUrl: string = ''): Promise<IImageSize> {
+function _getImageSize(
+  data: string | HTMLImageElement | File,
+  /**
+   * @defaultValue `false`
+   */
+  isBase64: boolean = false,
+  /**
+   * @defaultValue `''`
+   */
+  baseUrl: string = ''
+): Promise<IImageSize> {
   if (typeof data === 'string') {
     return new Promise((resolve, reject) => {
       if (data.indexOf('data:image') !== 0) {
@@ -145,18 +252,57 @@ function _getImageSize(data: string | HTMLImageElement | File, isBase64: boolean
   }
 }
 
+/**
+ * 获取图片尺寸
+ * 
+ * @example url
+ * ```ts
+ * import { getImageSize } from '@dinofe/xt-core/web'
+ * getImageSize('http://www.example.com/xxx.jpg')
+ *  .then((size) => { console.log(`width = ${size.width} height = ${size.height}`) })
+ *  .catch(e => { console.log(e.message) })
+ * ```
+ * 
+ * @example base64
+ * ```ts
+ * import { getImageSize } from '@dinofe/xt-core/web'
+ * const base64Str = '....'
+ * getImageSize(base64Str, true)
+ *  .then((size) => { console.log(`width = ${size.width} height = ${size.height}`) })
+ *  .catch(e => { console.log(e.message) })
+ * ```
+ * 
+ * @public
+ */
 export const getImageSize = _getImageSize
 
 /**
- * base64 字符串转为 Blob
- * referrence: https://developer.mozilla.org/zh-CN/docs/Glossary/Base64
- * referrence: https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
- * @param data {string} base64 字符串（可以包含`data:image/jpegbas64,`会被忽略）
- * @param mimeType {MIME_TYPE} MIME 类型
- * @param sliceSize {number} 切片大小
- * @returns {Blob}
+ * {@link https://developer.mozilla.org/zh-CN/docs/Glossary/Base64 | Base64} 字符串转为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob}
+ * 
+ * @param data - base64 字符串（可以包含`'data:image/jpegbas64,'`会被忽略）
+ * @param mimeType - MIME 类型
+ * @param sliceSize - 切片大小
+ * @returns Blob 对象
+ * 
+ * @example 默认用法
+ * ```ts
+ * import { base64ToBlob, MIME_TYPE } from '@dinofe/xt-core/web'
+ * const base64Str = '...'
+ * const blob = base64ToBlob(base64Str, MIME_TYPE.JPG)
+ * ```
+ * 
+ * @example 修改配置
+ * ```ts
+ * import { base64ToBlob, MIME_TYPE } from '@dinofe/xt-core/web'
+ * const base64Str = '...'
+ * const blob = base64ToBlob(base64Str, MIME_TYPE.PNG, 1024)
+ * ```
+ * 
+ * @see {@link https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript | creating-a-blob-from-a-base64-string-in-javascript}
+ * 
+ * @public
  */
-export const base64ToBlob = (data: string, mimeType = MIME_TYPE.JPG, sliceSize = 512): Blob => {
+export function base64ToBlob (data: string, mimeType = MIME_TYPE.JPG, sliceSize = 512): Blob {
   // 去除 base64 字符串中的数据类型标识部分（如：data:image/pngbase64,）
   const base64Data = data.replace(/^data:[a-z]+\/[a-z]+base64,/, '')
 
