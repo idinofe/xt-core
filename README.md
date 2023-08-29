@@ -11,7 +11,7 @@
 - 🎪[在线文档和 demo](https://idinofe.github.io/xt-core/)
 - 🌎无编译器场景：可直接使用 CDN 版本
 - 🦾类型支持良好：使用 [TypeScript](https://www.typescriptlang.org/)，[TS Docs](https://github.com/microsoft/tsdoc) 编写
-- ⚡摇树优化：通过按需引入不同模块减少打包体积
+- ⚡摇树优化：按功能模块定义导出可通过按需引入模块减少打包体积，支持 5 大模块：`common` `http` `url` `web` `wechat`
 
 ## 📦 安装
 
@@ -37,6 +37,10 @@ npm i @dinofe/xt-core
 
 ## 🦄 使用
 
+支持按需引入各模块独立引入 API
+
+从 `wechat` 模块引入 `genOAuthUrl` 方法：
+
 ```js
 import { genOAuthUrl } from '@dinofe/xt-core/wechat'
 
@@ -49,6 +53,15 @@ const wechatOptions = {
 }
 const url = genOAuthUrl(wechatOptions)
 console.log(url)
+```
+
+5 大模块导出的所有 API 都可以直接引入
+
+直接导引入 `genOAuthUrl` 方法：
+
+```js
+import { genOAuthUrl } from '@dinofe/xt-core'
+// ... 用法和上面相同
 ```
 
 支持的方法列表请查看 [API 文档](https://idinofe.github.io/xt-core/api/xt-core.html#functions)
