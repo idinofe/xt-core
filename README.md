@@ -37,7 +37,7 @@ npm i @dinofe/xt-core
 
 ## 🦄 使用
 
-支持按需引入各模块独立引入 API
+支持按需引入各模块自己的 API
 
 从 `wechat` 模块引入 `genOAuthUrl` 方法：
 
