@@ -216,7 +216,7 @@ export function promisify <T = any>(a: T): Promise<T> {
  */
 export function delay (time: number = 1000) {
   if (!isNumber(time)) {
-    throw new Error('time should be number')
+    throw new Error('time should be a number')
   }
   if (time < 0) {
     throw new Error('time should not small than 0')
@@ -243,7 +243,7 @@ export function noop () {}
  */
 export function randomNumber (len: number = 20): string {
   if (!isNumber(len)) {
-    throw new Error("len must be an Number")
+    throw new Error("len must be a Number")
   }
   if (len < 0) {
     throw new Error("len must great than -1")
@@ -538,4 +538,41 @@ export function isValidToken (token: any): boolean {
     }
   }
   return true
+}
+
+/**
+ * 判断传入的函数执行是否超时
+ *
+ * @param fn  传入的函数
+ * @param timeout  超时时间
+ * @returns 返回已执行函数
+ *
+ * @public
+ */
+
+export function isTimeOver (fn: Function , timeout: number) {
+  if (!isFunction(fn)) {
+    throw new Error("fn must be a Function")
+  }
+  if (!isNumber(timeout)) {
+    throw new Error("timeout must be a Number")
+  }
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      resolve('函数执行超时了')
+    }, timeout)
+    const result = fn()
+    if (isPromise(result)) {
+      result.then((value: any) => {
+        clearTimeout(timer)
+        resolve(value)
+      }).catch((err: any) => {
+        clearTimeout(timer)
+        reject(err)
+      })
+    } else {
+      clearTimeout(timer)
+      resolve(result)
+    }
+  }) 
 }

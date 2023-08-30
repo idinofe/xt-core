@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery, isTimeOver } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -144,13 +144,13 @@ describe('randomNumber', () => {
   })
   it('error case', () => {
     expect(() => randomNumber(-1)).toThrowError('len must great than -1')
-    expect(() => randomNumber(undefined)).not.toThrowError('len must be an Number')
-    expect(() => randomNumber(null as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber({} as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber('aaa' as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber('111' as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber(true as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber(Symbol() as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber(undefined)).not.toThrowError('len must be a Number')
+    expect(() => randomNumber(null as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber({} as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber('aaa' as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber('111' as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber(true as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber(Symbol() as any)).toThrowError('len must be a Number')
   })
 })
 // toThrowError 断言当调用函数时是否抛出错误。(必须将代码包装在一个函数中，否则错误将不会被捕获，测试将失败。)
@@ -678,5 +678,41 @@ describe('getQuery', () => {
   it ('error type', () => {
     expect(() => getQuery('', 88 as any)).toThrowError()
     expect(() => getQuery(null as any, '')).toThrowError()
+  })
+})
+
+describe('isTimeOver', () => {
+  it('normal promiseFn case', async () => {
+    const promiseFn = function () {
+      return new Promise((resolve)=>{
+        setTimeout(()=>{
+          resolve('Success')                                                                                                                                                             
+        }, 2000)
+      })
+    }
+    const result = await isTimeOver(promiseFn, 1000)
+    expect(result).toEqual('函数执行超时了')
+    const result2 = await isTimeOver(promiseFn, 3000)
+    expect(result2).toEqual('Success')
+  })
+  it('normal sync case', async () => {
+    const syncFn = function () {
+      return 'Success'
+    }
+    const result = await isTimeOver(syncFn, 3000)
+    expect(result).toEqual('Success')
+  })
+  it ('error type', () => {
+    const syncFn1 = function () {
+      return 'Success'
+    }
+    expect(() => isTimeOver(22 as any, 100)).toThrowError()
+    expect(() => isTimeOver(undefined as any, 100)).toThrowError()
+    expect(() => isTimeOver(null as any, 100)).toThrowError()
+    expect(() => isTimeOver({} as any, 100)).toThrowError()
+    expect(() => isTimeOver(true as any, 100)).toThrowError()
+    expect(() => isTimeOver(Symbol() as any, 100)).toThrowError()
+    expect(() => isTimeOver(true as any, 100)).toThrowError()
+    expect(() => isTimeOver(syncFn1, '1' as any)).toThrowError()
   })
 })
