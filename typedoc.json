@@ -1,0 +1,12 @@
+{
+  // "entryPointStrategy": "packages",
+  "entryPoints": ["src/index.ts"],
+  "out": "typedoc",
+  // "plugin": ["typedoc-theme-hierarchy"],
+  "plugin": ["@mxssfd/typedoc-theme"],
+  // "plugin": ["@appium/typedoc-plugin-appium"],
+  // "plugin": ["typedoc-plugin-markdown"],
+  "theme": "my-theme",
+  "tsconfig": "./tsconfig.build.json",
+  "name": "@dinofe/xt-core"
+}
