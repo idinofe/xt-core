@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery, isTimeOver } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery, runWithTimeout } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -681,7 +681,7 @@ describe('getQuery', () => {
   })
 })
 
-describe('isTimeOver', () => {
+describe('runWithTimeout', () => {
   it('normal promiseFn case', async () => {
     const promiseFn = function () {
       return new Promise((resolve)=>{
@@ -690,29 +690,36 @@ describe('isTimeOver', () => {
         }, 2000)
       })
     }
-    const result = await isTimeOver(promiseFn, 1000)
-    expect(result).toEqual('函数执行超时了')
-    const result2 = await isTimeOver(promiseFn, 3000)
-    expect(result2).toEqual('Success')
+    const result = await runWithTimeout(promiseFn, 1000)
+    expect(result).toEqual({ isTimeOut: true, result: '函数执行超时了' })
+    const result2 = await runWithTimeout(promiseFn, 3000)
+    expect(result2).toEqual({ isTimeOut: false, result: 'Success' })
   })
   it('normal sync case', async () => {
     const syncFn = function () {
       return 'Success'
     }
-    const result = await isTimeOver(syncFn, 3000)
-    expect(result).toEqual('Success')
+    const syncFn100 = function() {
+      const start = new Date().getTime()
+      while (new Date().getTime() < start + 100) {}
+      return 'Success'
+    }
+    const result = await runWithTimeout(syncFn, 3000)
+    expect(result).toEqual({ isTimeOut: false, result: 'Success' })
+    const result2 = await runWithTimeout(syncFn100, 10)
+    expect(result2).toEqual({ isTimeOut: false, result: 'Success' })
   })
   it ('error type', () => {
     const syncFn1 = function () {
       return 'Success'
     }
-    expect(() => isTimeOver(22 as any, 100)).toThrowError()
-    expect(() => isTimeOver(undefined as any, 100)).toThrowError()
-    expect(() => isTimeOver(null as any, 100)).toThrowError()
-    expect(() => isTimeOver({} as any, 100)).toThrowError()
-    expect(() => isTimeOver(true as any, 100)).toThrowError()
-    expect(() => isTimeOver(Symbol() as any, 100)).toThrowError()
-    expect(() => isTimeOver(true as any, 100)).toThrowError()
-    expect(() => isTimeOver(syncFn1, '1' as any)).toThrowError()
+    expect(() => runWithTimeout(22 as any, 100)).toThrowError()
+    expect(() => runWithTimeout(undefined as any, 100)).toThrowError()
+    expect(() => runWithTimeout(null as any, 100)).toThrowError()
+    expect(() => runWithTimeout({} as any, 100)).toThrowError()
+    expect(() => runWithTimeout(true as any, 100)).toThrowError()
+    expect(() => runWithTimeout(Symbol() as any, 100)).toThrowError()
+    expect(() => runWithTimeout(true as any, 100)).toThrowError()
+    expect(() => runWithTimeout(syncFn1, '1' as any)).toThrowError()
   })
 })
