@@ -545,12 +545,14 @@ export function isValidToken (token: any): boolean {
  *
  * @param fn - 传入的函数
  * @param timeout - 超时时间
+ * @param context - fn函数的执行上下文
+ * @param args  - fn函数的执行参数
  * @returns 返回带有执行结果的Promise对象, 包含属性isTimeOut：超时标志, 属性result：执行结果
  *
  * @public
  */
 
-export function runWithTimeout (fn: Function, timeout: number) {
+export function runWithTimeout <T = any> (fn: Function, timeout: number, context?: any, ...args: any[]) {
   if (!isFunction(fn)) {
     throw new Error("fn must be a Function")
   }
@@ -561,19 +563,18 @@ export function runWithTimeout (fn: Function, timeout: number) {
     let isTimeOut = false // 超时标识
     const timer = setTimeout(() => {
       isTimeOut = true
-      resolve({ isTimeOut, result:'函数执行超时了' })
+      resolve({ isTimeOut, result: undefined })
     }, timeout)
-    // @ts-ignore
-    const result = fn.bind(this)()  // 绑定函数fn到当前上下文，明确this指向
+    const result = fn.call(context, ...args)
     if (isPromise(result)) {
-      result.then((value: any) => {
+      result.then((value: T) => {
         isTimeOut = false
         clearTimeout(timer)
         resolve({ isTimeOut, result: value })
       }).catch((err: any) => {
         isTimeOut = false
         clearTimeout(timer)
-        reject({ isTimeOut, result: err })
+        reject(err)
       })
     } else {
       isTimeOut = false

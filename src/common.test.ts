@@ -691,7 +691,7 @@ describe('runWithTimeout', () => {
       })
     }
     const result = await runWithTimeout(promiseFn, 1000)
-    expect(result).toEqual({ isTimeOut: true, result: '函数执行超时了' })
+    expect(result).toEqual({ isTimeOut: true, result: undefined })
     const result2 = await runWithTimeout(promiseFn, 3000)
     expect(result2).toEqual({ isTimeOut: false, result: 'Success' })
   })
@@ -708,6 +708,17 @@ describe('runWithTimeout', () => {
     expect(result).toEqual({ isTimeOut: false, result: 'Success' })
     const result2 = await runWithTimeout(syncFn100, 10)
     expect(result2).toEqual({ isTimeOut: false, result: 'Success' })
+    const obj = {
+      name: 'test',
+      fn: function (param: any) {
+        return this.name + param
+      }
+    }
+    const obj1 = {
+      name: 'test this'
+    }
+    const result3 = await runWithTimeout(obj.fn, 10, obj1, ' orientation')
+    expect(result3).toEqual({ isTimeOut: false, result: 'test this orientation' })
   })
   it ('error type', () => {
     const syncFn1 = function () {
