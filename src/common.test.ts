@@ -1,5 +1,5 @@
 import Big from "big.js"
-import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery } from "./common"
+import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery, runWithTimeout } from "./common"
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -144,13 +144,13 @@ describe('randomNumber', () => {
   })
   it('error case', () => {
     expect(() => randomNumber(-1)).toThrowError('len must great than -1')
-    expect(() => randomNumber(undefined)).not.toThrowError('len must be an Number')
-    expect(() => randomNumber(null as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber({} as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber('aaa' as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber('111' as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber(true as any)).toThrowError('len must be an Number')
-    expect(() => randomNumber(Symbol() as any)).toThrowError('len must be an Number')
+    expect(() => randomNumber(undefined)).not.toThrowError('len must be a Number')
+    expect(() => randomNumber(null as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber({} as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber('aaa' as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber('111' as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber(true as any)).toThrowError('len must be a Number')
+    expect(() => randomNumber(Symbol() as any)).toThrowError('len must be a Number')
   })
 })
 // toThrowError 断言当调用函数时是否抛出错误。(必须将代码包装在一个函数中，否则错误将不会被捕获，测试将失败。)
@@ -678,5 +678,59 @@ describe('getQuery', () => {
   it ('error type', () => {
     expect(() => getQuery('', 88 as any)).toThrowError()
     expect(() => getQuery(null as any, '')).toThrowError()
+  })
+})
+
+describe('runWithTimeout', () => {
+  it('normal promiseFn case', async () => {
+    const promiseFn = function () {
+      return new Promise((resolve)=>{
+        setTimeout(()=>{
+          resolve('Success')                                                                                                                                                             
+        }, 2000)
+      })
+    }
+    const result = await runWithTimeout(promiseFn, 1000)
+    expect(result).toEqual({ isTimeOut: true, result: undefined })
+    const result2 = await runWithTimeout(promiseFn, 3000)
+    expect(result2).toEqual({ isTimeOut: false, result: 'Success' })
+  })
+  it('normal sync case', async () => {
+    const syncFn = function () {
+      return 'Success'
+    }
+    const syncFn100 = function() {
+      const start = new Date().getTime()
+      while (new Date().getTime() < start + 100) {}
+      return 'Success'
+    }
+    const result = await runWithTimeout(syncFn, 3000)
+    expect(result).toEqual({ isTimeOut: false, result: 'Success' })
+    const result2 = await runWithTimeout(syncFn100, 10)
+    expect(result2).toEqual({ isTimeOut: false, result: 'Success' })
+    const obj = {
+      name: 'test',
+      fn: function (param: any) {
+        return this.name + param
+      }
+    }
+    const obj1 = {
+      name: 'test this'
+    }
+    const result3 = await runWithTimeout(obj.fn, 10, obj1, ' orientation')
+    expect(result3).toEqual({ isTimeOut: false, result: 'test this orientation' })
+  })
+  it ('error type', () => {
+    const syncFn1 = function () {
+      return 'Success'
+    }
+    expect(() => runWithTimeout(22 as any, 100)).toThrowError()
+    expect(() => runWithTimeout(undefined as any, 100)).toThrowError()
+    expect(() => runWithTimeout(null as any, 100)).toThrowError()
+    expect(() => runWithTimeout({} as any, 100)).toThrowError()
+    expect(() => runWithTimeout(true as any, 100)).toThrowError()
+    expect(() => runWithTimeout(Symbol() as any, 100)).toThrowError()
+    expect(() => runWithTimeout(true as any, 100)).toThrowError()
+    expect(() => runWithTimeout(syncFn1, '1' as any)).toThrowError()
   })
 })

@@ -216,7 +216,7 @@ export function promisify <T = any>(a: T): Promise<T> {
  */
 export function delay (time: number = 1000) {
   if (!isNumber(time)) {
-    throw new Error('time should be number')
+    throw new Error('time should be a number')
   }
   if (time < 0) {
     throw new Error('time should not small than 0')
@@ -243,7 +243,7 @@ export function noop () {}
  */
 export function randomNumber (len: number = 20): string {
   if (!isNumber(len)) {
-    throw new Error("len must be an Number")
+    throw new Error("len must be a Number")
   }
   if (len < 0) {
     throw new Error("len must great than -1")
@@ -538,4 +538,48 @@ export function isValidToken (token: any): boolean {
     }
   }
   return true
+}
+
+/**
+ * 判断传入的函数执行是否超时
+ *
+ * @param fn - 传入的函数
+ * @param timeout - 超时时间
+ * @param context - fn函数的执行上下文
+ * @param args  - fn函数的执行参数
+ * @returns 返回带有执行结果的Promise对象, 包含属性isTimeOut：超时标志, 属性result：执行结果
+ *
+ * @public
+ */
+
+export function runWithTimeout <T = any> (fn: Function, timeout: number, context?: any, ...args: any[]) {
+  if (!isFunction(fn)) {
+    throw new Error("fn must be a Function")
+  }
+  if (!isNumber(timeout)) {
+    throw new Error("timeout must be a Number")
+  }
+  return new Promise((resolve, reject) => {
+    let isTimeOut = false // 超时标识
+    const timer = setTimeout(() => {
+      isTimeOut = true
+      resolve({ isTimeOut, result: undefined })
+    }, timeout)
+    const result = fn.call(context, ...args)
+    if (isPromise(result)) {
+      result.then((value: T) => {
+        isTimeOut = false
+        clearTimeout(timer)
+        resolve({ isTimeOut, result: value })
+      }).catch((err: any) => {
+        isTimeOut = false
+        clearTimeout(timer)
+        reject(err)
+      })
+    } else {
+      isTimeOut = false
+      clearTimeout(timer)
+      resolve({ isTimeOut, result })
+    }
+  }) 
 }
