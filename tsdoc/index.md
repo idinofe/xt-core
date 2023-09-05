@@ -6,11 +6,11 @@ tagline: "@dinofe/xt-core"
 actionText: 快速上手 →
 actionLink: /guide/
 features:
-- title: 简洁至上
-  details: 以 Markdown 为中心的项目结构，以最少的配置帮助你专注于写作。
-- title: Vue驱动
-  details: 享受 Vue + webpack 的开发体验，在 Markdown 中使用 Vue 组件，同时可以使用 Vue 来开发自定义主题。
-- title: 高性能
-  details: VuePress 为每个页面预渲染生成静态的 HTML，同时在页面被加载的时候，将作为 SPA 运行。
-footer: MIT Licensed | Copyright © 2023-present @dinofe
+- title: CDN支持
+  details: 对于无编译器场景可直接使用 CDN 版本。
+- title: 类型支持良好
+  details: 使用 TypeScript，TS Docs 编写，不要求工具库使用者采用 TypeScript，使用 JS 时也有很好的类型提示。
+- title: 摇树优化
+  details: 按功能模块定义导出可通过按需引入模块减少打包体积，支持 5 大模块：common http url web wechat。
+footer: MIT Licensed | Copyright © 2023-present @dinofe(https://github.com/idinofe)
 ---
