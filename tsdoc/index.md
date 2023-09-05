@@ -14,3 +14,7 @@ features:
   details: 按功能模块定义导出可通过按需引入模块减少打包体积，支持 5 大模块：common http url web wechat。
 footer: MIT Licensed | Copyright © 2023-present @dinofe(https://github.com/idinofe)
 ---
+
+<div style="text-align: center; margin: 20px auto;">
+  <a-button type="primary" href="guide">开始使用 →</a-button>
+</div>
