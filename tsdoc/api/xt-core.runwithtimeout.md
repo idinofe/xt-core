@@ -9,7 +9,10 @@
 **Signature:**
 
 ```typescript
-export declare function runWithTimeout(fn: Function, timeout: number): Promise<unknown>;
+export declare function runWithTimeout<T = any>(fn: Function, timeout: number, context?: any, ...args: any[]): Promise<{
+    isTimeOut: boolean;
+    result: T | undefined;
+}>;
 ```
 
 ## Parameters
@@ -18,10 +21,104 @@ export declare function runWithTimeout(fn: Function, timeout: number): Promise<u
 |  --- | --- | --- |
 |  fn | Function | 传入的函数 |
 |  timeout | number | 超时时间 |
+|  context | any | _(Optional)_ fn函数的执行上下文 |
+|  args | any\[\] | fn函数的执行参数 |
 
 **Returns:**
 
-Promise&lt;unknown&gt;
+Promise&lt;{ isTimeOut: boolean; result: T \| undefined; }&gt;
 
 返回带有执行结果的Promise对象, 包含属性isTimeOut：超时标志, 属性result：执行结果
+
+## Remarks
+
+会返回一个 Promise 实例对象，使用者需要自行 catch 异常； 当 catch 到异常时表示未超时，错误原因为函数返回的 Promise reject 的错误； 若进入到 then 表示函数执行完成或者函数返回的 Promise 已 resolve，开发者根据 `isTimeout` 标记判断是否超时
+
+该方法执行细节为：
+
+1. 若传入的函数fn返回值不是 Promise，则不论函数fn执行耗时有多久都不会超时
+
+2. 若传入的函数fn返回 Promise，根据 Promise 变为 resolved 时间是否超过 timeout 决定是否超时 若未超时，则返回 `Promise.resolve({ isTimeOut: false, result: result })`<!-- -->，result 为 Promise resolve 的结果 若已超时，则返回 `Promise.resolve({ isTimeOut: true, result: undefined })` Promise resolve 的结果将被忽略 若 reject，则返回 `Promise.reject(err)` err 为 reject 的错误原因
+
+## Example 1
+
+传入普通函数
+
+```ts
+import { runWithTimeout } from '@dinofe/xt-core/common'
+const fn = () => { return 'aaa' }
+runWithTimeout(fn, 3 * 1000).then(res => {
+ console.log(res) // 打印：{ isTimeOut: false, result: 'aaa' }
+}).catch(e => {
+ console.log(e)
+})
+```
+
+## Example 2
+
+传入 async 函数
+
+```ts
+import { runWithTimeout } from '@dinofe/xt-core/common'
+const fn = async () => {
+ // 这里可以发送HTTP请求，返回请求结果
+ return 'bbb'
+}
+runWithTimeout(fn, 3 * 1000).then(res => {
+ console.log(res) // 打印：{ isTimeOut: false, result: 'bbb' }
+}).catch(e => {
+ console.log(e)
+})
+```
+
+## Example 3
+
+传入 Promise 函数
+
+```ts
+import { runWithTimeout } from '@dinofe/xt-core/common'
+const fn = () => {
+ // 这里可以发送HTTP请求，返回请求结果
+ return Promise.resolve('ccc')
+}
+runWithTimeout(fn, 3 * 1000).then(res => {
+ console.log(res) // 打印：{ isTimeOut: false, result: 'ccc' }
+}).catch(e => {
+ console.log(e)
+})
+```
+
+## Example 4
+
+给函数fn绑定执行上下文
+
+```ts
+import { runWithTimeout } from '@dinofe/xt-core/common'
+const fn = () => {
+ // 这里可以发送HTTP请求，返回请求结果
+ return Promise.resolve('ddd' + this.name)
+}
+runWithTimeout(fn, 3 * 1000, { name: 'foo' }).then(res => {
+ console.log(res) // 打印：{ isTimeOut: false, result: 'dddfoo' }
+}).catch(e => {
+ console.log(e)
+})
+```
+
+## Example 5
+
+给函数fn传递参数
+
+```ts
+import { runWithTimeout } from '@dinofe/xt-core/common'
+const fn = (name, word) => {
+ // 这里可以发送HTTP请求，返回请求结果
+ return Promise.resolve('eee' + name + word)
+}
+runWithTimeout(fn, 3 * 1000, null, 'bar', 'hello').then(res => {
+ console.log(res) // 打印：{ isTimeOut: false, result: 'eeebarhello' }
+}).catch(e => {
+ console.log(e)
+})
+```
 

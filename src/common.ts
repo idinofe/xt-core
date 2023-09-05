@@ -542,23 +542,105 @@ export function isValidToken (token: any): boolean {
 
 /**
  * 判断传入的函数执行是否超时
- *
+ * 
+ * @remarks
+ * 会返回一个 Promise 实例对象，使用者需要自行 catch 异常；
+ * 当 catch 到异常时表示未超时，错误原因为函数返回的 Promise reject 的错误；
+ * 若进入到 then 表示函数执行完成或者函数返回的 Promise 已 resolve，开发者根据 `isTimeout` 标记判断是否超时
+ * 
+ * 该方法执行细节为：
+ * 
+ * 1. 若传入的函数fn返回值不是 Promise，则不论函数fn执行耗时有多久都不会超时
+ * 
+ * 2. 若传入的函数fn返回 Promise，根据 Promise 变为 resolved 时间是否超过 timeout 决定是否超时
+ *    若未超时，则返回 `Promise.resolve({ isTimeOut: false, result: result })`，result 为 Promise resolve 的结果
+ *    若已超时，则返回 `Promise.resolve({ isTimeOut: true, result: undefined })` Promise resolve 的结果将被忽略
+ *    若 reject，则返回 `Promise.reject(err)` err 为 reject 的错误原因
+ * 
  * @param fn - 传入的函数
  * @param timeout - 超时时间
  * @param context - fn函数的执行上下文
  * @param args  - fn函数的执行参数
  * @returns 返回带有执行结果的Promise对象, 包含属性isTimeOut：超时标志, 属性result：执行结果
  *
+ * @example 传入普通函数
+ * ```ts
+ * import { runWithTimeout } from '@dinofe/xt-core/common'
+ * const fn = () => { return 'aaa' }
+ * runWithTimeout(fn, 3 * 1000).then(res => {
+ *  console.log(res) // 打印：{ isTimeOut: false, result: 'aaa' }
+ * }).catch(e => {
+ *  console.log(e)
+ * })
+ * ```
+ * 
+ * @example 传入 async 函数
+ * ```ts
+ * import { runWithTimeout } from '@dinofe/xt-core/common'
+ * const fn = async () => {
+ *  // 这里可以发送HTTP请求，返回请求结果
+ *  return 'bbb' 
+ * }
+ * runWithTimeout(fn, 3 * 1000).then(res => {
+ *  console.log(res) // 打印：{ isTimeOut: false, result: 'bbb' }
+ * }).catch(e => {
+ *  console.log(e)
+ * })
+ * ```
+ * 
+ * @example 传入 Promise 函数
+ * ```ts
+ * import { runWithTimeout } from '@dinofe/xt-core/common'
+ * const fn = () => {
+ *  // 这里可以发送HTTP请求，返回请求结果
+ *  return Promise.resolve('ccc')
+ * }
+ * runWithTimeout(fn, 3 * 1000).then(res => {
+ *  console.log(res) // 打印：{ isTimeOut: false, result: 'ccc' }
+ * }).catch(e => {
+ *  console.log(e)
+ * })
+ * ```
+ * 
+ * @example 给函数fn绑定执行上下文
+ * ```ts
+ * import { runWithTimeout } from '@dinofe/xt-core/common'
+ * const fn = () => {
+ *  // 这里可以发送HTTP请求，返回请求结果
+ *  return Promise.resolve('ddd' + this.name)
+ * }
+ * runWithTimeout(fn, 3 * 1000, { name: 'foo' }).then(res => {
+ *  console.log(res) // 打印：{ isTimeOut: false, result: 'dddfoo' }
+ * }).catch(e => {
+ *  console.log(e)
+ * })
+ * ```
+ * 
+ * @example 给函数fn传递参数
+ * ```ts
+ * import { runWithTimeout } from '@dinofe/xt-core/common'
+ * const fn = (name, word) => {
+ *  // 这里可以发送HTTP请求，返回请求结果
+ *  return Promise.resolve('eee' + name + word)
+ * }
+ * runWithTimeout(fn, 3 * 1000, null, 'bar', 'hello').then(res => {
+ *  console.log(res) // 打印：{ isTimeOut: false, result: 'eeebarhello' }
+ * }).catch(e => {
+ *  console.log(e)
+ * })
+ * ```
+ * 
  * @public
  */
 
-export function runWithTimeout <T = any> (fn: Function, timeout: number, context?: any, ...args: any[]) {
+export function runWithTimeout <T = any> (fn: Function, timeout: number, context?: any, ...args: any[]): Promise<{ isTimeOut: boolean, result: T | undefined }> {
   if (!isFunction(fn)) {
     throw new Error("fn must be a Function")
   }
   if (!isNumber(timeout)) {
     throw new Error("timeout must be a Number")
   }
+
   return new Promise((resolve, reject) => {
     let isTimeOut = false // 超时标识
     const timer = setTimeout(() => {
@@ -566,6 +648,7 @@ export function runWithTimeout <T = any> (fn: Function, timeout: number, context
       resolve({ isTimeOut, result: undefined })
     }, timeout)
     const result = fn.call(context, ...args)
+
     if (isPromise(result)) {
       result.then((value: T) => {
         isTimeOut = false

@@ -63,7 +63,7 @@
 |  [plus(arg1, arg2)](./xt-core.plus.md) | 两数相加 |
 |  [promisify(a)](./xt-core.promisify.md) | 转换为已 resolved 的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 对象 |
 |  [randomNumber(len)](./xt-core.randomnumber.md) | 生成随机数字符串 |
-|  [runWithTimeout(fn, timeout)](./xt-core.runwithtimeout.md) | 判断传入的函数执行是否超时 |
+|  [runWithTimeout(fn, timeout, context, args)](./xt-core.runwithtimeout.md) | 判断传入的函数执行是否超时 |
 |  [times(arg1, arg2)](./xt-core.times.md) | 两浮点数相乘 |
 |  [toNonExponential(num)](./xt-core.tononexponential.md) | 将科学计数法的数字转为字符串 |
 
@@ -85,7 +85,7 @@
 |  --- | --- |
 |  [appendBaiscUrl](./xt-core.appendbaiscurl.md) | 拼接接口业务域名 |
 |  [appendImageUrl](./xt-core.appendimageurl.md) | 拼接图片基础域名 |
-|  [Big\_2](./xt-core.big_2.md) |  |
+|  [Big](./xt-core.big.md) |  |
 |  [COPY\_FAIL\_MESSAGE](./xt-core.copy_fail_message.md) | 复制失败提示信息 |
 |  [decodeOAuthUrl](./xt-core.decodeoauthurl.md) | 解析微信 oAuth 链接中的配置参数 |
 |  [divide](./xt-core.divide.md) | 两浮点数相除 |
