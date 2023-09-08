@@ -1,10 +1,13 @@
 ---
 home: true
-heroImage: /hero.webp
-heroText: XT-CORE
-tagline: "@dinofe/xt-core"
+heroImage: /logo.jpg
+heroText: '@dinofe/xt-core'
+tagline: 一个可靠的、充分测试的 JS 工具方法库
 actionText: 快速上手 →
 actionLink: /guide/
+actions:
+  - text: 快速上手 →
+    link: /guide/
 features:
 - title: CDN支持
   details: 对于无编译器场景可直接使用 CDN 版本。
@@ -15,6 +18,6 @@ features:
 footer: MIT Licensed | Copyright © 2023-present @dinofe(https://github.com/idinofe)
 ---
 
-<div style="text-align: center; margin: 20px auto;">
+<!-- <div style="text-align: center; margin: 20px auto;">
   <a-button type="primary" href="guide">开始使用 →</a-button>
-</div>
+</div> -->
