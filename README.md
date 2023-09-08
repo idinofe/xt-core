@@ -1,4 +1,5 @@
 <div align="center" style="margin: 16px auto;">
+<img src="tsdoc/.vuepress/public/logo_full.jpg" style="width: 400px;">
 <p>提取的一些常用工具方法，包括：Axios二次封装、基础方法等。</p>
 
 ![npm (scoped)](https://img.shields.io/npm/v/%40dinofe/xt-core)
