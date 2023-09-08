@@ -1207,6 +1207,62 @@ describe('createBaseHttp check config', () => {
   }, {
     timeout: 1000
   })
+
+  it('config.useEncrypt should cover baseConfig.encrypt', () => {
+    const http = createBaseHttp({
+      encrypt: true,
+      commonParams: {},
+      authorization: null
+    }, {
+      baseURL,
+      useEncrypt: false,
+    })
+
+    // 应该走不加密的逻辑
+    return http.post('/json/check_encrypt', { id: 123516311 }).then(response => {
+      expect(response.ok).toEqual(true)
+      expect(response.success).toEqual(true)
+      expect((response.data as any).body).toHaveProperty('encrypt', false)
+    })
+    
+  })
+
+  it('config.encryptVersion not config the default encryptVersion should be v2', () => {
+    const http = createBaseHttp({
+      encrypt: true,
+      commonParams: {},
+      authorization: null
+    }, {
+      baseURL,
+      appKey: appKey1,
+    })
+
+    // 应该走v2版本加密逻辑
+    return http.post('/encrypt/v2/success/json/', { id: 1435365212 }).then(response => {
+      expect(response.ok).toEqual(true)
+      expect(response.success).toEqual(true)
+      expect((response.data as any).body).toHaveProperty('foo', 'bar')
+    })
+  })
+  
+  it('config.encryptVersion should cover the default encryptVersion', () => {
+    const http = createBaseHttp({
+      encrypt: true,
+      commonParams: {},
+      authorization: null
+    }, {
+      baseURL,
+      appKey: appKey1,
+      encryptVersion: EncryptVersion.v1,
+    })
+
+    // 应该走v1版本加密逻辑
+    return http.post('/encrypt/v1/success/json/', { id: 164164146 }).then(response => {
+      expect(response.ok).toEqual(true)
+      expect(response.success).toEqual(true)
+      expect(response.data).toHaveProperty('foo', 'bar')
+    })
+  })
 })
 
 // 成功请求

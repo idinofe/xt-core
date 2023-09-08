@@ -25,9 +25,13 @@ export declare function createBaseHttp(baseConfig: BaseConfig, config: HttpConfi
 
 返回 HTTP 实例
 
-## Example
+## Remarks
 
-简单示例一：
+将 [createHttp](./xt-core.createhttp.md) 的配置参数进行适当包装简化，通过 `encrypt` 配置决定是否加密，加密时也会自动加签，加密版本默认为：`v2`<!-- -->，也可以通过 `config.encryptVersion` 来修改加密版本
+
+## Example 1
+
+采用默认v2加密：
 
 ```ts
 import { createBaseHttp } from '@dinofe/xt-core/http'
@@ -41,6 +45,33 @@ const baseHttp = createBaseHttp({
 }, {
   baseURL: '/api-hbccb',
   appKey: '3a2e424c56754e90a8948b74f163f0cb',
+  onFail: (msg) => {
+    log(msg)
+  },
+  onInvalidToken: (res) => {
+    log('Token已失效', res.code, res.msg)
+  }
+})
+
+baseHttp.post('/user/bankQuickLogin', { openid: '1652454242' }).then(res => { console.log(res) })
+```
+
+## Example 2
+
+不加密：
+
+```ts
+import { createBaseHttp } from '@dinofe/xt-core/http'
+const baseHttp = createBaseHttp({
+  encrypt: false,
+  commonParams: {
+    appId: '3130042001040',
+    merNo: '130042001040',
+    deviceId: 'hbjh_h5'
+  }
+}, {
+  baseURL: '/api-hbccb',
+  appKey: '3a2e424c56754e90a8948b74f163f0cb', // 不加密时可以不配置秘钥
   onFail: (msg) => {
     log(msg)
   },
