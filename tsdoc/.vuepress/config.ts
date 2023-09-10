@@ -5,7 +5,7 @@ export default defineConfig({
   title: '@dinofe/xt-core',
   description: '提取的一些常用工具方法，包括：Axios 二次封装、基础方法等',
   head: [
-    ['link', { rel: 'icon', href: '/favicon.jpg' }]
+    ['link', { rel: 'icon', href: '/favicon.png' }]
   ],
   theme: 'antdocs',
   themeConfig: {
