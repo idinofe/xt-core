@@ -18,4 +18,9 @@ code {
   border-radius: 5px;
   padding: 8px;
   margin-bottom: 16px;
+  margin-top: 10px;
+}
+
+.card:not(:last-child) {
+  margin-bottom: 16px;
 }

@@ -6,6 +6,7 @@ import DStorage from '@dinofe/xt-core/storage/index'
 // import Storage from '@dinofe/xt-core/storage'
 import LoginWithEncrypt from './components/LoginWithEncrypt'
 import UploadFile from './components/UploadFile'
+import ValidateIndexedDBOpenable from './components/ValidateIndexedDBOpenable'
 
 import './App.css';
 
@@ -43,6 +44,7 @@ function App() {
     <div className="App">
       <LoginWithEncrypt></LoginWithEncrypt>
       <UploadFile></UploadFile>
+      <ValidateIndexedDBOpenable></ValidateIndexedDBOpenable>
     </div>
   );
 }

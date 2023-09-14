@@ -1,0 +1,10 @@
+.card {
+  text-align: left;
+  border: 1px solid #efefef;
+  border-radius: 5px;
+  padding: 8px;
+  margin-top: 10px;
+}
+.card:not(:last-child) {
+  margin-bottom: 16px;
+}

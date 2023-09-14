@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dinofe/xt-core": "^0.0.13"
+    "@dinofe/xt-core": "^1.0.0-3"
   }
 }

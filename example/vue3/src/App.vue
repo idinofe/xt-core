@@ -9,6 +9,7 @@ import DStorage from '@dinofe/xt-core/storage/index'
 // import TheWelcome from './components/TheWelcome.vue'
 import UploadFile from './components/UploadFile.vue'
 import LoginWithEncrypt from './components/LoginWithEncrypt.vue'
+import ValidateIndexedDBOpenable from './components/ValidateIndexedDBOpenable.vue'
 
 onMounted(() => {
   const url = genOAuthUrl({
@@ -29,6 +30,7 @@ onMounted(() => {
 <template>
   <LoginWithEncrypt></LoginWithEncrypt>
   <UploadFile></UploadFile>
+  <ValidateIndexedDBOpenable></ValidateIndexedDBOpenable>
 </template>
 
 <style scoped>

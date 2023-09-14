@@ -2,6 +2,7 @@
   <div id="app">
     <LoginWithEncrypt></LoginWithEncrypt>
     <UploadFile></UploadFile>
+    <ValidateIndexedDBOpenable></ValidateIndexedDBOpenable>
   </div>
 </template>
 
@@ -14,12 +15,14 @@ import DStorage from '@dinofe/xt-core/storage/index'
 // import Storage from '@dinofe/xt-core/storage'
 import UploadFile from './components/UploadFile.vue'
 import LoginWithEncrypt from './components/LoginWithEncrypt.vue'
+import ValidateIndexedDBOpenable from './components/ValidateIndexedDBOpenable.vue'
 
 export default {
   name: 'App',
   components: {
     UploadFile,
-    LoginWithEncrypt
+    LoginWithEncrypt,
+    ValidateIndexedDBOpenable
   },
   mounted () {
     const url = genOAuthUrl({

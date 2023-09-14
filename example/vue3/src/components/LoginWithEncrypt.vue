@@ -92,13 +92,4 @@ const handleBaseLoginClick = (e: MouseEvent) => {
 }
 </script>
 
-<style scoped>
-.card {
-  border: 1px solid #efefef;
-  border-radius: 5px;
-  padding: 8px;
-}
-.card:not(:last-child) {
-  margin-bottom: 16px;
-}
-</style>
+<style scoped></style>
