@@ -2,7 +2,7 @@
  * 适用于浏览器环境的相关库
  */
 
-import { isBlobUrlLike, isUrlLike } from "./common"
+import { isBlobUrlLike, isFunction, isUrlLike } from "./common"
 import { IImageSize, SObject } from "./type"
 
 /**
@@ -327,4 +327,66 @@ export function base64ToBlob (data: string, mimeType = MIME_TYPE.JPG, sliceSize 
   // 创建 Blob 对象
   const blob = new Blob(byteArrays, { type: mimeType })
   return blob
+}
+
+/**
+ * 判断当前环境下 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API | indexedDB} 是否可用
+ * 
+ * @remarks
+ * 该方法的作用是提供一个可靠地判断indexedDB是否能支持的实现，
+ * 对一些边界情况进行处理，例如：iOS中safari的iframe中使用 
+ * {@link https://developer.mozilla.org/zh-CN/docs/Web/API/IDBFactory/open | window.indexedDB.open} 报错 `SecurityError`
+ * 
+ * ::: warning 提示
+ * 
+ * 此方法不会对indexedDB不支持的场景做任何polyfill，检测到不支持时需要自行考虑降级处理，例如：使用 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage | localStorage} 替代
+ * 
+ * :::
+ * 
+ * 方法实现参考：{@link https://github.com/firebase/firebase-js-sdk/blob/9c61afe3c03d30c15f648f81e3bd5ece073b58db/packages/util/src/environment.ts#L150}
+ * 
+ * @returns indexedDB是否可用
+ * 
+ * @example
+ * ```ts
+ * import { validateIndexedDBOpenable } from '@dinofe/xt-core/web'
+ * validateIndexedDBOpenable().then(isSupportIndexedDB => {
+ *  // isSupportIndexedDB表示是否支持
+ *  console.log(isSupportIndexedDB)
+ * }).catch(e => {
+ *    // 需要自行处理抛出的异常
+ * })
+ * ```
+ * 
+ * @public
+ */
+export function validateIndexedDBOpenable(): Promise<boolean> {
+  if (!window.indexedDB || !isFunction(window.indexedDB.open)) {
+    return Promise.resolve(false)
+  }
+  return new Promise((resolve, reject) => {
+    try {
+      let preExist: boolean = true;
+      const DB_CHECK_NAME =
+        'validate-browser-context-for-indexeddb-analytics-module';
+      const request = window.indexedDB.open(DB_CHECK_NAME);
+      request.onsuccess = () => {
+        request.result.close();
+        // delete database only when it doesn't pre-exist
+        if (!preExist) {
+          window.indexedDB.deleteDatabase(DB_CHECK_NAME);
+        }
+        resolve(true);
+      };
+      request.onupgradeneeded = () => {
+        preExist = false;
+      };
+
+      request.onerror = () => {
+        reject(request.error?.message || '');
+      };
+    } catch (error) {
+      reject(error);
+    }
+  });
 }

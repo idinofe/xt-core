@@ -66,6 +66,7 @@
 |  [runWithTimeout(fn, timeout, context, args)](./xt-core.runwithtimeout.md) | 判断传入的函数执行是否超时 |
 |  [times(arg1, arg2)](./xt-core.times.md) | 两浮点数相乘 |
 |  [toNonExponential(num)](./xt-core.tononexponential.md) | 将科学计数法的数字转为字符串 |
+|  [validateIndexedDBOpenable()](./xt-core.validateindexeddbopenable.md) | 判断当前环境下 [indexedDB](https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API) 是否可用 |
 
 ## Interfaces
 
