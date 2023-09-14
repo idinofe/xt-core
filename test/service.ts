@@ -4,7 +4,7 @@ import { koaBody } from 'koa-body'
 // import fs from 'fs'
 import http from 'http'
 import path from 'path'
-import { createSign, decrypt, encrypt } from 'decrypt-core'
+import { createSign, decrypt, encrypt, isEncryptedData } from 'decrypt-core'
 import { isDef, isString } from '../src/common'
 import { RETURN_CODE_FAIL, RETURN_CODE_SUCCESS } from '../src'
 
@@ -50,6 +50,31 @@ export function createApp () {
   });
 
   // 返回 json 数据
+
+  // 校验body数据是否加密-返回`{ encrypt: boolean }`
+  router.post('/json/check_encrypt', (ctx) => {
+    const body = ctx.request.body
+    if (!body) {
+      ctx.status = 200;
+      ctx.body = {
+        body: {
+          encrypt: false,
+        },
+        returnCode: 'SUCCESS',
+        returnDes: 'request body is empty',
+      }
+    } else {
+      ctx.status = 200;
+      ctx.body = {
+        body: {
+          encrypt: isEncryptedData(body),
+        },
+        returnCode: 'SUCCESS',
+        returnDes: '',
+      }
+    }
+  })
+  
   router.post('/json/success', (ctx) => {
     ctx.status = 200;
     ctx.body = {
@@ -173,7 +198,7 @@ export function createApp () {
     }
   })
 
-  // 加解密v1
+  // 加解密v1-返回采用v1加密的json数据`{ foo: 'bar' }`
   router.post('/encrypt/v1/success/json/', async (ctx) => {
     let dd, data, ed
     try {
@@ -215,6 +240,7 @@ export function createApp () {
     ctx.body = ed
   })
 
+  // 加解密v1-将`{ ...body }`、`{ foo: 'bar' }`、`{ token: ctx.request.headers.authorization }`合并后v1加密返回
   router.post('/encrypt/v1/success/real/', async (ctx) => {
     let dd, data, ed
     try {
@@ -259,7 +285,7 @@ export function createApp () {
     ctx.body = ed
   })
 
-  // 加解密v2
+  // 加解密v2-返回采用v2加密的json数据`{ foo: 'bar' }`
   router.post('/encrypt/v2/success/json/', async (ctx) => {
     let dd, data, ed
     try {
