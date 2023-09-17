@@ -11,7 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "@dinofe/xt-core": "^1.0.0-3",
+    "@dinofe/xt-core": "^1.0.0-4",
     "vue": "^3.3.4"
   },
   "devDependencies": {

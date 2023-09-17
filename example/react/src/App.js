@@ -7,6 +7,8 @@ import DStorage from '@dinofe/xt-core/storage/index'
 import LoginWithEncrypt from './components/LoginWithEncrypt'
 import UploadFile from './components/UploadFile'
 import ValidateIndexedDBOpenable from './components/ValidateIndexedDBOpenable'
+import ValidateStorageAvailable from './components/ValidateStorageAvailable'
+import GetStorageSize from './components/GetStorageSize'
 
 import './App.css';
 
@@ -45,6 +47,8 @@ function App() {
       <LoginWithEncrypt></LoginWithEncrypt>
       <UploadFile></UploadFile>
       <ValidateIndexedDBOpenable></ValidateIndexedDBOpenable>
+      <ValidateStorageAvailable></ValidateStorageAvailable>
+      <GetStorageSize></GetStorageSize>
     </div>
   );
 }

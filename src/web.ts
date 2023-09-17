@@ -2,7 +2,7 @@
  * 适用于浏览器环境的相关库
  */
 
-import { isBlobUrlLike, isFunction, isUrlLike } from "./common"
+import { isBlobUrlLike, isFunction, isUrlLike, randomNumber } from "./common"
 import { IImageSize, SObject } from "./type"
 
 /**
@@ -11,6 +11,64 @@ import { IImageSize, SObject } from "./type"
  * @public
  */
 export const COPY_FAIL_MESSAGE = '当前环境不支持复制'
+
+/**
+ * 存储空间占用大小
+ * 
+ * @public
+ */
+export interface IStorageSize {
+  /**
+   * 字节大小
+   */
+  sizeBytes: number
+  /**
+   * 以KB为单位的字符串表示
+   */
+  sizeKB: string
+  /**
+   * 以MB为单位的字符串表示
+   */
+  sizeMB: string
+  /**
+   * 以GB为单位的字符串表示
+   */
+  sizeGB: string
+  /**
+   * 以字节为单位的字符串描述
+   */
+  sizeInBytes: string
+  /**
+   * 以KB为单位的字符串表示（带单位）
+   */
+  sizeInKB: string
+  /**
+   * 以MB为单位的字符串表示（带单位）
+   */
+  sizeInMB: string
+  /**
+   * 以GB为单位的字符串表示（带单位）
+   */
+  sizeInGB: string
+}
+
+/**
+ * 存储类型
+ * 
+ * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Storage | Storage}
+ * 
+ * @public
+ */
+export const enum StroageType {
+  /**
+   * localStorage 存储
+   */
+  localStorage = 'localStorage',
+  /**
+   * sessionStorage 存储
+   */
+  sessionStorage = 'sessionStorage',
+}
 
 /**
  * MIME 类型
@@ -389,4 +447,132 @@ export function validateIndexedDBOpenable(): Promise<boolean> {
       reject(error);
     }
   });
+}
+
+/**
+ * 判断 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Storage | Stroage} 存储是否可用
+ * 
+ * @remarks
+ * 会真实调用 Stroage 的 API 进行存取数据操作，如果操作执行报错就认为当前环境 Storage 存储不可用
+ * 
+ * 同时支持 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage | localStroage}、{@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/sessionStorage | sessionStorage}
+ * 
+ * 实现方法参考自：{@link https://developer.mozilla.org/zh-CN/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API#localstorage_%E5%8A%9F%E8%83%BD%E6%A3%80%E6%B5%8B | Web_Storage_API}
+ * 
+ * @param type 存储类型
+ * 
+ * @returns Stroage 存储是否可用
+ * 
+ * @example 判断 localStorage 是否可用
+ * ```ts
+ * import { validateStorageAvailable } from '@dinofe/xt-core/web'
+ * validateStorageAvailable('localStorage')
+ * ```
+ * 
+ * @example 判断 sessionStorage 是否可用
+ * ```ts
+ * import { validateStorageAvailable } from '@dinofe/xt-core/web'
+ * validateStorageAvailable('sessionStorage')
+ * ```
+ * 
+ * @public
+ */
+export function validateStorageAvailable(type: StroageType): boolean {
+  if (![StroageType.localStorage, StroageType.sessionStorage].includes(type)) {
+    throw new Error('the param type should be one of ["localStroage", "sessionStorage"]')
+  }
+  let storage;
+  try {
+    storage = window[type];
+    let x = "__storage_test__" + randomNumber(5);
+    storage.setItem(x, x);
+    storage.removeItem(x);
+    return true;
+  } catch (e) {
+    return !!(
+      e instanceof DOMException &&
+      // everything except Firefox
+      (e.code === 22 ||
+        // Firefox
+        e.code === 1014 ||
+        // test name field too, because code might not be present
+        // everything except Firefox
+        e.name === "QuotaExceededError" ||
+        // Firefox
+        e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+      // acknowledge QuotaExceededError only if there's something already stored
+      storage &&
+      storage.length !== 0
+    );
+  }
+}
+
+/**
+ * 获取 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Storage | Stroage} 存储占用空间的大小
+ * 
+ * @remarks 同时支持 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage | localStroage}、{@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/sessionStorage | sessionStorage}
+ * 
+ * @param type 存储类型
+ * 
+ * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage | localStroage}
+ * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/sessionStorage | sessionStorage}
+ * 
+ * @returns Stroage 存储占用空间大小
+ * 
+ * @throws {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError | TypeError}
+ * 当传入的参数 type 不是 `StorageType.localStorage | StorageType.sessionStorage` 之一时会报错：`the param type should be one of ["localStroage", "sessionStorage"]`
+ * 
+ * @throws {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error | Error}
+ * 当 `Storage` 不可用时会报错：`window.${type} is not available`
+ * 
+ * 使用时，最好先检查 `Storage` 是否可用，可以使用方法：{@link @dinofe/xt-core#validateStorageAvailable | validateStorageAvailable(type)}
+ * 
+ * @example 获取 localStorage 占用空间大小
+ * ```ts
+ * import { getStorageSize } from '@dinofe/xt-core/web'
+ * const localSize = getStorageSize('localStorage')
+ * ```
+ * 
+ * @example 获取 sessionStorage 占用空间大小
+ * ```ts
+ * import { getStorageSize } from '@dinofe/xt-core/web'
+ * const sessionSize = getStorageSize('sessionStorage')
+ * ```
+ * 
+ * @public
+ */
+export function getStorageSize(type: StroageType): IStorageSize {
+  if (![StroageType.localStorage, StroageType.sessionStorage].includes(type)) {
+    throw new TypeError('the param type should be one of ["localStroage", "sessionStorage"]')
+  }
+
+  if (!validateStorageAvailable(type)) {
+    throw new Error(`window.${type} is not available`)
+  }
+
+  const storage = window[type]
+  const keys = Object.keys(storage)
+  let totalSize = 0
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    const value = storage.getItem(key);
+    const sizeInBytes = value === null ? 0 : new Blob([value]).size;
+    totalSize += sizeInBytes;
+  }
+
+  const totalSizeInKB = (totalSize / 1024).toFixed(2);
+  const totalSizeInMB = (totalSize / 1024 / 1024).toFixed(2);
+  const totalSizeInGB = (totalSize / 1024 / 1024 / 1024).toFixed(2);
+
+  return {
+    sizeBytes: totalSize,
+    sizeKB: totalSizeInKB,
+    sizeMB: totalSizeInMB,
+    sizeGB: totalSizeInGB,
+    sizeInBytes: totalSize + 'B',
+    sizeInKB: totalSizeInKB + 'KB',
+    sizeInMB: totalSizeInMB + 'MB',
+    sizeInGB: totalSizeInGB + 'GB',
+  };
 }

@@ -31,7 +31,7 @@ export declare function createBaseHttp(baseConfig: BaseConfig, config: HttpConfi
 
 ## Example 1
 
-采用默认v2加密：
+采用默认 `v2` 加密：
 
 ```ts
 import { createBaseHttp } from '@dinofe/xt-core/http'
