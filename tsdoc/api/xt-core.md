@@ -56,7 +56,7 @@
 |  [isString(a)](./xt-core.isstring.md) | 是否为字符串 |
 |  [isUndef(a)](./xt-core.isundef.md) | 是否为未定义 |
 |  [isUrlLike(url)](./xt-core.isurllike.md) | 校验字符串是否是 URL 链接 |
-|  [isValidToken(token)](./xt-core.isvalidtoken.md) | 校验token格式是否正确 |
+|  [isValidToken(token)](./xt-core.isvalidtoken.md) | 校验 token 格式是否正确 |
 |  [loadImage(url, isBase64, baseUrl)](./xt-core.loadimage.md) | 加载图片为 [Image](https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLImageElement) 对象 |
 |  [minus(arg1, arg2)](./xt-core.minus.md) | 两数相减 |
 |  [noop()](./xt-core.noop.md) | 空函数 |
@@ -86,7 +86,7 @@
 |  --- | --- |
 |  [appendBaiscUrl](./xt-core.appendbaiscurl.md) | 拼接接口业务域名 |
 |  [appendImageUrl](./xt-core.appendimageurl.md) | 拼接图片基础域名 |
-|  [Big](./xt-core.big.md) |  |
+|  [Big](./xt-core.big.md) | 解决JS计算精度问题的类 |
 |  [COPY\_FAIL\_MESSAGE](./xt-core.copy_fail_message.md) | 复制失败提示信息 |
 |  [decodeOAuthUrl](./xt-core.decodeoauthurl.md) | 解析微信 oAuth 链接中的配置参数 |
 |  [divide](./xt-core.divide.md) | 两浮点数相除 |

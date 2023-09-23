@@ -24,3 +24,14 @@ Promise&lt;unknown&gt;
 
 返回 Promise 对象
 
+## Example
+
+
+```ts
+import { delay } from '@dinofe/xt-core/common'
+async function fn1() {
+ await delay(3000)
+ console.log('foo') // 3s 之后才打印 foo
+}
+```
+

@@ -24,3 +24,21 @@ boolean
 
 是否是类似 blob 的链接
 
+## Remarks
+
+是否以 `blob://` 开头
+
+::: warning 提示
+
+该方法只是判断链接是否符合 `blob` 链接的特性，不保证 `blob` 链接一定可用
+
+:::
+
+## Example
+
+
+```ts
+import { isBlobUrlLike } from '@dinofe/xt-core/common'
+isBlobUrlLike('blob://6136234752134') // true
+```
+

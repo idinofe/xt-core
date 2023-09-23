@@ -29,3 +29,11 @@ null \| number
 
 修复了 js 乘法精度丢失问题，若相乘失败返回 `null`
 
+## Example
+
+
+```ts
+import { floatMultiply } from '@dinofe/xt-core/common'
+floatMultiply(1.33, 2) // 2.66
+```
+

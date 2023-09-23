@@ -4,8 +4,25 @@
 
 ## Big variable
 
+解决JS计算精度问题的类
+
 **Signature:**
 
 ```typescript
 Big: import("big.js").BigConstructor
 ```
+
+## Remarks
+
+
+## Example
+
+
+```ts
+import { Big } from '@dinofe/xt-core/common'
+x = new Big(123.4567)
+y = Big('123456.7e-3')                 // 'new' is optional
+z = new Big(x)
+x.eq(y) && x.eq(z) && y.eq(z)          // true
+```
+

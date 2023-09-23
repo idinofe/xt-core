@@ -24,3 +24,13 @@ boolean
 
 判断结果
 
+## Example
+
+
+```ts
+import { isEndWithSlash } from '@dinofe/xt-core/common'
+isEndWithSlash('/') // true
+isEndWithSlash('/foo/bar/') // true
+isEndWithSlash('foo bar') // false
+```
+

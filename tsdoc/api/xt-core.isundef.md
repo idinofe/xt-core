@@ -28,3 +28,14 @@ boolean
 
 是否是 undefiend \| null
 
+## Example
+
+
+```ts
+import { isUndef } from '@dinofe/xt-core/common'
+isUndef(undefined) // true
+isUndef(null) // true
+isUndef('undefined') // false
+isUndef({}) // false
+```
+

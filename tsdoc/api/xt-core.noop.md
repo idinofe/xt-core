@@ -15,3 +15,15 @@ export declare function noop(): void;
 
 void
 
+## Remarks
+
+不执行任何逻辑，使用这个相同的函数引入，可以避免业务代码中频繁创建空函数
+
+## Example
+
+
+```ts
+import { noop } from '@dinofe/xt-core/common'
+Promise.reject('foo').catch(noop) // 吞掉 reject 的错误
+```
+

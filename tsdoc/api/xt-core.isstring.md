@@ -24,3 +24,12 @@ boolean
 
 判断结果
 
+## Example
+
+
+```ts
+import { isString } from '@dinofe/xt-core/common'
+isString('foo') // true
+isString({}) // false
+```
+

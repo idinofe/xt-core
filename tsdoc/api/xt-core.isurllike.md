@@ -26,5 +26,13 @@ boolean
 
 ## Remarks
 
-是以 http 或 https 开头
+是否以 `http://` 或 `https://` 开头
+
+## Example
+
+
+```ts
+import { isUrlLike } from '@dinofe/xt-core/common'
+isUrlLike('https://www.foo.bar') // true
+```
 

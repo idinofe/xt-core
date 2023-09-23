@@ -28,3 +28,14 @@ boolean
 
 非 undefined \| 'undefined' \| null
 
+## Example
+
+
+```ts
+import { isDef } from '@dinofe/xt-core/common'
+isDef(undefined) // false
+isDef('undefined') // false
+isDef(null) // false
+isDef('foo') // true
+```
+

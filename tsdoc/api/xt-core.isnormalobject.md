@@ -28,3 +28,11 @@ boolean
 
 看 toString 是否是 '\[object Object\]'
 
+## Example
+
+
+```ts
+import { isNormalObject } from '@dinofe/xt-core/common'
+isNormalObject({ foo: 'bar' }) // true
+```
+

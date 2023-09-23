@@ -16,11 +16,19 @@ export declare function randomNumber(len?: number): string;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  len | number | _(Optional)_ 长度 TODO: 怎么定义默认值 |
+|  len | number | _(Optional)_ 长度 |
 
 **Returns:**
 
 string
 
 生成的字符串
+
+## Example
+
+
+```ts
+import { randomNumber } from '@dinofe/xt-core/common'
+randomNumber(10) // 生成 10 位长度的随机数
+```
 
