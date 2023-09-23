@@ -366,20 +366,18 @@ export function validateIndexedDBOpenable(): Promise<boolean> {
   }
   return new Promise((resolve, reject) => {
     try {
-      let preExist: boolean = true;
-      const DB_CHECK_NAME =
-        'validate-browser-context-for-indexeddb-analytics-module';
+      // let preExist: boolean = false;
+      // 尽量保证数据库名称不重复
+      const DB_CHECK_NAME = 'xtcore-validate-indexeddb-793830e4-ce92-4b9d-8ff0-d2c9a597f3d6';
       const request = window.indexedDB.open(DB_CHECK_NAME);
       request.onsuccess = () => {
         request.result.close();
-        // delete database only when it doesn't pre-exist
-        if (!preExist) {
-          window.indexedDB.deleteDatabase(DB_CHECK_NAME);
-        }
+        // 不管之前数据库是否存在都直接删除
+        window.indexedDB.deleteDatabase(DB_CHECK_NAME);
         resolve(true);
       };
       request.onupgradeneeded = () => {
-        preExist = false;
+        // preExist = true;
       };
 
       request.onerror = () => {
