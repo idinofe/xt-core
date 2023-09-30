@@ -3,6 +3,8 @@
     <LoginWithEncrypt></LoginWithEncrypt>
     <UploadFile></UploadFile>
     <ValidateIndexedDBOpenable></ValidateIndexedDBOpenable>
+    <ValidateStorageAvailable></ValidateStorageAvailable>
+    <GetStorageSize></GetStorageSize>
   </div>
 </template>
 
@@ -16,13 +18,17 @@ import DStorage from '@dinofe/xt-core/storage/index'
 import UploadFile from './components/UploadFile.vue'
 import LoginWithEncrypt from './components/LoginWithEncrypt.vue'
 import ValidateIndexedDBOpenable from './components/ValidateIndexedDBOpenable.vue'
+import ValidateStorageAvailable from './components/ValidateStorageAvailable.vue'
+import GetStorageSize from './components/GetStorageSize.vue'
 
 export default {
   name: 'App',
   components: {
     UploadFile,
     LoginWithEncrypt,
-    ValidateIndexedDBOpenable
+    ValidateIndexedDBOpenable,
+    ValidateStorageAvailable,
+    GetStorageSize
   },
   mounted () {
     const url = genOAuthUrl({

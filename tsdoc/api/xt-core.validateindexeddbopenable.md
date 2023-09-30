@@ -39,4 +39,3 @@ validateIndexedDBOpenable().then(isSupportIndexedDB => {
  console.log(isSupportIndexedDB)
 })
 ```
-

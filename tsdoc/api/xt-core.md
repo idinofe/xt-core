@@ -26,6 +26,7 @@
 |  --- | --- |
 |  [EncryptVersion](./xt-core.encryptversion.md) | 数据加密版本 |
 |  [MIME\_TYPE](./xt-core.mime_type.md) | MIME 类型 |
+|  [StroageType](./xt-core.stroagetype.md) | 存储类型 |
 |  [WxScope](./xt-core.wxscope.md) | 微信授权scope |
 
 ## Functions
@@ -43,6 +44,7 @@
 |  [floatDivide(arg1, arg2)](./xt-core.floatdivide.md) | 两浮点数相除 |
 |  [floatMultiply(arg1, arg2)](./xt-core.floatmultiply.md) | 两浮点数相乘 |
 |  [getQuery(str, a)](./xt-core.getquery.md) | 获取url中参数值 |
+|  [getStorageSize(type)](./xt-core.getstoragesize.md) | 获取 [Stroage](https://developer.mozilla.org/zh-CN/docs/Web/API/Storage) 存储占用空间的大小 |
 |  [isBlobUrlLike(url)](./xt-core.isbloburllike.md) | 校验字符串是否是 [URL.createObjectURL](https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static) 返回的链接 |
 |  [isDef(a)](./xt-core.isdef.md) | 是否为有效的值 |
 |  [isEncodeURILike(url)](./xt-core.isencodeurilike.md) | 判断给定的 URI 是否是 [URIEncode](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURI) 过的 |
@@ -67,6 +69,7 @@
 |  [times(arg1, arg2)](./xt-core.times.md) | 两浮点数相乘 |
 |  [toNonExponential(num)](./xt-core.tononexponential.md) | 将科学计数法的数字转为字符串 |
 |  [validateIndexedDBOpenable()](./xt-core.validateindexeddbopenable.md) | 判断当前环境下 [indexedDB](https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API) 是否可用 |
+|  [validateStorageAvailable(type)](./xt-core.validatestorageavailable.md) | 判断 [Stroage](https://developer.mozilla.org/zh-CN/docs/Web/API/Storage) 存储是否可用 |
 
 ## Interfaces
 
@@ -77,6 +80,7 @@
 |  [BaseTransform](./xt-core.basetransform.md) | BaseTransform |
 |  [CustomConfig](./xt-core.customconfig.md) | HTTP 自定义配置 |
 |  [IImageSize](./xt-core.iimagesize.md) | IImageSize |
+|  [IStorageSize](./xt-core.istoragesize.md) | 存储空间占用大小 |
 |  [UploadInstance](./xt-core.uploadinstance.md) | UploadInstance |
 |  [XApisauceInstance](./xt-core.xapisauceinstance.md) | HTTP 实例 |
 
