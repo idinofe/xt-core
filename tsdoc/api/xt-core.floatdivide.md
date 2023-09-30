@@ -25,9 +25,15 @@ null \| number
 
 相除结果
 
-TODO: 为 0 结果会怎样？
-
 ## Remarks
 
 修复了 js 除法精度丢失问题
+
+## Example
+
+
+```ts
+import { floatDivide } from '@dinofe/xt-core/common'
+floatDivide(2.66, 2) // 1.33
+```
 

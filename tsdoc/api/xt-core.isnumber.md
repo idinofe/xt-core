@@ -24,3 +24,12 @@ boolean
 
 判断结果
 
+## Example
+
+
+```ts
+import { isNumber } from '@dinofe/xt-core/common'
+isNumber(0) // true
+isNumber({}) // false
+```
+

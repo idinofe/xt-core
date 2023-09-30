@@ -29,3 +29,11 @@ Big
 
 修复了 js 乘法精度丢失问题，基于 [big.js](https://www.npmjs.com/package/big.js) 实现
 
+## Example
+
+
+```ts
+import { times } from '@dinofe/xt-core/common'
+times(1.33, 2).toNumber() // 2.66
+```
+

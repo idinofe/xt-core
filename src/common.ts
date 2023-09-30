@@ -6,7 +6,21 @@ import _Big from 'big.js'
 import type TBig from 'big.js'
 
 /**
+ * 解决JS计算精度问题的类
+ * 
+ * @remarks
  * @see {@link big.js#Big | Big}
+ * 
+ * 用法参考：{@link https://github.com/MikeMcl/big.js}
+ * 
+ * @example
+ * ```ts
+ * import { Big } from '@dinofe/xt-core/common'
+ * x = new Big(123.4567)
+ * y = Big('123456.7e-3')                 // 'new' is optional
+ * z = new Big(x)
+ * x.eq(y) && x.eq(z) && y.eq(z)          // true
+ * ```
  * 
  * @public
  */
@@ -19,6 +33,15 @@ export const Big = _Big
  * 
  * @param a - 待校验的数据
  * @returns 判断结果
+ * 
+ * @example
+ * ```ts
+ * import { isDef } from '@dinofe/xt-core/common'
+ * isDef(undefined) // false
+ * isDef('undefined') // false
+ * isDef(null) // false
+ * isDef('foo') // true
+ * ```
  * 
  * @public
  */
@@ -34,6 +57,15 @@ export function isDef (a: any): boolean {
  * @param a - 待校验的数据
  * @returns 判断结果
  * 
+ * @example
+ * ```ts
+ * import { isUndef } from '@dinofe/xt-core/common'
+ * isUndef(undefined) // true
+ * isUndef(null) // true
+ * isUndef('undefined') // false
+ * isUndef({}) // false
+ * ```
+ * 
  * @public
  */
 export function isUndef (a: any): boolean {
@@ -45,6 +77,14 @@ export function isUndef (a: any): boolean {
  * 
  * @param a - 待校验的数据
  * @returns 判断结果
+ * 
+ * @example
+ * ```ts
+ * import { isEndWithSlash } from '@dinofe/xt-core/common'
+ * isEndWithSlash('/') // true
+ * isEndWithSlash('/foo/bar/') // true
+ * isEndWithSlash('foo bar') // false
+ * ```
  * 
  * @public
  */
@@ -60,6 +100,14 @@ export function isEndWithSlash (a: string): boolean {
  * 
  * @param a - 待校验的数据
  * @returns 判断结果
+ *
+ * @example
+ * ```ts
+ * import { isStartWithSlash } from '@dinofe/xt-core/common'
+ * isStartWithSlash('/') // true
+ * isStartWithSlash('/foo/bar/') // true
+ * isStartWithSlash('foo bar') // false
+ * ```
  * 
  * @public
  */
@@ -76,6 +124,13 @@ export function isStartWithSlash (a: string): boolean {
  * @param a - 待校验的数据
  * @returns 判断结果
  * 
+ * @example
+ * ```ts
+ * import { isString } from '@dinofe/xt-core/common'
+ * isString('foo') // true
+ * isString({}) // false
+ * ```
+ * 
  * @public
  */
 export function isString (a: any): boolean {
@@ -87,6 +142,13 @@ export function isString (a: any): boolean {
  * @param a - 待校验的数据
  * @returns 判断结果
  * 
+ * @example
+ * ```ts
+ * import { isNumber } from '@dinofe/xt-core/common'
+ * isNumber(0) // true
+ * isNumber({}) // false
+ * ```
+ * 
  * @public
  */
 export function isNumber (a: any): boolean {
@@ -96,8 +158,25 @@ export function isNumber (a: any): boolean {
 /**
  * 是否为 {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} 对象
  * 
+ * @remarks
+ * 
+ * ::: warning 提示
+ * 
+ * 此方法并非严格的判断，具有 `then` 方法的对象也可能被判断为是 `Promise`
+ * 
+ * :::
+ * 
  * @param a - 待校验的数据
  * @returns 判断结果
+ * 
+ * @example
+ * ```ts
+ * import { isPromise } from '@dinofe/xt-core/common'
+ * let p1 = Promise.resolve()
+ * let f1 = () => {}
+ * isPromise(p1) // true
+ * isPromise(f1) // false
+ * ```
  * 
  * @public
  */
@@ -111,6 +190,12 @@ export function isPromise (a: any): boolean {
  * @param a - 待校验的数据
  * @returns 判断结果
  * 
+ * @example
+ * ```ts
+ * import { isFunction } from '@dinofe/xt-core/common'
+ * isFunction(() => {}) // true
+ * ```
+ * 
  * @public
  */
 export function isFunction (a: any): boolean {
@@ -122,6 +207,12 @@ export function isFunction (a: any): boolean {
  * 
  * @param a - 待校验的数据
  * @returns 判断结果
+ * 
+ * @example
+ * ```ts
+ * import { isFromData } from '@dinofe/xt-core/common'
+ * isFromData({}) // false
+ * ```
  * 
  * @public
  */
@@ -137,6 +228,12 @@ export function isFormData (a: any): boolean {
  * @param a - 待校验的数据
  * @returns 判断结果
  * 
+ * @example
+ * ```ts
+ * import { isNormalObject } from '@dinofe/xt-core/common'
+ * isNormalObject({ foo: 'bar' }) // true
+ * ```
+ * 
  * @public
  */
 export function isNormalObject (a: any): boolean {
@@ -145,8 +242,23 @@ export function isNormalObject (a: any): boolean {
 
 /**
  * 判断给定的 URI 是否是 {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURI | URIEncode} 过的
+ * 
+ * @remarks
+ * 
+ * ::: warning 提示
+ * 
+ * 只是判断字符串中是否有 URIEncode 编码产生的 '%' 字符特征，不是十分严谨
+ * 
+ * :::
+ * 
  * @param url - 输入 URL
  * @returns 是否 encoded 过的 URI
+ * 
+ * @example
+ * ```ts
+ * import { isEncodeURILike } from '@dinofe/xt-core/common'
+ * isEncodeURILike('foo bar') // false
+ * ```
  * 
  * @public
  */
@@ -159,10 +271,16 @@ export function isEncodeURILike (url: string): boolean {
 /**
  * 校验字符串是否是 URL 链接
  * 
- * @remarks 是以 http 或 https 开头
+ * @remarks 是否以 `http://` 或 `https://` 开头
  * 
  * @param url - 任意字符串
  * @returns 是否是 URL 链接
+ * 
+ * @example
+ * ```ts
+ * import { isUrlLike } from '@dinofe/xt-core/common'
+ * isUrlLike('https://www.foo.bar') // true
+ * ```
  * 
  * @public
  */
@@ -174,8 +292,24 @@ export function isUrlLike (url: string): boolean {
 /**
  * 校验字符串是否是 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/URL/createObjectURL_static | URL.createObjectURL} 返回的链接
  * 
+ * @remarks
+ * 是否以 `blob://` 开头
+ * 
+ * ::: warning 提示
+ * 
+ * 该方法只是判断链接是否符合 `blob` 链接的特性，不保证 `blob` 链接一定可用
+ * 
+ * :::
+ * 
+ * 
  * @param url - 任意字符串
  * @returns 是否是类似 blob 的链接
+ * 
+ * @example
+ * ```ts
+ * import { isBlobUrlLike } from '@dinofe/xt-core/common'
+ * isBlobUrlLike('blob://6136234752134') // true
+ * ```
  * 
  * @public
  */
@@ -188,14 +322,30 @@ export function isBlobUrlLike (url: string): boolean {
  * 转换为已 resolved 的 {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise | Promise} 对象
  * 
  * @remarks
- * 与 {@link https://nodejs.cn/api/util/util_promisify_original.html | uitls.promisify} 不同
+ * 与 {@link https://nodejs.cn/api/util/util_promisify_original.html | uitls.promisify} 不同，它是将回调函数写法转成 Promise 写法；
+ * 
+ * {@link @dinofe/xt-core#promisify | promisify} 是将传入的值包装成 Promise 对象，方便统一业务代码的写法
  * 
  * 1.传入Promise对象则直接返回
  * 
  * 2.传入非Promise则包装之后再返回
  * 
+ * ::: warning 提示
+ * 
+ * 对于不支持的 Promise 的环境，需要自行进行 polyfill
+ * 
+ * :::
+ * 
  * @param a - 待转换的数据
- * @returns 转换后的 Promise
+ * @returns 返回包装后的 Promise 对象
+ * 
+ * @example
+ * ```ts
+ * import { promisify } from '@dinofe/xt-core/common'
+ * promisify('foo').then(e => {
+ *  console.log(e) // foo
+ * })
+ * ```
  * 
  * @public
  */
@@ -211,6 +361,15 @@ export function promisify <T = any>(a: T): Promise<T> {
  * 
  * @param time - 延迟时间（毫秒）
  * @returns 返回 Promise 对象
+ * 
+ * @example
+ * ```ts
+ * import { delay } from '@dinofe/xt-core/common'
+ * async function fn1() {
+ *  await delay(3000)
+ *  console.log('foo') // 3s 之后才打印 foo
+ * }
+ * ```
  * 
  * @public
  */
@@ -229,6 +388,14 @@ export function delay (time: number = 1000) {
 /**
  * 空函数
  * 
+ * @remarks 不执行任何逻辑，使用这个相同的函数引入，可以避免业务代码中频繁创建空函数
+ * 
+ * @example
+ * ```ts
+ * import { noop } from '@dinofe/xt-core/common'
+ * Promise.reject('foo').catch(noop) // 吞掉 reject 的错误
+ * ```
+ * 
  * @public
  */
 export function noop () {}
@@ -236,8 +403,14 @@ export function noop () {}
 /**
  * 生成随机数字符串
  * 
- * @param len - 长度 TODO: 怎么定义默认值
+ * @param len - 长度
  * @returns 生成的字符串
+ * 
+ * @example
+ * ```ts
+ * import { randomNumber } from '@dinofe/xt-core/common'
+ * randomNumber(10) // 生成 10 位长度的随机数
+ * ```
  * 
  * @public
  */
@@ -259,7 +432,15 @@ export function randomNumber (len: number = 20): string {
 /**
  * 生成 21 位长度的消息 ID
  * 
+ * @remarks 生成的消息 ID 中体现有时间戳信息，并非真正意义上的 ID
+ * 
  * @returns 21 位长度的字符串
+ * 
+ * @example
+ * ```ts
+ * import { genMessageId } from '@dinofe/xt-core/common'
+ * genMessageId()
+ * ```
  * 
  * @public
  */
@@ -302,6 +483,12 @@ export const genMessageId = (): string => {
  * @param num - 待转换值
  * @returns 转换结果
  * 
+ * @example
+ * ```ts
+ * import { toNonExponential } from '@dinofe/xt-core/common'
+ * toNonExponential(100)
+ * ```
+ * 
  * @public
  */
 export function toNonExponential (num: number): null | string {
@@ -327,6 +514,12 @@ export function toNonExponential (num: number): null | string {
  * @param arg2 - 浮点数 2
  * 
  * @returns 相乘结果
+ * 
+ * @example
+ * ```ts
+ * import { floatMultiply } from '@dinofe/xt-core/common'
+ * floatMultiply(1.33, 2) // 2.66
+ * ```
  * 
  * @public
  */
@@ -366,11 +559,17 @@ export function floatMultiply (arg1: number | string, arg2: number | string): nu
  * 
  * @remarks 修复了 js 除法精度丢失问题
  * 
+ * @privateRemarks TODO: 为 0 结果会怎样？
+ * 
  * @param arg1 - 被除数
  * @param arg2 - 除数
  * @returns 相除结果
  * 
- * TODO: 为 0 结果会怎样？
+ * @example
+ * ```ts
+ * import { floatDivide } from '@dinofe/xt-core/common'
+ * floatDivide(2.66, 2) // 1.33
+ * ```
  * 
  * @public
  */
@@ -418,6 +617,12 @@ export function floatDivide (arg1: string | number, arg2: string | number): null
  * @param arg2 - 数字 2
  * @returns Big
  * 
+ * @example
+ * ```ts
+ * import { times } from '@dinofe/xt-core/common'
+ * times(1.33, 2).toNumber() // 2.66
+ * ```
+ * 
  * @public
  */
 export function times (arg1: number | string | TBig, arg2: number | string | TBig): TBig {
@@ -428,6 +633,12 @@ export function times (arg1: number | string | TBig, arg2: number | string | TBi
  * 两浮点数相乘
  * 
  * @see {@link @dinofe/xt-core#times | times}
+ * 
+ * @example
+ * ```ts
+ * import { multiply } from '@dinofe/xt-core/common'
+ * multiply(1.33, 2).toNumber() // 2.66
+ * ```
  * 
  * @public
  */
@@ -442,6 +653,12 @@ export const multiply = times
  * @param arg2 - 除数
  * @returns Big
  * 
+ * @example
+ * ```ts
+ * import { div } from '@dinofe/xt-core/common'
+ * div(2.66, 2).toNumber() // 1.33
+ * ```
+ * 
  * @public
  */
 export function div (arg1: number | string | TBig, arg2: number | string | TBig): TBig {
@@ -452,6 +669,12 @@ export function div (arg1: number | string | TBig, arg2: number | string | TBig)
  * 两浮点数相除
  * 
  * @see {@link @dinofe/xt-core#div | div}
+ * 
+ * @example
+ * ```ts
+ * import { divide } from '@dinofe/xt-core/common'
+ * divide(2.66, 2).toNumber() // 1.33
+ * ```
  * 
  * @public
  */
@@ -465,6 +688,12 @@ export const divide = div
  * @param arg1 - arg1 加数 1
  * @param arg2 - arg2 加数 2
  * @returns Big
+ * 
+ * @example
+ * ```ts
+ * import { plus } from '@dinofe/xt-core/common'
+ * plus(0.1, 0.2) // 0.3
+ * ```
  * 
  * @public
  */
@@ -481,6 +710,12 @@ export function plus (arg1: string | number | TBig, arg2: string | number | TBig
  * @param arg2 - 减数 2
  * @returns Big
  * 
+ * @example
+ * ```ts
+ * import { minus } from '@dinofe/xt-core/common'
+ * minus(0.3, 0.2) // 0.1
+ * ```
+ * 
  * @public
  */
 export function minus (arg1: string | number | TBig, arg2: string | number | TBig): TBig {
@@ -490,9 +725,17 @@ export function minus (arg1: string | number | TBig, arg2: string | number | TBi
 /**
  * 获取url中参数值
  * 
+ * @remarks 使用 `&` `=` 符号进行切割，不会进行 URL 反编码
+ * 
  * @param str - url链接
  * @param a - 要获取参数的key
  * @returns url链接中key对应的值
+ * 
+ * @example
+ * ```ts
+ * import { getQuery } from '@dinofe/xt-core/common'
+ * getQuery('https://www.foo.com?a=aaa&b=bbb', a) // aaa
+ * ```
  * 
  * @public
  */
@@ -520,10 +763,26 @@ export function getQuery (str:string, a:string) {
 }
 
 /**
- * 校验token格式是否正确
+ * 校验 token 格式是否正确
+ * 
+ * @remarks
+ * 校验token是否是字符串，且不是 `'undefined'` `'null'` 这种容易保存错误的字符串
+ * 
+ * ::: warning 提示
+ * 
+ * 此方法不会真实校验 token 是否有效，并且不会对 token 格式个严格校验
+ * 
+ * :::
  *
+ * 
  * @param token - token
  * @returns 是否有效token
+ *
+ * @example
+ * ```ts
+ * import { isValidToken } from '@dinofe/xt-core/common'
+ * isValidToken('foo bar') // true
+ * ```
  *
  * @public
  */

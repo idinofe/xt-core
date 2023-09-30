@@ -24,3 +24,19 @@ boolean
 
 是否 encoded 过的 URI
 
+## Remarks
+
+::: warning 提示
+
+只是判断字符串中是否有 URIEncode 编码产生的 '%' 字符特征，不是十分严谨
+
+:::
+
+## Example
+
+
+```ts
+import { isEncodeURILike } from '@dinofe/xt-core/common'
+isEncodeURILike('foo bar') // false
+```
+

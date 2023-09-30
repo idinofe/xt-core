@@ -29,3 +29,11 @@ Big
 
 修复了 js 加法精度丢失问题，基于 [big.js](https://www.npmjs.com/package/big.js) 实现
 
+## Example
+
+
+```ts
+import { plus } from '@dinofe/xt-core/common'
+plus(0.1, 0.2) // 0.3
+```
+

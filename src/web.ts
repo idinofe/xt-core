@@ -391,19 +391,19 @@ export function base64ToBlob (data: string, mimeType = MIME_TYPE.JPG, sliceSize 
  * 判断当前环境下 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API | indexedDB} 是否可用
  * 
  * @remarks
- * 该方法的作用是提供一个可靠地判断indexedDB是否能支持的实现，
- * 对一些边界情况进行处理，例如：iOS中safari的iframe中使用 
+ * 该方法的作用是提供一个可靠的判断 indexedDB 是否支持的实现，
+ * 对一些边界情况进行处理，例如：iOS 中 safari 的 iframe 中使用 
  * {@link https://developer.mozilla.org/zh-CN/docs/Web/API/IDBFactory/open | window.indexedDB.open} 报错 `SecurityError`
  * 
  * ::: warning 提示
  * 
- * 此方法不会对indexedDB不支持的场景做任何polyfill，检测到不支持时需要自行考虑降级处理，例如：使用 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage | localStorage} 替代
+ * 1. 此方法不会对 indexedDB 不支持的场景做任何 polyfill，检测到不支持时需要自行考虑降级处理，例如：使用 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Window/localStorage | localStorage} 替代
+ * 
+ * 2. 此方法会删除名为 `xtcore-validate-indexeddb-793830e4-ce92-4b9d-8ff0-d2c9a597f3d6` 的 indexedDB 数据库，如果你的业务逻辑中有同名的数据库请换一个名字
  * 
  * :::
  * 
  * 方法实现参考：{@link https://github.com/firebase/firebase-js-sdk/blob/9c61afe3c03d30c15f648f81e3bd5ece073b58db/packages/util/src/environment.ts#L150}
- * 
- * @returns indexedDB是否可用
  * 
  * @example
  * ```ts
@@ -411,8 +411,6 @@ export function base64ToBlob (data: string, mimeType = MIME_TYPE.JPG, sliceSize 
  * validateIndexedDBOpenable().then(isSupportIndexedDB => {
  *  // isSupportIndexedDB表示是否支持
  *  console.log(isSupportIndexedDB)
- * }).catch(e => {
- *    // 需要自行处理抛出的异常
  * })
  * ```
  * 
@@ -424,24 +422,24 @@ export function validateIndexedDBOpenable(): Promise<boolean> {
   }
   return new Promise((resolve, reject) => {
     try {
-      let preExist: boolean = true;
-      const DB_CHECK_NAME =
-        'validate-browser-context-for-indexeddb-analytics-module';
+      // let preExist: boolean = false;
+      // 尽量保证数据库名称不重复
+      const DB_CHECK_NAME = 'xtcore-validate-indexeddb-793830e4-ce92-4b9d-8ff0-d2c9a597f3d6';
       const request = window.indexedDB.open(DB_CHECK_NAME);
       request.onsuccess = () => {
         request.result.close();
-        // delete database only when it doesn't pre-exist
-        if (!preExist) {
-          window.indexedDB.deleteDatabase(DB_CHECK_NAME);
-        }
+        // 不管之前数据库是否存在都直接删除
+        window.indexedDB.deleteDatabase(DB_CHECK_NAME);
         resolve(true);
       };
       request.onupgradeneeded = () => {
-        preExist = false;
+        // preExist = true;
       };
 
       request.onerror = () => {
-        reject(request.error?.message || '');
+        // reject(request.error?.message || '');
+        // console.log(request.error);
+        resolve(false);
       };
     } catch (error) {
       reject(error);

@@ -4,7 +4,7 @@
 
 ## isValidToken() function
 
-校验token格式是否正确
+校验 token 格式是否正确
 
 **Signature:**
 
@@ -23,4 +23,22 @@ export declare function isValidToken(token: any): boolean;
 boolean
 
 是否有效token
+
+## Remarks
+
+校验token是否是字符串，且不是 `'undefined'` `'null'` 这种容易保存错误的字符串
+
+::: warning 提示
+
+此方法不会真实校验 token 是否有效，并且不会对 token 格式个严格校验
+
+:::
+
+## Example
+
+
+```ts
+import { isValidToken } from '@dinofe/xt-core/common'
+isValidToken('foo bar') // true
+```
 

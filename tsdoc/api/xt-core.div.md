@@ -29,3 +29,11 @@ Big
 
 修复了 js 除法精度丢失问题，基于 [big.js](https://www.npmjs.com/package/big.js) 实现
 
+## Example
+
+
+```ts
+import { div } from '@dinofe/xt-core/common'
+div(2.66, 2).toNumber() // 1.33
+```
+

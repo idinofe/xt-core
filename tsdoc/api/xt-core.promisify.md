@@ -22,13 +22,31 @@ export declare function promisify<T = any>(a: T): Promise<T>;
 
 Promise&lt;T&gt;
 
-转换后的 Promise
+返回包装后的 Promise 对象
 
 ## Remarks
 
-与 [uitls.promisify](https://nodejs.cn/api/util/util_promisify_original.html) 不同
+与 [uitls.promisify](https://nodejs.cn/api/util/util_promisify_original.html) 不同，它是将回调函数写法转成 Promise 写法；
+
+[promisify](./xt-core.promisify.md) 是将传入的值包装成 Promise 对象，方便统一业务代码的写法
 
 1.传入Promise对象则直接返回
 
 2.传入非Promise则包装之后再返回
+
+::: warning 提示
+
+对于不支持的 Promise 的环境，需要自行进行 polyfill
+
+:::
+
+## Example
+
+
+```ts
+import { promisify } from '@dinofe/xt-core/common'
+promisify('foo').then(e => {
+ console.log(e) // foo
+})
+```
 

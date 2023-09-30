@@ -11,3 +11,12 @@
 ```typescript
 multiply: typeof times
 ```
+
+## Example
+
+
+```ts
+import { multiply } from '@dinofe/xt-core/common'
+multiply(1.33, 2).toNumber() // 2.66
+```
+

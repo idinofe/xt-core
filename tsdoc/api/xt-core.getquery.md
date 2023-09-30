@@ -25,3 +25,15 @@ string \| undefined
 
 url链接中key对应的值
 
+## Remarks
+
+使用 `&` `=` 符号进行切割，不会进行 URL 反编码
+
+## Example
+
+
+```ts
+import { getQuery } from '@dinofe/xt-core/common'
+getQuery('https://www.foo.com?a=aaa&b=bbb', a) // aaa
+```
+

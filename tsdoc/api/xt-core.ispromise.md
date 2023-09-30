@@ -24,3 +24,22 @@ boolean
 
 判断结果
 
+## Remarks
+
+::: warning 提示
+
+此方法并非严格的判断，具有 `then` 方法的对象也可能被判断为是 `Promise`
+
+:::
+
+## Example
+
+
+```ts
+import { isPromise } from '@dinofe/xt-core/common'
+let p1 = Promise.resolve()
+let f1 = () => {}
+isPromise(p1) // true
+isPromise(f1) // false
+```
+

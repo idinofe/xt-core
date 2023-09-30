@@ -11,3 +11,12 @@
 ```typescript
 divide: typeof div
 ```
+
+## Example
+
+
+```ts
+import { divide } from '@dinofe/xt-core/common'
+divide(2.66, 2).toNumber() // 1.33
+```
+

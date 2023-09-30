@@ -24,3 +24,11 @@ boolean
 
 判断结果
 
+## Example
+
+
+```ts
+import { isFromData } from '@dinofe/xt-core/common'
+isFromData({}) // false
+```
+

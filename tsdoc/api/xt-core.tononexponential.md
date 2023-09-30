@@ -32,3 +32,11 @@ null \| string
 
 若转换失败，则返回 `null`
 
+## Example
+
+
+```ts
+import { toNonExponential } from '@dinofe/xt-core/common'
+toNonExponential(100)
+```
+

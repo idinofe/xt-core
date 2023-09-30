@@ -11,3 +11,16 @@
 ```typescript
 genMessageId: () => string
 ```
+
+## Remarks
+
+生成的消息 ID 中体现有时间戳信息，并非真正意义上的 ID
+
+## Example
+
+
+```ts
+import { genMessageId } from '@dinofe/xt-core/common'
+genMessageId()
+```
+
