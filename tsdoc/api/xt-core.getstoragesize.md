@@ -9,14 +9,14 @@
 **Signature:**
 
 ```typescript
-export declare function getStorageSize(type: StroageType): IStorageSize;
+export declare function getStorageSize(type: StorageType): IStorageSize;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  type | [StroageType](./xt-core.stroagetype.md) | 存储类型 |
+|  type | [StorageType](./xt-core.storagetype.md) | 存储类型 |
 
 **Returns:**
 
@@ -26,7 +26,7 @@ Stroage 存储占用空间大小
 
 ## Exceptions
 
-[TypeError](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError) 当传入的参数 type 不是 `StorageType.localStorage | StorageType.sessionStorage` 之一时会报错：`the param type should be one of ["localStroage", "sessionStorage"]`
+[TypeError](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError) 当传入的参数 type 不是 `StorageType.localStorage | StorageType.sessionStorage` 之一时会报错：`the param type should be one of ["localStorage", "sessionStorage"]`
 
 [Error](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error) 当 `Storage` 不可用时会报错：`window.${type} is not available`
 
@@ -52,5 +52,14 @@ const localSize = getStorageSize('localStorage')
 ```ts
 import { getStorageSize } from '@dinofe/xt-core/web'
 const sessionSize = getStorageSize('sessionStorage')
+```
+
+## Example 3
+
+枚举参数可以引入
+
+```ts
+import { StorageType, getStorageSize } from '@dinofe/xt-core/web'
+const localSize = getStorageSize(StorageType.localStorage)
 ```
 

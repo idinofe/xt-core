@@ -26,7 +26,7 @@
 |  --- | --- |
 |  [EncryptVersion](./xt-core.encryptversion.md) | 数据加密版本 |
 |  [MIME\_TYPE](./xt-core.mime_type.md) | MIME 类型 |
-|  [StroageType](./xt-core.stroagetype.md) | 存储类型 |
+|  [StorageType](./xt-core.storagetype.md) | 存储类型 |
 |  [WxScope](./xt-core.wxscope.md) | 微信授权scope |
 
 ## Functions

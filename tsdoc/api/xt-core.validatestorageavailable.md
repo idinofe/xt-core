@@ -9,14 +9,14 @@
 **Signature:**
 
 ```typescript
-export declare function validateStorageAvailable(type: StroageType): boolean;
+export declare function validateStorageAvailable(type: StorageType): boolean;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  type | [StroageType](./xt-core.stroagetype.md) | 存储类型 |
+|  type | [StorageType](./xt-core.storagetype.md) | 存储类型 |
 
 **Returns:**
 
@@ -48,5 +48,14 @@ validateStorageAvailable('localStorage')
 ```ts
 import { validateStorageAvailable } from '@dinofe/xt-core/web'
 validateStorageAvailable('sessionStorage')
+```
+
+## Example 3
+
+枚举参数可以引入
+
+```ts
+import { StorageType, validateStorageAvailable } from '@dinofe/xt-core/web'
+validateStorageAvailable(StorageType.localStorage)
 ```
 
