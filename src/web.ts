@@ -59,7 +59,7 @@ export interface IStorageSize {
  * 
  * @public
  */
-export const enum StroageType {
+export const enum StorageType {
   /**
    * localStorage 存储
    */
@@ -475,10 +475,16 @@ export function validateIndexedDBOpenable(): Promise<boolean> {
  * validateStorageAvailable('sessionStorage')
  * ```
  * 
+ * @example 枚举参数可以引入
+ * ```ts
+ * import { StorageType, validateStorageAvailable } from '@dinofe/xt-core/web'
+ * validateStorageAvailable(StorageType.localStorage)
+ * ```
+ * 
  * @public
  */
-export function validateStorageAvailable(type: StroageType): boolean {
-  if (![StroageType.localStorage, StroageType.sessionStorage].includes(type)) {
+export function validateStorageAvailable(type: StorageType): boolean {
+  if (![StorageType.localStorage, StorageType.sessionStorage].includes(type)) {
     throw new Error('the param type should be one of ["localStroage", "sessionStorage"]')
   }
   let storage;
@@ -520,7 +526,7 @@ export function validateStorageAvailable(type: StroageType): boolean {
  * @returns Stroage 存储占用空间大小
  * 
  * @throws {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypeError | TypeError}
- * 当传入的参数 type 不是 `StorageType.localStorage | StorageType.sessionStorage` 之一时会报错：`the param type should be one of ["localStroage", "sessionStorage"]`
+ * 当传入的参数 type 不是 `StorageType.localStorage | StorageType.sessionStorage` 之一时会报错：`the param type should be one of ["localStorage", "sessionStorage"]`
  * 
  * @throws {@link https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Error | Error}
  * 当 `Storage` 不可用时会报错：`window.${type} is not available`
@@ -539,11 +545,17 @@ export function validateStorageAvailable(type: StroageType): boolean {
  * const sessionSize = getStorageSize('sessionStorage')
  * ```
  * 
+ * @example 枚举参数可以引入
+ * ```ts
+ * import { StorageType, getStorageSize } from '@dinofe/xt-core/web'
+ * const localSize = getStorageSize(StorageType.localStorage)
+ * ```
+ * 
  * @public
  */
-export function getStorageSize(type: StroageType): IStorageSize {
-  if (![StroageType.localStorage, StroageType.sessionStorage].includes(type)) {
-    throw new TypeError('the param type should be one of ["localStroage", "sessionStorage"]')
+export function getStorageSize(type: StorageType): IStorageSize {
+  if (![StorageType.localStorage, StorageType.sessionStorage].includes(type)) {
+    throw new TypeError('the param type should be one of ["localStorage", "sessionStorage"]')
   }
 
   if (!validateStorageAvailable(type)) {
