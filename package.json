@@ -31,7 +31,8 @@
     "@types/koa": "^2.13.6",
     "@types/koa-router": "^7.4.4",
     "@types/qs": "^6.9.7",
-    "@vitest/ui": "^0.32.2",
+    "@vitest/coverage-v8": "^0.34.6",
+    "@vitest/ui": "^0.34.6",
     "father": "^4.2.3",
     "husky": "^7.0.1",
     "koa": "^2.14.2",
@@ -40,7 +41,7 @@
     "release-it": "^16.1.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.9.5",
-    "vitest": "^0.32.2"
+    "vitest": "^0.34.6"
   },
   "scripts": {
     "prepare": "husky install",

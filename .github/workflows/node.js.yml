@@ -29,3 +29,7 @@ jobs:
     - run: npm run build --if-present
     - run: npm run vitest:run
     - run: npm test
+    # https://github.com/marketplace/actions/vitest-coverage-report
+    - name: 'Report Coverage'
+      if: always() # Also generate the report if tests are failing
+      uses:  davelosert/vitest-coverage-report-action@v2
