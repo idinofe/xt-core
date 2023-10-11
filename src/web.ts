@@ -337,7 +337,7 @@ export const getImageSize = _getImageSize
 /**
  * {@link https://developer.mozilla.org/zh-CN/docs/Glossary/Base64 | Base64} 字符串转为 {@link https://developer.mozilla.org/zh-CN/docs/Web/API/Blob | Blob}
  * 
- * @param data - base64 字符串（可以包含`'data:image/jpegbas64,'`会被忽略）
+ * @param data - base64 字符串（可以包含`'data:image/jpeg;bas64,'`会被忽略）
  * @param mimeType - MIME 类型
  * @param sliceSize - 切片大小
  * @returns Blob 对象
@@ -362,7 +362,7 @@ export const getImageSize = _getImageSize
  */
 export function base64ToBlob (data: string, mimeType = MIME_TYPE.JPG, sliceSize = 512): Blob {
   // 去除 base64 字符串中的数据类型标识部分（如：data:image/pngbase64,）
-  const base64Data = data.replace(/^data:[a-z]+\/[a-z]+base64,/, '')
+  const base64Data = data.replace(/^data:[a-z]+\/[a-z]+[;]+base64,/, '')
 
   // 将 base64 字符串转换为字节数组
   const byteCharacters = window.atob(base64Data)
