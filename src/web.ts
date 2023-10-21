@@ -586,3 +586,93 @@ export function getStorageSize(type: StorageType): IStorageSize {
     sizeInGB: totalSizeInGB + 'GB',
   };
 }
+
+/**
+ * 旋转图片（沿顺时针非任意角度）
+ * 
+ * @remarks 使用{@link https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/rotate | CanvasRenderingContext2D.rotate()} 旋转图片
+ * 
+ * @param image 要旋转的图片（可以是<img>元素、<canvas>元素或者图片url链接）
+ * 
+ * @param degree 要旋转的角度（按顺时针，只能是：0/90/180/270/360）
+ * 
+ * @returns 返回一个{@link https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement | HTMLCanvasElement}元素
+ * 
+ * @see {@link https://developer.mozilla.org/zh-CN/docs/Web/API/HTMLCanvasElement | HTMLCanvasElement}
+ * 
+ * @example 顺时针旋转`<img>`元素90°
+ * ```ts
+ * import { rotateImage } from '@dinofe/xt-core/web'
+ * const imageEl = document.getElementById('image')
+ * rotateImage(imageEl, 90).then(canvas => {
+ *  console.log(canvas)
+ *  // 可以调用canvas.toBlob() cavnas.toDataURL()方法获取旋转后的图片数据
+ * })
+ * ```
+ * 
+ * @example 顺时针旋转`<canvas>`元素180°
+ * ```ts
+ * import { rotateImage } from '@dinofe/xt-core/web'
+ * const imageCanvas = document.getElementById('canvas')
+ * rotateImage(imageCanvas, 180).then(canvas => {
+ *  console.log(canvas)
+ *  // 可以调用canvas.toBlob() cavnas.toDataURL()方法获取旋转后的图片数据
+ * })
+ * ```
+ * 
+ * @example 顺时针旋转图片链接270°
+ * ```ts
+ * import { rotateImage } from '@dinofe/xt-core/web'
+ * rotateImage('https://s.cn.bing.net/th?id=OHR.PersepolisRelief_ZH-CN4910990690_1920x1080.webp&qlt=50', 270).then(canvas => {
+ *  console.log(canvas)
+ *  // 可以调用canvas.toBlob() cavnas.toDataURL()方法获取旋转后的图片数据
+ * })
+ * ```
+ * 
+ * @public
+ */
+export function rotateImage(image: HTMLImageElement | HTMLCanvasElement | string, degree: number = 90) {
+  const isImage = image instanceof HTMLImageElement
+  const isCanvas = image instanceof HTMLCanvasElement
+  const isUrl = typeof image === 'string'
+  const isDegreeValid = [0, 90, 180, 270, 360].includes(degree)
+  if (!isImage && !isCanvas && !isUrl) {
+    return Promise.reject(new Error('Invalid image input type'))
+  }
+
+  if (!isDegreeValid) {
+    return Promise.reject(new Error('Invalid degree input type'))
+  }
+
+  const canvas = document.createElement('canvas')
+
+  const doRotate = (image: HTMLImageElement | HTMLCanvasElement, degree: number, canvas: HTMLCanvasElement) => {
+    const ctx = canvas.getContext('2d')
+    if (degree === 90 || degree === 270) {
+      canvas.width = image.height
+      canvas.height = image.width
+    } else {
+      canvas.width = image.width
+      canvas.height = image.height
+    }
+    const radians = degree * Math.PI / 180
+    ctx?.translate(canvas.width / 2, canvas.height / 2)
+    ctx?.rotate(radians)
+    ctx?.drawImage(image, -image.width / 2, -image.height / 2)
+    return canvas
+  }
+  
+  return new Promise((resolve, reject) => {
+    if (isUrl) {
+      return loadImage(image).then(img => {
+        resolve(doRotate(img, degree, canvas))
+      }).catch(e => {
+        reject(e)
+      })
+    }
+    if (isCanvas || isImage) {
+      resolve(doRotate(image, degree, canvas))
+      return
+    }
+  })
+}
