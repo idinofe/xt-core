@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '18.x'
           cache: 'npm'
-      - run: npm ci
+      - run: npm i
       - run: npm run build
 
   publish-npm:
@@ -29,7 +29,7 @@ jobs:
           node-version: '18.x'
           cache: 'npm'
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
+      - run: npm i
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
@@ -48,7 +48,7 @@ jobs:
   #         cache: 'npm'
   #         registry-url: https://npm.pkg.github.com/
   #         scope: dinofe # 发布到 gpr 的组织名称必须和 github 仓库的组织名称保持一致（这里和 npm 的组织名称冲突，暂时不发布到 gpr）
-  #     - run: npm ci
+  #     - run: npm i
   #     - run: npm publish
   #       env:
   #         NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
