@@ -65,6 +65,7 @@
 |  [plus(arg1, arg2)](./xt-core.plus.md) | 两数相加 |
 |  [promisify(a)](./xt-core.promisify.md) | 转换为已 resolved 的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 对象 |
 |  [randomNumber(len)](./xt-core.randomnumber.md) | 生成随机数字符串 |
+|  [rotateImage(image, degree)](./xt-core.rotateimage.md) | 旋转图片（沿顺时针非任意角度） |
 |  [runWithTimeout(fn, timeout, context, args)](./xt-core.runwithtimeout.md) | 判断传入的函数执行是否超时 |
 |  [times(arg1, arg2)](./xt-core.times.md) | 两浮点数相乘 |
 |  [toNonExponential(num)](./xt-core.tononexponential.md) | 将科学计数法的数字转为字符串 |
