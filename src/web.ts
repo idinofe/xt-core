@@ -592,7 +592,7 @@ export function getStorageSize(type: StorageType): IStorageSize {
  * 
  * @remarks 使用{@link https://developer.mozilla.org/zh-CN/docs/Web/API/CanvasRenderingContext2D/rotate | CanvasRenderingContext2D.rotate()} 旋转图片
  * 
- * @param image 要旋转的图片（可以是<img>元素、<canvas>元素或者图片url链接）
+ * @param image 要旋转的图片（可以是<img>元素、<canvas>元素、base64字符串或者图片url链接）
  * 
  * @param degree 要旋转的角度（按顺时针，只能是：0/90/180/270/360）
  * 
@@ -634,9 +634,10 @@ export function getStorageSize(type: StorageType): IStorageSize {
 export function rotateImage(image: HTMLImageElement | HTMLCanvasElement | string, degree: number = 90) {
   const isImage = image instanceof HTMLImageElement
   const isCanvas = image instanceof HTMLCanvasElement
-  const isUrl = typeof image === 'string'
+  const isString = typeof image === 'string'
+  const isBase64 = isString && image.slice(0, 'data:image/'.length) === 'data:image/'
   const isDegreeValid = [0, 90, 180, 270, 360].includes(degree)
-  if (!isImage && !isCanvas && !isUrl) {
+  if (!isImage && !isCanvas && !isString && !isBase64) {
     return Promise.reject(new Error('Invalid image input type'))
   }
 
@@ -663,8 +664,8 @@ export function rotateImage(image: HTMLImageElement | HTMLCanvasElement | string
   }
   
   return new Promise((resolve, reject) => {
-    if (isUrl) {
-      return loadImage(image).then(img => {
+    if (isString) {
+      return loadImage(image, isBase64).then(img => {
         resolve(doRotate(img, degree, canvas))
       }).catch(e => {
         reject(e)
