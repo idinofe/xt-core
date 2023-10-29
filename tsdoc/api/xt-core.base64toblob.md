@@ -16,7 +16,7 @@ export declare function base64ToBlob(data: string, mimeType?: MIME_TYPE, sliceSi
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  data | string | base64 字符串（可以包含<code>'data:image/jpegbas64,'</code>会被忽略） |
+|  data | string | base64 字符串（可以包含<code>'data:image/jpeg;bas64,'</code>会被忽略） |
 |  mimeType | [MIME\_TYPE](./xt-core.mime_type.md) | _(Optional)_ MIME 类型 |
 |  sliceSize | number | _(Optional)_ 切片大小 |
 
