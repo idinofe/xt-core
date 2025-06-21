@@ -127,3 +127,6 @@ dist
 
 # tsdoc
 tsdoc/.vuepress/config.bundled_*.mjs
+
+# idea
+.idea
