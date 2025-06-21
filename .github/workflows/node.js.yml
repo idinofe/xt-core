@@ -33,3 +33,8 @@ jobs:
     - name: 'Report Coverage'
       if: always() # Also generate the report if tests are failing
       uses:  davelosert/vitest-coverage-report-action@v2
+    - name: Generate markdown files
+      run: npm run docs:build
+    # tsdoc 是单独的文档项目，因为vuepress@1.X 与webpack@5.X 一起使用报错，所以单独抽离出来
+    - name: Generate static html files
+      run: cd ./tsdoc && npm install && npm run docs:build
