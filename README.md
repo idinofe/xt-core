@@ -69,6 +69,8 @@ import { genOAuthUrl } from '@dinofe/xt-core'
 
 ## 🧱 参与贡献
 
+本地开发环境要求 Node.js 版本 >= 18.x，推荐使用 v20.x。
+
 <details>
   <summary>脚本命令</summary>
 
