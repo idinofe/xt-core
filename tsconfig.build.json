@@ -1,4 +1,8 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["./src/**/*.test.ts"]
+  "exclude": ["./src/**/*.test.ts"],
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler" // https://github.com/rollup/rollup/issues/5199
+  }
 }
