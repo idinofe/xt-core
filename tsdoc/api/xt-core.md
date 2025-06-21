@@ -66,6 +66,8 @@
 |  [promisify(a)](./xt-core.promisify.md) | 转换为已 resolved 的 [Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise) 对象 |
 |  [randomNumber(len)](./xt-core.randomnumber.md) | 生成随机数字符串 |
 |  [rotateImage(image, degree)](./xt-core.rotateimage.md) | 旋转图片（沿顺时针非任意角度） |
+|  [runWithDelayedLoading(asyncTask, { loadingDelay, minLoadingDuration, onLoading, onSettled, })](./xt-core.runwithdelayedloading.md) | 带延迟加载提示的异步任务处理方法 |
+|  [runWithDelayedLoadingInstant(asyncTask, { loadingDelay, minLoadingDuration, onLoading, onSettled, })](./xt-core.runwithdelayedloadinginstant.md) | **_(BETA)_** 带延迟加载提示的异步任务处理方法 |
 |  [runWithTimeout(fn, timeout, context, args)](./xt-core.runwithtimeout.md) | 判断传入的函数执行是否超时 |
 |  [times(arg1, arg2)](./xt-core.times.md) | 两浮点数相乘 |
 |  [toNonExponential(num)](./xt-core.tononexponential.md) | 将科学计数法的数字转为字符串 |
@@ -81,6 +83,7 @@
 |  [BaseTransform](./xt-core.basetransform.md) | BaseTransform |
 |  [CustomConfig](./xt-core.customconfig.md) | HTTP 自定义配置 |
 |  [IImageSize](./xt-core.iimagesize.md) | IImageSize |
+|  [IRunWithDelayedLoadingOptions](./xt-core.irunwithdelayedloadingoptions.md) | IRunWithDelayedLoading |
 |  [IStorageSize](./xt-core.istoragesize.md) | 存储空间占用大小 |
 |  [UploadInstance](./xt-core.uploadinstance.md) | UploadInstance |
 |  [XApisauceInstance](./xt-core.xapisauceinstance.md) | HTTP 实例 |
