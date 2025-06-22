@@ -4,6 +4,7 @@
 
 import _Big from 'big.js'
 import type TBig from 'big.js'
+import type { IRunWithDelayedLoadingOptions } from "./type";
 
 /**
  * 解决JS计算精度问题的类
@@ -924,4 +925,254 @@ export function runWithTimeout <T = any> (fn: Function, timeout: number, context
       resolve({ isTimeOut, result })
     }
   }) 
+}
+
+/**
+ * 带延迟加载提示的异步任务处理方法
+ *
+ * @remarks
+ * - 在设定的延迟时间内异步任务完成无加载提示；未完成时，触发加载提示；任务完成后，结束加载提示，且加载提示至少显示指定时长。
+ *
+ * - 返回的 Promise 与异步任务执行返回的 Promise 不同，但与其同时 Settled，自行对返回的 Promise 进行异常处理。
+ *
+ * @param asyncTask - 任意异步任务函数，返回一个 Promise。
+ * @param options - 延迟加载相关的配置选项。
+ * @param options.loadingDelay - 延迟加载提示的时长，单位为毫秒，默认值为 1000 毫秒。
+ * @param options.minLoadingDuration - 加载提示至少显示的时长，单位为毫秒，默认值为 1000 毫秒。
+ * @param options.onLoading - 当异步任务在延迟时间内未完成时，触发的加载提示函数。
+ * @param options.onSettled - 当异步任务完成（无论成功或失败）时，触发的结束加载提示函数。
+ * @returns 返回一个 Promise，该 Promise 会在异步任务完成（无论成功或失败）并等待加载提示结束才 Settled。
+ *
+ * @example 调用 API 请求
+ * ```vue
+ * <script setup lang="ts">
+ * import { runWithDelayedLoading } from '@dinofe/xt-core/common'
+ * import { useLoading } from "vue-loading-overlay"
+ * const gloading = useLoading()
+ *
+ * function onSubmit(formData) {
+ *  runWithDelayedLoading(async () => {
+ *    return Api.save(formData)
+ *  }, {
+ *    onLoading: () => {
+ *      // show loading
+ *      gloading.show()
+ *    },
+ *    onSettled: () => {
+ *      // close loading
+ *      gloading.hide()
+ *    },
+ *    minLoadingDuration: 3000
+ *  }).then(() => {
+ *    // success 至少等 3s 才弹出提示
+ *    window.alert("保存成功")
+ *  }).catch((e) => {
+ *    // error
+ *    window.alert("保存失败")
+ *  })
+ * }
+ * </script>
+ * ```
+ *
+ * @example 立即开始 loading，异步任务结束立即结束 loading、立即处理异步任务结果
+ * ```vue
+ * <script setup lang="ts">
+ * import { runWithDelayedLoading } from '@dinofe/xt-core/common'
+ * import { useLoading } from "vue-loading-overlay"
+ * const gloading = useLoading()
+ *
+ * function onSubmit(formData) {
+ *  runWithDelayedLoading(async () => {
+ *    return Api.save(formData)
+ *  }, {
+ *    onLoading: () => {
+ *      // show loading
+ *      gloading.show()
+ *    },
+ *    onSettled: () => {
+ *      // close loading
+ *      gloading.hide()
+ *    },
+ *    loadingDelay: 0,
+ *    minLoadingDuration: 0
+ *  }).then((res) => {
+ *    if (res.code === 0) {
+ *      window.alert("保存成功")
+ *    } else {
+ *      window.alert("保存失败")
+ *    }
+ *  }).catch((e) => {
+ *    // error
+ *    window.alert("保存失败")
+ *  })
+ * }
+ * </script>
+ * ```
+ *
+ * @example 在异步任务结束时立即预渲染页面，此时 loading 的关闭比异步任务结束要晚
+ * ```vue
+ * <script setup lang="ts">
+ * import { runWithDelayedLoading } from '@dinofe/xt-core/common'
+ * import { useLoading } from "vue-loading-overlay"
+ * const gloading = useLoading()
+ * const result = ref()
+ *
+ * function onLoadInfo(id) {
+ *  runWithDelayedLoading(async () => {
+ *    return Api.info(id).then((res) => {
+ *      // success 接口返回成功后立即使用结果预渲染页面
+ *      result.value = res
+ *    }).catch((e) => {
+ *      console.log(e)
+ *    })
+ *  }, {
+ *    onLoading: () => {
+ *      // show loading
+ *      gloading.show()
+ *    },
+ *    onSettled: () => {
+ *      // close loading 等异步逻辑完成时展示预渲染的页面
+ *      gloading.hide()
+ *      showDetail()
+ *    },
+ *  })
+ * }
+ *
+ * function showDetail() {
+ *   // your code...
+ * }
+ * </script>
+ * ```
+ *
+ * @public
+ */
+export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>, {
+  loadingDelay = 1000,
+  minLoadingDuration = 1000,
+  onLoading,
+  onSettled,
+}: IRunWithDelayedLoadingOptions = {}): Promise<T> {
+  let loading = false // 是否展示loading中
+  let settled = false // 异步任务是否完成
+  // let taskStartTime: number | null = null // 异步任务开始时间
+  let loadingStartTime: number | null = null // 展示loading的开始时间
+  // let loadingDelayTimeout = false // 是否超时时间
+
+  let resolve: ((d: Awaited<T> | T) => void )| null = null
+  let reject: ((e: Error) => void) | null = null
+
+  // taskStartTime = Date.now()
+  delay(loadingDelay).then(async () => {
+    if (!settled) {
+      // loadingDelayTimeout = true
+      loading = true
+      loadingStartTime = Date.now()
+      onLoading?.()
+      await runLoading()
+    }
+  })
+  const task = asyncTask().then((data) => {
+    resolve!(data)
+    return data
+  }, (e) => {
+    reject!(e)
+    return Promise.reject(e)
+  }).finally(() => {
+    settled = true
+  })
+
+  async function runLoading() {
+    if (settled) return
+    try {
+      const res = await task
+      if (loadingStartTime !== null) {
+        const elapsedTime = Date.now() - loadingStartTime
+        if (elapsedTime < minLoadingDuration) {
+          await delay(minLoadingDuration - elapsedTime)
+        }
+      }
+      loading = false
+      onSettled?.();
+      resolve!(res)
+    } catch (e) {
+      if (loadingStartTime !== null) {
+        const elapsedTime = Date.now() - loadingStartTime
+        if (elapsedTime < minLoadingDuration) {
+          await delay(minLoadingDuration - elapsedTime)
+        }
+      }
+      loading = false
+      onSettled?.();
+      reject!(e as Error)
+    }
+  }
+
+  return new Promise((r, j) => {
+    resolve = r
+    reject = j
+  })
+}
+
+/**
+ * 带延迟加载提示的异步任务处理方法
+ *
+ * @remarks
+ * - 在设定的延迟时间内异步任务完成无加载提示；未完成时，触发加载提示；任务完成后，结束加载提示，且加载提示至少显示指定时长。
+ *
+ * - 返回的 Promise 与异步任务执行返回的 Promise 相同，与其同时 Settled，自行对返回的 Promise 进行异常处理。
+ *
+ * @param asyncTask - 任意异步任务函数，返回一个 Promise。
+ * @param options - 延迟加载相关的配置选项。
+ * @param options.loadingDelay - 延迟加载提示的时长，单位为毫秒，默认值为 1000 毫秒。
+ * @param options.minLoadingDuration - 加载提示至少显示的时长，单位为毫秒，默认值为 1000 毫秒。
+ * @param options.onLoading - 当异步任务在延迟时间内未完成时，触发的加载提示函数。
+ * @param options.onSettled - 当异步任务完成（无论成功或失败）时，触发的结束加载提示函数。
+ * @returns 返回一个 Promise，该 Promise 会在异步任务完成（无论成功或失败）立即 Settled，不会等到加载提示结束。
+ *
+ * @privateRemarks
+ * TODO: 待讨论是否保留这个方法
+ *
+ * @beta
+ */
+export async function runWithDelayedLoadingInstant<T = any>(asyncTask: () => Promise<T>, {
+  loadingDelay = 1000,
+  minLoadingDuration = 1000,
+  onLoading,
+  onSettled,
+}: IRunWithDelayedLoadingOptions = {}) {
+  let loading = false // 是否展示loading中
+  let settled = false // 异步任务是否完成
+  // let taskStartTime: number | null = null // 异步任务开始时间
+  let loadingStartTime: number | null = null // 展示loading的开始时间
+  // let loadingDelayTimeout = false // 是否超时时间
+
+  // taskStartTime = Date.now()
+  delay(loadingDelay).then(() => {
+    if (!settled) {
+      // loadingDelayTimeout = true
+      loading = true
+      loadingStartTime = Date.now()
+      onLoading?.()
+      runLoading()
+    }
+  })
+  const task = asyncTask().finally(() => {
+    settled = true
+  })
+
+  async function runLoading() {
+    if (settled) return
+    task.finally(async () => {
+      if (loadingStartTime !== null) {
+        const elapsedTime = Date.now() - loadingStartTime
+        if (elapsedTime < minLoadingDuration) {
+          await delay(minLoadingDuration - elapsedTime)
+        }
+      }
+      loading = false
+      onSettled?.()
+    })
+  }
+
+  return task
 }

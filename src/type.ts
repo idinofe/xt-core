@@ -78,3 +78,16 @@ export interface IImageSize {
   width: number
   height: number
 }
+
+/**
+ * IRunWithDelayedLoading
+ *
+ * @public
+ */
+export interface IRunWithDelayedLoadingOptions {
+  loadingDelay?: number
+  minLoadingDuration?: number
+  onLoading?: () => void
+  onSettled?: () => void
+}
+
