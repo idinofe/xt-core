@@ -111,11 +111,17 @@ import { genOAuthUrl } from '@dinofe/xt-core'
 
 4. 发布测试包（预发布）
 
+  > 需要先切换到npm官方源、并登录账号
+
   ```bash
   npm run releaseit
   ```
 
-  需要先切换到npm官方源、并登录账号
+  或者
+
+  ```bash
+  npx release-it -i patch --preRelease
+  ```
 </details>
 
 <details>
