@@ -815,7 +815,7 @@ describe("runWithDelayedLoading", () => {
     expect(onSettled).toBeCalledTimes(1)
   })
 
-  // this will cause vitest throw error skip temporaly
+  // this will cause vitest throw error skip temporally
   it.skip("should handle task rejection", async () => {
     vi.useFakeTimers()
 
