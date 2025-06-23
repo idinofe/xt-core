@@ -6,7 +6,7 @@
         <button @click="handleCheckLocalClick">检测</button>
       </div>
       <div class="line-2">
-        <p>是否支持localStorage：{{ isSessionStorageAvaiable }}</p>
+        <p>是否支持sessionStorage：{{ isSessionStorageAvaiable }}</p>
         <button @click="handleCheckSessionClick">检测</button>
       </div>
     </div>
