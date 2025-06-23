@@ -10,7 +10,8 @@ import ValidateIndexedDBOpenable from './components/ValidateIndexedDBOpenable'
 import ValidateStorageAvailable from './components/ValidateStorageAvailable'
 import GetStorageSize from './components/GetStorageSize'
 
-import './App.css';
+import './assets/main.css';
+import './assets/App.css';
 
 // 测试接口代理功能 https://create-react-app.dev/docs/proxying-api-requests-in-development/
 fetch('/api-hbccb/user/bankQuickLogin', { method: 'POST', body: JSON.stringify({
@@ -43,13 +44,13 @@ function App() {
   }, [])
   
   return (
-    <div className="App">
+    <>
       <LoginWithEncrypt></LoginWithEncrypt>
       <UploadFile></UploadFile>
       <ValidateIndexedDBOpenable></ValidateIndexedDBOpenable>
       <ValidateStorageAvailable></ValidateStorageAvailable>
       <GetStorageSize></GetStorageSize>
-    </div>
+    </>
   );
 }
 
