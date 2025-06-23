@@ -17,7 +17,7 @@
 
 <script>
 import { delay } from '@dinofe/xt-core/common'
-import { getStorageSize, StroageType } from '@dinofe/xt-core/web'
+import { getStorageSize, StorageType } from '@dinofe/xt-core/web'
 
 export default {
   name: 'GetStorageSize',
@@ -31,12 +31,12 @@ export default {
     async handleLocalClick () {
       this.localSize = '获取中'
       await delay(1000)
-      this.localSize = getStorageSize(StroageType.localStorage)
+      this.localSize = getStorageSize(StorageType.localStorage)
     },
     async handleSessionClick () {
       this.sessionSize = '获取中'
       await delay(1000)
-      this.sessionSize = getStorageSize(StroageType.sessionStorage)
+      this.sessionSize = getStorageSize(StorageType.sessionStorage)
     }
   },
   mounted () {
