@@ -6,7 +6,7 @@
         <button @click="handleCheckLocalClick">检测</button>
       </div>
       <div class="line-2">
-        <p>是否支持localStorage：{{ isSessionStorageAvaiable }}</p>
+        <p>是否支持sessionStorage：{{ isSessionStorageAvaiable }}</p>
         <button @click="handleCheckSessionClick">检测</button>
       </div>
     </div>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { validateStorageAvailable, StroageType } from '@dinofe/xt-core/web'
+import { validateStorageAvailable, StorageType } from '@dinofe/xt-core/web'
 import { delay } from '@dinofe/xt-core/common'
 
 export default {
@@ -29,12 +29,12 @@ export default {
     async handleCheckLocalClick () {
       this.isLocalStorageAvaiable = '检测中'
       await delay(1000)
-      this.isLocalStorageAvaiable = validateStorageAvailable(StroageType.localStorage)
+      this.isLocalStorageAvaiable = validateStorageAvailable(StorageType.localStorage)
     },
     async handleCheckSessionClick () {
       this.isSessionStorageAvaiable = '检测中'
       await delay(1000)
-      this.isSessionStorageAvaiable = validateStorageAvailable(StroageType.sessionStorage)
+      this.isSessionStorageAvaiable = validateStorageAvailable(StorageType.sessionStorage)
     }
   },
   mounted () {

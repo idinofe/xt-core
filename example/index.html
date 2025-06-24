@@ -7,7 +7,15 @@
   <title>Example</title>
 </head>
 <body>
-  <script src="../dist/umd/xt-core.min.js"></script>
+  <h1>Example</h1>
+  <p>
+    本页面是xt-core的示例页面，用于展示xt-core的功能，请打开开发者工具查看日志。
+  </p>
+  <p>
+    本页面使用的是CDN方式引入xt-core，您也可以通过npm安装xt-core，然后在项目中引入。
+  </p>
+  <!--  <script src="../dist/umd/xt-core.min.js"></script>-->
+  <script src="https://cdn.jsdelivr.net/npm/@dinofe/xt-core/dist/umd/xt-core.min.js"></script>
   <script>
     console.log(XtCore)
     XtCore.loadImage('https://yfzx.whty.com.cn/dev-c2bminio/watermarkcrop/4747e910285e4ac7817f44d1bd79d71d.jpg').then(i => console.log(i))

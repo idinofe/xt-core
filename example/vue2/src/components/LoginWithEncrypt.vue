@@ -4,6 +4,7 @@
       <p>createHttp</p>
       <button @click="handleLoginClick">开始登录</button>
       <button @click="handleLoginClick2">开始登录</button>
+      <button @click="handleLoginClick3">开始登录{{loading3 ? "loading..." : ""}}</button>
     </div>
     <div class="card">
       <p>createBaseHttp</p>
@@ -14,6 +15,7 @@
 
 <script>
 import { createHttp, createBaseHttp } from '@dinofe/xt-core/http'
+import { runWithDelayedLoading } from '@dinofe/xt-core/common'
 
 const log = (...args) => console.log('[LoginWithEncrypt]', ...args)
 
@@ -56,6 +58,11 @@ const baseHttp = createBaseHttp({
 
 export default {
   name: 'LoginWithEncrypt',
+  data () {
+    return {
+      loading3: false
+    }
+  },
   methods: {
     handleLoginClick (e) {
       http.post('/user/bankQuickLogin', { openid: '1652454242' })
@@ -92,6 +99,27 @@ export default {
             log('登录失败', res.msg)
           }
         })
+    },
+    async handleLoginClick3 (e) {
+      runWithDelayedLoading(() => http.post('/user/bankQuickLogin', {}, { data: { openid: '1652454242' } }), {
+        onLoading: () => {
+          this.loading3 = true
+        },
+        onSettled: () => {
+          this.loading3 = false
+        },
+        loadingDelay: 0,
+        minLoadingDuration: 3000
+      }).then((res) => {
+        // FIXME: 不会等到3s延时后再执行？
+        log(res)
+        if (res.success) {
+          log('登录成功')
+          log(res.code)
+        } else {
+          log('登录失败', res.msg)
+        }
+      })
     }
   }
 }

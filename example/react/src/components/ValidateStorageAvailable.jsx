@@ -1,5 +1,5 @@
 import { delay } from "@dinofe/xt-core/common"
-import { validateStorageAvailable, StroageType } from "@dinofe/xt-core/web"
+import { validateStorageAvailable, StorageType } from "@dinofe/xt-core/web"
 import { useEffect, useState } from "react"
 
 function ValidateStorageAvailable() {
@@ -9,13 +9,13 @@ function ValidateStorageAvailable() {
   const handleCheckLocalClick = async () => {
     setIsLocalStorageAvaiable('检测中')
     await delay(1000)
-    setIsLocalStorageAvaiable(validateStorageAvailable(StroageType.localStorage))
+    setIsLocalStorageAvaiable(validateStorageAvailable(StorageType.localStorage))
   }
   
   const handleCheckSessionClick = async () => {
     setIsSessionStorageAvaiable('检测中')
     await delay(1000)
-    setIsSessionStorageAvaiable(validateStorageAvailable(StroageType.sessionStorage))
+    setIsSessionStorageAvaiable(validateStorageAvailable(StorageType.sessionStorage))
   }
 
   useEffect(() => {
@@ -32,7 +32,7 @@ function ValidateStorageAvailable() {
           <button onClick={handleCheckLocalClick}>检测</button>
         </div>
         <div className="line-2">
-          <p>是否支持localStorage：{ isSessionStorageAvaiable + '' }</p>
+          <p>是否支持sessionStorage：{ isSessionStorageAvaiable + '' }</p>
           <button onClick={handleCheckSessionClick}>检测</button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { delay, isString } from "@dinofe/xt-core/common"
-import { getStorageSize, StroageType } from "@dinofe/xt-core/web"
+import { getStorageSize, StorageType } from "@dinofe/xt-core/web"
 import { useEffect, useState } from "react"
 
 function GetStorageSize() {
@@ -9,13 +9,13 @@ function GetStorageSize() {
   const handleLocalClick = async () => {
     setLocalSize('获取中')
     await delay(1000)
-    setLocalSize(getStorageSize(StroageType.localStorage))
+    setLocalSize(getStorageSize(StorageType.localStorage))
   }
   
   const handleSessionClick = async () => {
     setSessionSize('获取中')
     await delay(1000)
-    setSessionSize(getStorageSize(StroageType.sessionStorage))
+    setSessionSize(getStorageSize(StorageType.sessionStorage))
   }
 
   useEffect(() => {

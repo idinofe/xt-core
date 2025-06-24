@@ -1,5 +1,6 @@
-import { createHttp, createBaseHttp } from '@dinofe/xt-core'
+import {createHttp, createBaseHttp, runWithDelayedLoading} from '@dinofe/xt-core'
 import token from '../utils/token'
+import {useState} from "react";
 
 const appKey1 = '3a2e424c56754e90a8948b74f163f0cb'
 
@@ -26,6 +27,8 @@ const baseHttp = createBaseHttp({
   baseURL: '/api-hbccb',
   appKey: appKey1,
 })
+
+const log = (...args) => console.log(`[LoginWithEncrypt]`, ...args)
 
 const handleLoginClick = () => {
   http.post('/user/bankQuickLogin', { openid: '12315312' })
@@ -61,12 +64,36 @@ const handleBaseLoginClick = () => {
 }
 
 function LoginWithEncrypt() {
+  const [loading3, setLoading3] = useState(false)
+
+  const handleLoginClick3 = async () => {
+      runWithDelayedLoading(() => http.post('/user/bankQuickLogin', {}, { data: { openid: '1652454242' } }), {
+          onLoading() {
+            setLoading3(true)
+          },
+          onSettled() {
+              setLoading3(false)
+          },
+          loadingDelay: 0,
+          minLoadingDuration: 3000
+      }).then((res) => {
+          // FIXME: 不会等到3s延时后再执行？
+          log(res)
+          if (res.success) {
+              log('登录成功')
+              log(res.code)
+          } else {
+              log('登录失败', res.msg)
+          }
+      })
+  }
   return (
     <>
       <div className="card">
         <p>createHttp</p>
         <button onClick={handleLoginClick}>开始登录</button>
         <button onClick={handleLoginClick2}>开始登录</button>
+        <button onClick={handleLoginClick3}>开始登录{loading3 ? "loading..." : ""}</button>
       </div>
       <div className="card">
         <p>createBaseHttp</p>

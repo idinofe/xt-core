@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { delay } from '@dinofe/xt-core/common'
-import { StroageType, getStorageSize } from '@dinofe/xt-core/web'
+import { StorageType, getStorageSize } from '@dinofe/xt-core/web'
 import type { IStorageSize } from '@dinofe/xt-core/web'
 import { ref, onMounted } from 'vue'
 
@@ -27,13 +27,13 @@ const sessionSize = ref<string | IStorageSize>('获取中')
 const handleLocalClick = async () => {
   localSize.value = '获取中'
   await delay(1000)
-  localSize.value = getStorageSize(StroageType.localStorage)
+  localSize.value = getStorageSize(StorageType.localStorage)
 }
 
 const handleSessionClick = async () => {
   sessionSize.value = '获取中'
   await delay(1000)
-  sessionSize.value = getStorageSize(StroageType.sessionStorage)
+  sessionSize.value = getStorageSize(StorageType.sessionStorage)
 }
 
 onMounted(() => {

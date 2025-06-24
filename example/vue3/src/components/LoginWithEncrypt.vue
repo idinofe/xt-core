@@ -3,6 +3,7 @@
     <p>createHttp</p>
     <button @click="handleLoginClick">开始登录</button>
     <button @click="handleLoginClick2">开始登录</button>
+    <button @click="handleLoginClick3">开始登录{{loading3 ? "loading..." : ""}}</button>
   </div>
   <div class="card">
     <p>createBaseHttp</p>
@@ -11,7 +12,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { createHttp, createBaseHttp } from '@dinofe/xt-core/http'
+import { runWithDelayedLoading } from "@dinofe/xt-core/common";
+
+const loading3 = ref(false)
 
 const log = (...args: any[]) => console.log(`[LoginWithEncrypt]`, ...args)
 
@@ -76,6 +81,28 @@ const handleLoginClick2 = (e: MouseEvent) => {
         log('登录失败', res.msg)
       }
     })
+}
+
+const handleLoginClick3 = async (e: MouseEvent) => {
+  runWithDelayedLoading(() => http.post('/user/bankQuickLogin', {}, { data: { openid: '1652454242' } }), {
+    onLoading() {
+      loading3.value = true
+    },
+    onSettled() {
+      loading3.value = false
+    },
+    loadingDelay: 0,
+    minLoadingDuration: 3000
+  }).then((res) => {
+    // FIXME: 不会等到3s延时后再执行？
+    log(res)
+    if (res.success) {
+      log('登录成功')
+      log(res.code)
+    } else {
+      log('登录失败', res.msg)
+    }
+  })
 }
 
 const handleBaseLoginClick = (e: MouseEvent) => {

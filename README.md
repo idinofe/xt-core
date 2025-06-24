@@ -23,7 +23,7 @@ npm i @dinofe/xt-core
 ### 示例
 
 - [Node.js](./example/node/)
-- [CDN](./example/index.html)
+- [CDN](https://jsfiddle.net/johniexu/1vhrydpe/2/)
 - [React](./example/react/)
 - [Vue2](./example/vue2/)
 - [Vue3](./example/vue3/)
