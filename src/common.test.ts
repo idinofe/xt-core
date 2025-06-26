@@ -807,12 +807,22 @@ describe("runWithDelayedLoading", () => {
     expect(onLoading).toBeCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
+    const isSettled1 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false)
+    ])
+    expect(isSettled1).toBe(false) // promise should not settled
+
+    // Should still wait additional 300ms to meet minLoadingDuration (500ms total)
+    await vi.advanceTimersByTimeAsync(300)
+    expect(onSettled).toBeCalledTimes(1)
+    const isSettled2 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false)
+    ])
     const result = await promise
     expect(result).toBe("result")
-
-    // Should still wait additional 400ms to meet minLoadingDuration (500ms total)
-    await vi.advanceTimersByTimeAsync(400)
-    expect(onSettled).toBeCalledTimes(1)
+    expect(isSettled2).toBe(true) // promise should be settled
   })
 
   // this will cause vitest throw error skip temporally
@@ -866,11 +876,21 @@ describe("runWithDelayedLoading", () => {
     expect(onLoading).toBeCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
-    expect(onSettled).not.toHaveBeenCalled() // TODO: 测试promise还没有Settled
+    const isSettled1 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false)
+    ])
+    expect(isSettled1).toBe(false) // promise should not settled
+    expect(onSettled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(300) // minLoadingDuration reached (500ms total)
-    const result = await promise // TODO: 测试promise已经Settled
+    const isSettled2 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false)
+    ])
+    const result = await promise
     expect(result).toBe("result")
+    expect(isSettled2).toBe(true) // promise should be settled
     expect(onSettled).toBeCalledTimes(1)
   })
 })
