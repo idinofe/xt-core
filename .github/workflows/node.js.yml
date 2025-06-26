@@ -39,7 +39,7 @@ jobs:
     - run: npm test
     # https://github.com/marketplace/actions/vitest-coverage-report
     - name: 'Report Coverage'
-      if: always() # Also generate the report if tests are failing
+      # if: always() # Also generate the report if tests are failing
       uses:  davelosert/vitest-coverage-report-action@v2
     - name: Generate markdown files
       run: npm run docs:build
