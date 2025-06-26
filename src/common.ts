@@ -1054,11 +1054,13 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
 }: IRunWithDelayedLoadingOptions = {}): Promise<T> {
   let loading = false // 是否展示loading中
   let settled = false // 异步任务是否完成
+  // let resSettled = false // 返回的Promise是否已Settled
+  // let taskRes: T | Error | null = null // 异步任务返回的结果
   // let taskStartTime: number | null = null // 异步任务开始时间
   let loadingStartTime: number | null = null // 展示loading的开始时间
   // let loadingDelayTimeout = false // 是否超时时间
 
-  let resolve: ((d: Awaited<T> | T) => void )| null = null
+  let resolve: ((d: Awaited<T> | T) => void ) | null = null
   let reject: ((e: Error) => void) | null = null
 
   // taskStartTime = Date.now()
@@ -1069,13 +1071,25 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
       loadingStartTime = Date.now()
       onLoading?.()
       await runLoading()
+    } else {
+      // 忽略，返回的Promise已被处理
     }
   })
   const task = asyncTask().then((data) => {
-    resolve!(data)
+    if (!loading) {
+      resolve!(data)
+      // resSettled = true
+    } else {
+      // taskRes = data
+    }
     return data
   }, (e) => {
-    reject!(e)
+    if (!loading) {
+      reject!(e)
+      // resSettled = true
+    } else {
+      // taskRes = e
+    }
     return Promise.reject(e)
   }).finally(() => {
     settled = true
@@ -1093,7 +1107,8 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
       }
       loading = false
       onSettled?.();
-      resolve!(res)
+      resolve!(res);
+      // resSettled = true
     } catch (e) {
       if (loadingStartTime !== null) {
         const elapsedTime = Date.now() - loadingStartTime
@@ -1103,7 +1118,8 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
       }
       loading = false
       onSettled?.();
-      reject!(e as Error)
+      reject!(e as Error);
+      // resSettled = true
     }
   }
 

@@ -847,5 +847,31 @@ describe("runWithDelayedLoading", () => {
     await promise
     // No assertions needed, just verifying it doesn't throw
   })
+
+  it("should ensure returned promise not resolve before minLoadingDuration if async task finished before minLoadingDuration ", async () => {
+    vi.useFakeTimers()
+
+    const mockTask = vi.fn(() => new Promise(resolve => setTimeout(() => resolve("result"), 300)))
+    const onLoading = vi.fn()
+    const onSettled = vi.fn()
+
+    const promise = runWithDelayedLoading(mockTask, {
+      loadingDelay: 100,
+      onLoading,
+      onSettled,
+      minLoadingDuration: 500
+    })
+
+    await vi.advanceTimersByTimeAsync(100) // Reach loadingDelay
+    expect(onLoading).toBeCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
+    expect(onSettled).not.toHaveBeenCalled() // TODO: 测试promise还没有Settled
+
+    await vi.advanceTimersByTimeAsync(300) // minLoadingDuration reached (500ms total)
+    const result = await promise // TODO: 测试promise已经Settled
+    expect(result).toBe("result")
+    expect(onSettled).toBeCalledTimes(1)
+  })
 })
 
