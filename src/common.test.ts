@@ -805,6 +805,7 @@ describe("runWithDelayedLoading", () => {
 
     await vi.advanceTimersByTimeAsync(100) // Reach loadingDelay
     expect(onLoading).toBeCalledTimes(1)
+    expect(onSettled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
     const isSettled1 = await Promise.race([
@@ -812,6 +813,7 @@ describe("runWithDelayedLoading", () => {
       Promise.resolve(false)
     ])
     expect(isSettled1).toBe(false) // promise should not settled
+    expect(onSettled).not.toHaveBeenCalled()
 
     // Should still wait additional 300ms to meet minLoadingDuration (500ms total)
     await vi.advanceTimersByTimeAsync(300)
@@ -874,6 +876,7 @@ describe("runWithDelayedLoading", () => {
 
     await vi.advanceTimersByTimeAsync(100) // Reach loadingDelay
     expect(onLoading).toBeCalledTimes(1)
+    expect(onSettled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
     const isSettled1 = await Promise.race([
