@@ -30,8 +30,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.npm
-        key: ${{ runner.os }}-node-root-${{ hashFiles('package-lock.json') }}
+        key: ${{ runner.os }}-node-root-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
         restore-keys: |
+          ${{ runner.os }}-node-root-${{ matrix.node-version }}-
           ${{ runner.os }}-node-root-
     - run: npm install
     - run: npm run build --if-present
@@ -48,8 +49,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: tsdoc/node_modules
-        key: ${{ runner.os }}-node-tsdoc-${{ hashFiles('tsdoc/package-lock.json') }}
+        key: ${{ runner.os }}-node-tsdoc-${{ matrix.node-version }}-${{ hashFiles('tsdoc/package-lock.json') }}
         restore-keys: |
+          ${{ runner.os }}-node-tsdoc-${{ matrix.node-version }}-
           ${{ runner.os }}-node-tsdoc-
     # tsdoc 是单独的文档项目，因为vuepress@1.X 与webpack@5.X 一起使用报错，所以单独抽离出来
     - name: Generate static html files
