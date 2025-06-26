@@ -1055,7 +1055,6 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
   let loading = false // 是否展示loading中
   let settled = false // 异步任务是否完成
   // let resSettled = false // 返回的Promise是否已Settled
-  // let taskRes: T | Error | null = null // 异步任务返回的结果
   // let taskStartTime: number | null = null // 异步任务开始时间
   let loadingStartTime: number | null = null // 展示loading的开始时间
   // let loadingDelayTimeout = false // 是否超时时间
@@ -1080,7 +1079,6 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
       resolve!(data)
       // resSettled = true
     } else {
-      // taskRes = data
     }
     return data
   }, (e) => {
@@ -1088,7 +1086,6 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
       reject!(e)
       // resSettled = true
     } else {
-      // taskRes = e
     }
     return Promise.reject(e)
   }).finally(() => {
