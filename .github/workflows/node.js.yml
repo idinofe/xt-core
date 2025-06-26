@@ -25,6 +25,14 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
+    # 缓存主项目依赖
+    - name: Cache root node modules
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-root-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-root-
     - run: npm install
     - run: npm run build --if-present
     - run: npm run vitest:run
@@ -35,6 +43,15 @@ jobs:
       uses:  davelosert/vitest-coverage-report-action@v2
     - name: Generate markdown files
       run: npm run docs:build
+    # 缓存 tsdoc 子目录依赖
+    - name: Cache tsdoc node modules
+      uses: actions/cache@v4
+      with:
+        path: tsdoc/node_modules
+        key: ${{ runner.os }}-node-tsdoc-${{ hashFiles('tsdoc/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-tsdoc-
     # tsdoc 是单独的文档项目，因为vuepress@1.X 与webpack@5.X 一起使用报错，所以单独抽离出来
     - name: Generate static html files
-      run: cd ./tsdoc && npm install && npm run docs:build
+      working-directory: tsdoc
+      run: npm install && npm run docs:build
