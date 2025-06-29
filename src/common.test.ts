@@ -1,6 +1,5 @@
 import Big from "big.js"
 import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery, runWithTimeout, runWithDelayedLoading } from "./common"
-import {expect} from "vitest";
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -737,6 +736,9 @@ describe('runWithTimeout', () => {
 })
 
 describe("runWithDelayedLoading", () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
   it("should resolve immediately after delayed if task finishes before loadingDelay", async () => {
     vi.useFakeTimers()
 
@@ -751,14 +753,9 @@ describe("runWithDelayedLoading", () => {
     })
 
     await vi.advanceTimersByTimeAsync(50) // Task finishes before loadingDelay
-    // mockTask.mock.results[0].value.then(() => {}) // Resolve the task
-
-    // const result = await promise
-    // expect(result).toBe("result")
     expect(onLoading).not.toHaveBeenCalled()
     expect(onSettled).not.toHaveBeenCalled()
 
-    await vi.advanceTimersByTimeAsync(50) // Task finishes immediately after loadingDelay
     const result = await promise
     expect(result).toBe("result")
     expect(onLoading).not.toHaveBeenCalled()
@@ -806,14 +803,27 @@ describe("runWithDelayedLoading", () => {
 
     await vi.advanceTimersByTimeAsync(100) // Reach loadingDelay
     expect(onLoading).toBeCalledTimes(1)
+    expect(onSettled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
+
+    const isSettled1 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false).then(r => r),
+    ])
+    expect(isSettled1).toBe(false) // promise should not settle
+    expect(onSettled).not.toHaveBeenCalled()
+
+    // Should still wait additional 300ms to meet minLoadingDuration (500ms total)
+    await vi.advanceTimersByTimeAsync(300)
+    expect(onSettled).toBeCalledTimes(1)
+    const isSettled2 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false).then(r => r),
+    ])
     const result = await promise
     expect(result).toBe("result")
-
-    // Should still wait additional 400ms to meet minLoadingDuration (500ms total)
-    await vi.advanceTimersByTimeAsync(400)
-    expect(onSettled).toBeCalledTimes(1)
+    expect(isSettled2).toBe(true) // promise should be settled
   })
 
   // this will cause vitest throw error skip temporally
@@ -849,46 +859,83 @@ describe("runWithDelayedLoading", () => {
     // No assertions needed, just verifying it doesn't throw
   })
 
-  it("default value of loadingDelay should be 300ms", async () => {
+  it("should ensure returned promise not resolve before minLoadingDuration if async task finished before minLoadingDuration ", async () => {
     vi.useFakeTimers()
-    const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+
+    const mockTask = vi.fn(() => new Promise(resolve => setTimeout(() => resolve("result"), 300)))
     const onLoading = vi.fn()
     const onSettled = vi.fn()
 
     const promise = runWithDelayedLoading(mockTask, {
-      onLoading: onLoading,
-      onSettled: onSettled,
-      minLoadingDuration: 3000
+      loadingDelay: 100,
+      onLoading,
+      onSettled,
+      minLoadingDuration: 500
     })
 
-    await vi.advanceTimersByTimeAsync(100)
-    expect(onLoading).not.toHaveBeenCalled()
-    await vi.advanceTimersByTimeAsync(190)
-    expect(onLoading).not.toHaveBeenCalled()
-    await vi.advanceTimersByTimeAsync(1000)
-    expect(onLoading).toHaveBeenCalledTimes(1)
-    await vi.advanceTimersByTimeAsync(1000 * 2)
-    expect(onLoading).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(100) // Reach loadingDelay
+    expect(onLoading).toBeCalledTimes(1)
+    expect(onSettled).not.toHaveBeenCalled()
+
+    await vi.advanceTimersByTimeAsync(200) // Task finishes (total 300ms)
+    const isSettled1 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false).then(r => r)
+    ])
+    expect(isSettled1).toBe(false) // promise should not settle
+    expect(onSettled).not.toHaveBeenCalled()
+
+    await vi.advanceTimersByTimeAsync(300) // minLoadingDuration reached (500ms total)
+    const isSettled2 = await Promise.race([
+      promise.then(() => true, () => true),
+      Promise.resolve(false).then(r => r)
+    ])
+    const result = await promise
+    expect(result).toBe("result")
+    expect(isSettled2).toBe(true) // promise should be settled
+    expect(onSettled).toBeCalledTimes(1)
   })
-})
 
-it("default value of minLoadingDuration should be 1000ms", async () => {
-  vi.useFakeTimers()
-  const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
-  const onLoading = vi.fn()
-  const onSettled = vi.fn()
+    it("default value of loadingDelay should be 300ms", async () => {
+        vi.useFakeTimers()
+        const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+        const onLoading = vi.fn()
+        const onSettled = vi.fn()
 
-  const promise = runWithDelayedLoading(mockTask, {
-    onLoading: onLoading,
-    onSettled: onSettled,
-    loadingDelay: 200,
-  })
+        const promise = runWithDelayedLoading(mockTask, {
+            onLoading: onLoading,
+            onSettled: onSettled,
+            minLoadingDuration: 3000
+        })
 
-  expect(onLoading).not.toHaveBeenCalled()
-  await vi.advanceTimersByTimeAsync(300)
-  expect(onLoading).toBeCalledTimes(1)
-  await vi.advanceTimersByTimeAsync(1000)
-  expect(onLoading).toBeCalledTimes(1)
-  expect(onSettled).toBeCalledTimes(1)
+        await vi.advanceTimersByTimeAsync(100)
+        expect(onLoading).not.toHaveBeenCalled()
+        await vi.advanceTimersByTimeAsync(190)
+        expect(onLoading).not.toHaveBeenCalled()
+        await vi.advanceTimersByTimeAsync(1000)
+        expect(onLoading).toHaveBeenCalledTimes(1)
+        await vi.advanceTimersByTimeAsync(1000 * 2)
+        expect(onLoading).toHaveBeenCalledTimes(1)
+    })
+
+    it("default value of minLoadingDuration should be 1000ms", async () => {
+        vi.useFakeTimers()
+        const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+        const onLoading = vi.fn()
+        const onSettled = vi.fn()
+
+        const promise = runWithDelayedLoading(mockTask, {
+            onLoading: onLoading,
+            onSettled: onSettled,
+            loadingDelay: 200,
+        })
+
+        expect(onLoading).not.toHaveBeenCalled()
+        await vi.advanceTimersByTimeAsync(300)
+        expect(onLoading).toBeCalledTimes(1)
+        await vi.advanceTimersByTimeAsync(1000)
+        expect(onLoading).toBeCalledTimes(1)
+        expect(onSettled).toBeCalledTimes(1)
+    })
 })
 
