@@ -1147,7 +1147,7 @@ export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>
  *
  * @beta
  */
-export async function runWithDelayedLoadingInstant<T = any>(asyncTask: () => Promise<T>, {
+async function runWithDelayedLoadingInstant<T = any>(asyncTask: () => Promise<T>, {
   loadingDelay = 1000,
   minLoadingDuration = 1000,
   onLoading,
