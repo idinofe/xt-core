@@ -667,7 +667,7 @@ describe('getQuery', () => {
   it('normal getQuery', () => {
     expect(getQuery('http://wewe.com?a=11&b=22&c=33', 'a')).toEqual('11')
     expect(getQuery('http://wewe.com?a=11&b=22&c=33', 'y')).toEqual(undefined)
-    expect(getQuery('https://www.baidu.com/s?ie=UTF-8&wd=%E8%AE%A2%E5%8D%95', 'wd')).toEqual('%E8%AE%A2%E5%8D%95')   
+    expect(getQuery('https://www.baidu.com/s?ie=UTF-8&wd=%E8%AE%A2%E5%8D%95', 'wd')).toEqual('%E8%AE%A2%E5%8D%95')
   })
   it('not normal getQuery', () => {
     expect(getQuery('http://wewe.com?a=11&b=22&c=33','b')).not.to.equal('1')
@@ -686,7 +686,7 @@ describe('runWithTimeout', () => {
     const promiseFn = function () {
       return new Promise((resolve)=>{
         setTimeout(()=>{
-          resolve('Success')                                                                                                                                                             
+          resolve('Success')
         }, 2000)
       })
     }
@@ -896,46 +896,46 @@ describe("runWithDelayedLoading", () => {
     expect(onSettled).toBeCalledTimes(1)
   })
 
-    it("default value of loadingDelay should be 300ms", async () => {
-        vi.useFakeTimers()
-        const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
-        const onLoading = vi.fn()
-        const onSettled = vi.fn()
+  it("default value of loadingDelay should be 300ms", async () => {
+    vi.useFakeTimers()
+    const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+    const onLoading = vi.fn()
+    const onSettled = vi.fn()
 
-        const promise = runWithDelayedLoading(mockTask, {
-            onLoading: onLoading,
-            onSettled: onSettled,
-            minLoadingDuration: 3000
-        })
-
-        await vi.advanceTimersByTimeAsync(100)
-        expect(onLoading).not.toHaveBeenCalled()
-        await vi.advanceTimersByTimeAsync(190)
-        expect(onLoading).not.toHaveBeenCalled()
-        await vi.advanceTimersByTimeAsync(1000)
-        expect(onLoading).toHaveBeenCalledTimes(1)
-        await vi.advanceTimersByTimeAsync(1000 * 2)
-        expect(onLoading).toHaveBeenCalledTimes(1)
+    const promise = runWithDelayedLoading(mockTask, {
+      onLoading: onLoading,
+      onSettled: onSettled,
+      minLoadingDuration: 3000
     })
 
-    it("default value of minLoadingDuration should be 1000ms", async () => {
-        vi.useFakeTimers()
-        const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
-        const onLoading = vi.fn()
-        const onSettled = vi.fn()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(onLoading).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(190)
+    expect(onLoading).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(onLoading).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1000 * 2)
+    expect(onLoading).toHaveBeenCalledTimes(1)
+  })
 
-        const promise = runWithDelayedLoading(mockTask, {
-            onLoading: onLoading,
-            onSettled: onSettled,
-            loadingDelay: 200,
-        })
+  it("default value of minLoadingDuration should be 1000ms", async () => {
+    vi.useFakeTimers()
+    const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+    const onLoading = vi.fn()
+    const onSettled = vi.fn()
 
-        expect(onLoading).not.toHaveBeenCalled()
-        await vi.advanceTimersByTimeAsync(300)
-        expect(onLoading).toBeCalledTimes(1)
-        await vi.advanceTimersByTimeAsync(1000)
-        expect(onLoading).toBeCalledTimes(1)
-        expect(onSettled).toBeCalledTimes(1)
+    const promise = runWithDelayedLoading(mockTask, {
+      onLoading: onLoading,
+      onSettled: onSettled,
+      loadingDelay: 200,
     })
+
+    expect(onLoading).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(300)
+    expect(onLoading).toBeCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(onLoading).toBeCalledTimes(1)
+    expect(onSettled).toBeCalledTimes(1)
+  })
 })
 
