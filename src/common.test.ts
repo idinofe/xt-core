@@ -1,5 +1,6 @@
 import Big from "big.js"
 import { delay, divide, floatDivide, floatMultiply, genMessageId, isEncodeURILike, isFormData, isFunction, isNormalObject, isNumber, isPromise, minus, multiply, plus, promisify, randomNumber, toNonExponential, isValidToken, isString, isUrlLike, isBlobUrlLike, isDef, isUndef, isStartWithSlash, isEndWithSlash, noop, getQuery, runWithTimeout, runWithDelayedLoading } from "./common"
+import {expect} from "vitest";
 
 describe('isNumber', () => {
   it('normal case', () => {
@@ -847,5 +848,47 @@ describe("runWithDelayedLoading", () => {
     await promise
     // No assertions needed, just verifying it doesn't throw
   })
+
+  it("default value of loadingDelay should be 300ms", async () => {
+    vi.useFakeTimers()
+    const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+    const onLoading = vi.fn()
+    const onSettled = vi.fn()
+
+    const promise = runWithDelayedLoading(mockTask, {
+      onLoading: onLoading,
+      onSettled: onSettled,
+      minLoadingDuration: 3000
+    })
+
+    await vi.advanceTimersByTimeAsync(100)
+    expect(onLoading).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(190)
+    expect(onLoading).not.toHaveBeenCalled()
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(onLoading).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(1000 * 2)
+    expect(onLoading).toHaveBeenCalledTimes(1)
+  })
+})
+
+it("default value of minLoadingDuration should be 1000ms", async () => {
+  vi.useFakeTimers()
+  const mockTask = vi.fn(() => new Promise(resolve => { setTimeout(() => { resolve("result") }, 300) }))
+  const onLoading = vi.fn()
+  const onSettled = vi.fn()
+
+  const promise = runWithDelayedLoading(mockTask, {
+    onLoading: onLoading,
+    onSettled: onSettled,
+    loadingDelay: 200,
+  })
+
+  expect(onLoading).not.toHaveBeenCalled()
+  await vi.advanceTimersByTimeAsync(300)
+  expect(onLoading).toBeCalledTimes(1)
+  await vi.advanceTimersByTimeAsync(1000)
+  expect(onLoading).toBeCalledTimes(1)
+  expect(onSettled).toBeCalledTimes(1)
 })
 
