@@ -1047,7 +1047,7 @@ export function runWithTimeout <T = any> (fn: Function, timeout: number, context
  * @public
  */
 export async function runWithDelayedLoading<T = any>(asyncTask: () => Promise<T>, {
-  loadingDelay = 1000,
+  loadingDelay = 300,
   minLoadingDuration = 1000,
   onLoading,
   onSettled,
