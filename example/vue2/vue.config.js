@@ -15,5 +15,8 @@ module.exports = defineConfig({
         logLevel: 'debug'
       }
     }
+  },
+  configureWebpack: {
+    devtool: 'source-map'
   }
 })
